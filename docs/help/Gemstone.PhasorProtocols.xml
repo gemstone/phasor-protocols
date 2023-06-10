@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <doc>
   <assembly>
-    <name>Gemstone.GemTem</name>
+    <name>Gemstone.PhasorProtocols</name>
   </assembly>
   <members>
-    <member name="T:Gemstone.GemTem.Class">
+    <member name="T:Gemstone.PhasorProtocols.Class">
       <summary>
-            Sample class for new GemTem library.
+            Sample class for new PhasorProtocols library.
             </summary>
     </member>
-    <member name="M:Gemstone.GemTem.Class.#ctor">
+    <member name="M:Gemstone.PhasorProtocols.Class.#ctor">
       <summary>
         <markup>
           <include item="SMCAutoDocConstructor">
-            <parameter>Gemstone.GemTem.Class</parameter>
+            <parameter>Gemstone.PhasorProtocols.Class</parameter>
           </include>
         </markup>
       </summary>

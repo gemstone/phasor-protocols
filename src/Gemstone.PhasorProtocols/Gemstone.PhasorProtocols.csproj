@@ -4,21 +4,21 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0;netstandard2.1;</TargetFrameworks>
-    <RootNamespace>Gemstone.GemTem</RootNamespace>
-    <PackageId>Gemstone.GemTem</PackageId>
+    <RootNamespace>Gemstone.PhasorProtocols</RootNamespace>
+    <PackageId>Gemstone.PhasorProtocols</PackageId>
     <Authors>Grid Protection Alliance</Authors>
     <Company>Grid Protection Alliance</Company>
     <Product>Gemstone</Product>
-    <PackageDescription>GPA Gemstone GemTem Library</PackageDescription>
+    <PackageDescription>GPA Gemstone PhasorProtocols Library</PackageDescription>
     <PackageIcon>gemstone-square-128.png</PackageIcon>
-    <Description>GPA Gemstone GemTem Library</Description>
+    <Description>GPA Gemstone PhasorProtocols Library</Description>
     <Copyright>Copyright © 2022</Copyright>
     <PackageProjectUrl>https://github.com/gemstone</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/gemstone/gemtem</RepositoryUrl>
+    <RepositoryUrl>https://github.com/gemstone/phasor-protocols</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>GPA;Gemstone;library;gemtem</PackageTags>
+    <PackageTags>GPA;Gemstone;library;phasor-protocols</PackageTags>
     <LangVersion>latest</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Nullable>enable</Nullable>
