@@ -1,5 +1,7 @@
 <img align="right" src="img/gemstone-wide-600.png" alt="gemstone logo">
 
+<br /><br /><br /><br />
+
 # PhasorProtocols
 ### GPA Gemstone Library
 
