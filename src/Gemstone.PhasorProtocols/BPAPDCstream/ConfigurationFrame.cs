@@ -33,6 +33,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.Interop;
 using Gemstone.IO.Checksums.ChecksumExtensions;
 using Gemstone.IO.Parsing;
@@ -559,7 +560,7 @@ namespace Gemstone.PhasorProtocols.BPAPDCstream
 
             // In case other classes want to know, we send out a notification that the config file has been reloaded (make sure
             // you do this after the write lock has been released to avoid possible dead-lock situations)
-            ConfigurationFileReloaded?.Invoke(this, EventArgs.Empty);
+            ConfigurationFileReloaded?.SafeInvoke(this, EventArgs.Empty);
         }
 
         // RowLength property calculates cell offsets - so it must be called before

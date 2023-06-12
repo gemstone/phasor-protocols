@@ -26,6 +26,7 @@
 //******************************************************************************************************
 
 using System;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO.Parsing;
 
 namespace Gemstone.PhasorProtocols.IEEE1344
@@ -285,22 +286,22 @@ namespace Gemstone.PhasorProtocols.IEEE1344
             {
                 case DataFrame dataFrame:
                 {
-                    ReceivedDataFrame?.Invoke(this, new EventArgs<DataFrame>(dataFrame));
+                    ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
                     break;
                 }
                 case ConfigurationFrame configFrame when configFrame.CommonHeader.IsLastFrame:
                 {
-                    ReceivedConfigurationFrame?.Invoke(this, new EventArgs<ConfigurationFrame>(configFrame));
+                    ReceivedConfigurationFrame?.SafeInvoke(this, new EventArgs<ConfigurationFrame>(configFrame));
                     break;
                 }
                 case HeaderFrame headerFrame when headerFrame.CommonHeader.IsLastFrame:
                 {
-                    ReceivedHeaderFrame?.Invoke(this, new EventArgs<HeaderFrame>(headerFrame));
+                    ReceivedHeaderFrame?.SafeInvoke(this, new EventArgs<HeaderFrame>(headerFrame));
                     break;
                 }
                 case CommandFrame commandFrame:
                 {
-                    ReceivedCommandFrame?.Invoke(this, new EventArgs<CommandFrame>(commandFrame));
+                    ReceivedCommandFrame?.SafeInvoke(this, new EventArgs<CommandFrame>(commandFrame));
                     break;
                 }
             }

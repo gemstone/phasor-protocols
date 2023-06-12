@@ -27,6 +27,7 @@
 
 using System;
 using System.Text;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
 
@@ -382,34 +383,34 @@ namespace Gemstone.PhasorProtocols.IEEEC37_118
             {
                 case DataFrame dataFrame:
                 {
-                    ReceivedDataFrame?.Invoke(this, new EventArgs<DataFrame>(dataFrame));
+                    ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
                     break;
                 }
                 // Configuration frame type 3 has priority over type 2, so we check it first
                 case ConfigurationFrame3 configFrame3:
                 {
-                    ReceivedConfigurationFrame3?.Invoke(this, new EventArgs<ConfigurationFrame3>(configFrame3));
+                    ReceivedConfigurationFrame3?.SafeInvoke(this, new EventArgs<ConfigurationFrame3>(configFrame3));
                     break;
                 }
                 // Configuration frame type 2 is more specific than type 1 (and more common), so we check it next
                 case ConfigurationFrame2 configFrame2:
                 {
-                    ReceivedConfigurationFrame2?.Invoke(this, new EventArgs<ConfigurationFrame2>(configFrame2));
+                    ReceivedConfigurationFrame2?.SafeInvoke(this, new EventArgs<ConfigurationFrame2>(configFrame2));
                     break;
                 }
                 case ConfigurationFrame1 configFrame1:
                 {
-                    ReceivedConfigurationFrame1?.Invoke(this, new EventArgs<ConfigurationFrame1>(configFrame1));
+                    ReceivedConfigurationFrame1?.SafeInvoke(this, new EventArgs<ConfigurationFrame1>(configFrame1));
                     break;
                 }
                 case HeaderFrame headerFrame:
                 {
-                    ReceivedHeaderFrame?.Invoke(this, new EventArgs<HeaderFrame>(headerFrame));
+                    ReceivedHeaderFrame?.SafeInvoke(this, new EventArgs<HeaderFrame>(headerFrame));
                     break;
                 }
                 case CommandFrame commandFrame:
                 {
-                    ReceivedCommandFrame?.Invoke(this, new EventArgs<CommandFrame>(commandFrame));
+                    ReceivedCommandFrame?.SafeInvoke(this, new EventArgs<CommandFrame>(commandFrame));
                     break;
                 }
             }

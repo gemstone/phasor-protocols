@@ -32,6 +32,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Gemstone.ArrayExtensions;
 using Gemstone.Collections;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO.Parsing;
 
 // ReSharper disable VirtualMemberCallInConstructor
@@ -243,7 +244,7 @@ namespace Gemstone.PhasorProtocols
         /// Manually sends a <see cref="NotifyCollectionChangedAction.Reset"/> to the collection changed event.
         /// </summary>
         public virtual void RefreshBinding() => 
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            CollectionChanged?.SafeInvoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
         /// <summary>
         /// Inserts an element into the <see cref="ChannelCollectionBase{T}"/> at the specified index.
@@ -259,7 +260,7 @@ namespace Gemstone.PhasorProtocols
 
             base.InsertItem(index, item);
 
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            CollectionChanged?.SafeInvoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
 
         /// <summary>
@@ -309,7 +310,7 @@ namespace Gemstone.PhasorProtocols
         protected override void ClearItems()
         {
             base.ClearItems();
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            CollectionChanged?.SafeInvoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         /// <summary>
@@ -317,7 +318,7 @@ namespace Gemstone.PhasorProtocols
         /// </summary>
         /// <param name="e">Changed event arguments.</param>
         protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e) =>
-            CollectionChanged?.Invoke(this, e);
+            CollectionChanged?.SafeInvoke(this, e);
 
         /// <summary>
         /// Populates a <see cref="SerializationInfo"/> with the data needed to serialize the target object.

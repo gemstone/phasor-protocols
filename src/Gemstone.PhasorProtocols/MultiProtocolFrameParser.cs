@@ -82,6 +82,7 @@ using Gemstone.PhasorProtocols.Macrodyne;
 using Gemstone.PhasorProtocols.SelFastMessage;
 using Gemstone.Communication;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
 using Gemstone.IO.Parsing;
 using Gemstone.Threading;
@@ -648,7 +649,7 @@ namespace Gemstone.PhasorProtocols
                     return;
 
                 m_clientID = clientID;
-                ClientConnected?.Invoke(this, e);
+                ClientConnected?.SafeInvoke(this, e);
             }
 
             // Shared server client disconnected handler.
@@ -656,20 +657,20 @@ namespace Gemstone.PhasorProtocols
             private void SharedServer_ClientDisconnected(object sender, EventArgs<Guid> e)
             {
                 if (e.Argument == m_clientID)
-                    ClientDisconnected?.Invoke(this, e);
+                    ClientDisconnected?.SafeInvoke(this, e);
             }
 
             // Shared server client connecting exception handler.
             // Forwards event to users attached to this server.
             private void SharedServer_ClientConnectingException(object sender, EventArgs<Exception> e) => 
-			    ClientConnectingException?.Invoke(this, e);
+			    ClientConnectingException?.SafeInvoke(this, e);
 
             // Shared server receive client data handler.
             // Forwards event to users attached to this server.
             private void SharedServer_ReceiveClientData(object sender, EventArgs<Guid, int> e)
             {
                 if (e.Argument1 == m_clientID)
-                    ReceiveClientData?.Invoke(this, e);
+                    ReceiveClientData?.SafeInvoke(this, e);
             }
 
             // Shared server receive client data exception handler.
@@ -677,7 +678,7 @@ namespace Gemstone.PhasorProtocols
             private void SharedServer_ReceiveClientDataException(object sender, EventArgs<Guid, Exception> e)
             {
                 if (e.Argument1 == m_clientID)
-                    ReceiveClientDataException?.Invoke(this, e);
+                    ReceiveClientDataException?.SafeInvoke(this, e);
             }
 
             // Shared server send client data exception handler.
@@ -685,16 +686,18 @@ namespace Gemstone.PhasorProtocols
             private void SharedServer_SendClientDataException(object sender, EventArgs<Guid, Exception> e)
             {
                 if (e.Argument1 == m_clientID)
-                    SendClientDataException?.Invoke(this, e);
+                    SendClientDataException?.SafeInvoke(this, e);
             }
 
             // Shared server started handler.
             // Forwards event to users attached to this server.
-            private void SharedServer_ServerStarted(object sender, EventArgs e) => ServerStarted?.Invoke(this, e);
+            private void SharedServer_ServerStarted(object sender, EventArgs e) => 
+                ServerStarted?.SafeInvoke(this, e);
 
             // Shared server stopped handler.
             // Forwards event to users attached to this server.
-            private void SharedServer_ServerStopped(object sender, EventArgs e) => ServerStopped?.Invoke(this, e);
+            private void SharedServer_ServerStopped(object sender, EventArgs e) => 
+                ServerStopped?.SafeInvoke(this, e);
 
             #endregion
 
@@ -1162,12 +1165,13 @@ namespace Gemstone.PhasorProtocols
                 if (m_multicastServerAddress is not null)
                     m_udpClient.AddMulticastMembership(m_multicastServerAddress, m_multicastSourceAddress);
 
-                ConnectionEstablished?.Invoke(this, EventArgs.Empty);
+                ConnectionEstablished?.SafeInvoke(this, EventArgs.Empty);
             }
 
             // Shared client connection attempt handler.
             // Forwards event to users attached to this client.
-            private void SharedClient_ConnectionAttempt(object sender, EventArgs e) => ConnectionAttempt?.Invoke(this, e);
+            private void SharedClient_ConnectionAttempt(object sender, EventArgs e) => 
+                ConnectionAttempt?.SafeInvoke(this, e);
 
             // Shared client connection established handler.
             // Forwards event to users attached to this client.
@@ -1182,12 +1186,13 @@ namespace Gemstone.PhasorProtocols
                 // and GetSharedClient will work properly
                 TerminateSharedClient();
 
-                ConnectionException?.Invoke(this, e);
+                ConnectionException?.SafeInvoke(this, e);
             }
 
             // Shared client connection terminated handler.
             // Forwards event to users attached to this client.
-            private void SharedClient_ConnectionTerminated(object sender, EventArgs e) => ConnectionTerminated?.Invoke(this, e);
+            private void SharedClient_ConnectionTerminated(object sender, EventArgs e) => 
+                ConnectionTerminated?.SafeInvoke(this, e);
 
             // Shared client receive data exception handler.
             // Forwards event to users attached to this client.
@@ -1198,13 +1203,13 @@ namespace Gemstone.PhasorProtocols
                 // and GetSharedClient will work properly
                 TerminateSharedClient();
 
-                ReceiveDataException?.Invoke(this, e);
+                ReceiveDataException?.SafeInvoke(this, e);
             }
 
             // Shared client receive data from handler.
             // Forwards event to users attached to this client.
             private void SharedClient_ReceiveDataFrom(object sender, EventArgs<EndPoint, IPPacketInformation, int> e) => 
-			    ReceiveDataFrom?.Invoke(this, e);
+			    ReceiveDataFrom?.SafeInvoke(this, e);
 
             // Shared client send data handler.
             // Forwards event to users attached to this client.
@@ -1215,7 +1220,7 @@ namespace Gemstone.PhasorProtocols
                 // and GetSharedClient will work properly
                 TerminateSharedClient();
 
-                SendDataException?.Invoke(this, e);
+                SendDataException?.SafeInvoke(this, e);
             }
 
             #endregion
@@ -1900,7 +1905,7 @@ namespace Gemstone.PhasorProtocols
                     return;
 
                 m_serverIndex = value;
-                ServerIndexUpdated?.Invoke(this, EventArgs.Empty);
+                ServerIndexUpdated?.SafeInvoke(this, EventArgs.Empty);
             }
         }
 
@@ -2960,7 +2965,7 @@ namespace Gemstone.PhasorProtocols
                     handle = handles[0];
             }
 
-            SentCommandFrame?.Invoke(this, new EventArgs<ICommandFrame>(commandFrame));
+            SentCommandFrame?.SafeInvoke(this, new EventArgs<ICommandFrame>(commandFrame));
 
             return handle;
         }
@@ -3010,7 +3015,7 @@ namespace Gemstone.PhasorProtocols
         private void OnParsingException(Exception ex)
         {
             if (ex is not ThreadAbortException && ex is not ObjectDisposedException)
-                ParsingException?.Invoke(this, new EventArgs<Exception>(ex));
+                ParsingException?.SafeInvoke(this, new EventArgs<Exception>(ex));
 
             if (DateTime.UtcNow.Ticks - m_lastParsingExceptionTime > ParsingExceptionWindow)
             {
@@ -3053,7 +3058,8 @@ namespace Gemstone.PhasorProtocols
         /// <summary>
         /// Raises the <see cref="ExceededParsingExceptionThreshold"/> event.
         /// </summary>
-        private void OnExceededParsingExceptionThreshold() => ExceededParsingExceptionThreshold?.Invoke(this, EventArgs.Empty);
+        private void OnExceededParsingExceptionThreshold() => 
+            ExceededParsingExceptionThreshold?.SafeInvoke(this, EventArgs.Empty);
 
         /// <summary>
         /// Raises the <see cref="ConnectionException"/> event.
@@ -3063,7 +3069,7 @@ namespace Gemstone.PhasorProtocols
         private void OnConnectionException(Exception ex, int connectionAttempts)
         {
             if (ex is not ThreadAbortException && ex is not ObjectDisposedException)
-                ConnectionException?.Invoke(this, new EventArgs<Exception, int>(ex, connectionAttempts));
+                ConnectionException?.SafeInvoke(this, new EventArgs<Exception, int>(ex, connectionAttempts));
         }
 
         /// <summary>
@@ -3211,7 +3217,7 @@ namespace Gemstone.PhasorProtocols
         {
             try
             {
-                ConnectionEstablished?.Invoke(this, EventArgs.Empty);
+                ConnectionEstablished?.SafeInvoke(this, EventArgs.Empty);
 
                 if (!DeviceSupportsCommands || !AutoStartDataParsingSequence)
                     return;
@@ -3284,7 +3290,7 @@ namespace Gemstone.PhasorProtocols
         private void m_dataChannel_ConnectionAttempt(object sender, EventArgs e)
         {
             m_connectionAttempts++;
-            ConnectionAttempt?.Invoke(this, EventArgs.Empty);
+            ConnectionAttempt?.SafeInvoke(this, EventArgs.Empty);
         }
 
         private void m_dataChannel_ConnectionException(object sender, EventArgs<Exception> e)
@@ -3299,7 +3305,8 @@ namespace Gemstone.PhasorProtocols
                 ServerIndex = clientBase.ServerIndex;
         }
 
-        private void m_dataChannel_ConnectionTerminated(object sender, EventArgs e) => ConnectionTerminated?.Invoke(this, EventArgs.Empty);
+        private void m_dataChannel_ConnectionTerminated(object sender, EventArgs e) => 
+            ConnectionTerminated?.SafeInvoke(this, EventArgs.Empty);
 
         private void m_dataChannel_SendDataException(object sender, EventArgs<Exception> e)
         {
@@ -3342,7 +3349,7 @@ namespace Gemstone.PhasorProtocols
 		    ClientConnectedHandler();
 
         private void m_serverBasedDataChannel_ClientDisconnected(object sender, EventArgs<Guid> e) => 
-		    ConnectionTerminated?.Invoke(this, EventArgs.Empty);
+		    ConnectionTerminated?.SafeInvoke(this, EventArgs.Empty);
 
         private void m_serverBasedDataChannel_ClientConnectingException(object sender, EventArgs<Exception> e)
         {
@@ -3352,9 +3359,11 @@ namespace Gemstone.PhasorProtocols
                 OnParsingException(new ConnectionException($"Server based data channel send exception: {ex.Message}", ex));
         }
 
-        private void m_serverBasedDataChannel_ServerStarted(object sender, EventArgs e) => ServerStarted?.Invoke(this, EventArgs.Empty);
+        private void m_serverBasedDataChannel_ServerStarted(object sender, EventArgs e) => 
+            ServerStarted?.SafeInvoke(this, EventArgs.Empty);
 
-        private void m_serverBasedDataChannel_ServerStopped(object sender, EventArgs e) => ServerStopped?.Invoke(this, EventArgs.Empty);
+        private void m_serverBasedDataChannel_ServerStopped(object sender, EventArgs e) => 
+            ServerStopped?.SafeInvoke(this, EventArgs.Empty);
 
         private void m_serverBasedDataChannel_SendClientDataException(object sender, EventArgs<Guid, Exception> e)
         {
@@ -3400,7 +3409,7 @@ namespace Gemstone.PhasorProtocols
         private void m_commandChannel_ConnectionAttempt(object sender, EventArgs e)
         {
             m_connectionAttempts++;
-            ConnectionAttempt?.Invoke(this, EventArgs.Empty);
+            ConnectionAttempt?.SafeInvoke(this, EventArgs.Empty);
         }
 
         private void m_commandChannel_ConnectionException(object sender, EventArgs<Exception> e)
@@ -3420,7 +3429,7 @@ namespace Gemstone.PhasorProtocols
             if (!KeepCommandChannelOpen)
                 return;
 
-            ConnectionTerminated?.Invoke(this, EventArgs.Empty);
+            ConnectionTerminated?.SafeInvoke(this, EventArgs.Empty);
         }
 
         private void m_commandChannel_SendDataException(object sender, EventArgs<Exception> e)
@@ -3486,8 +3495,8 @@ namespace Gemstone.PhasorProtocols
                 if (m_transportProtocol == TransportProtocol.File && QueuedOutputs < 2 && QueuedBuffers < 10)
                     m_readNextBuffer?.RunAsync();
 
-                if (ReceivedChannelFrame is not null && e.Argument2)
-                    ReceivedChannelFrame(this, e);
+                if (e.Argument2)
+                    ReceivedChannelFrame.SafeInvoke(this, e);
             }
             catch (Exception ex)
             {
@@ -3495,18 +3504,8 @@ namespace Gemstone.PhasorProtocols
             }
         }
 
-        private void m_frameParser_ReceivedCommandFrame(object sender, EventArgs<ICommandFrame> e)
-        {
-            // We don't stop parsing for exceptions thrown in consumer event handlers
-            try
-            {
-                ReceivedCommandFrame?.Invoke(this, e);
-            }
-            catch (Exception ex)
-            {
-                OnParsingException(ex, "MultiProtocolFrameParser \"ReceivedCommandFrame\" consumer event handler exception: {0}", ex.Message);
-            }
-        }
+        private void m_frameParser_ReceivedCommandFrame(object sender, EventArgs<ICommandFrame> e) => 
+            ReceivedCommandFrame?.SafeInvoke(this, e);
 
         private void m_frameParser_ReceivedConfigurationFrame(object sender, EventArgs<IConfigurationFrame> e)
         {
@@ -3520,7 +3519,7 @@ namespace Gemstone.PhasorProtocols
             // We don't stop parsing for exceptions thrown in consumer event handlers
             try
             {
-                ReceivedConfigurationFrame?.Invoke(this, e);
+                ReceivedConfigurationFrame?.SafeInvoke(this, e);
 
                 if (m_configurationFrame is not null)
                     ConfiguredFrameRate = m_configurationFrame.FrameRate;
@@ -3558,7 +3557,7 @@ namespace Gemstone.PhasorProtocols
                         dataFrame.Timestamp = simulatedTimestamp;
                 }
 
-                ReceivedDataFrame?.Invoke(this, e);
+                ReceivedDataFrame?.SafeInvoke(this, e);
             }
             catch (Exception ex)
             {
@@ -3572,68 +3571,20 @@ namespace Gemstone.PhasorProtocols
             if (m_configurationFrame is null && m_phasorProtocol == PhasorProtocol.Macrodyne)
                 SendDeviceCommand(DeviceCommand.SendConfigurationFrame2);
 
-            // We don't stop parsing for exceptions thrown in consumer event handlers
-            try
-            {
-                ReceivedHeaderFrame?.Invoke(this, e);
-            }
-            catch (Exception ex)
-            {
-                OnParsingException(ex, "MultiProtocolFrameParser \"ReceivedHeaderFrame\" consumer event handler exception: {0}", ex.Message);
-            }
+            ReceivedHeaderFrame?.SafeInvoke(this, e);
         }
 
-        private void m_frameParser_ReceivedUndeterminedFrame(object sender, EventArgs<IChannelFrame> e)
-        {
-            // We don't stop parsing for exceptions thrown in consumer event handlers
-            try
-            {
-                ReceivedUndeterminedFrame?.Invoke(this, e);
-            }
-            catch (Exception ex)
-            {
-                OnParsingException(ex, "MultiProtocolFrameParser \"ReceivedUndeterminedFrame\" consumer event handler exception: {0}", ex.Message);
-            }
-        }
+        private void m_frameParser_ReceivedUndeterminedFrame(object sender, EventArgs<IChannelFrame> e) => 
+            ReceivedUndeterminedFrame?.SafeInvoke(this, e);
 
-        private void m_frameParser_ReceivedFrameImage(object sender, EventArgs<FundamentalFrameType, int> e)
-        {
-            // We don't stop parsing for exceptions thrown in consumer event handlers
-            try
-            {
-                ReceivedFrameImage?.Invoke(this, e);
-            }
-            catch (Exception ex)
-            {
-                OnParsingException(ex, "MultiProtocolFrameParser \"ReceivedFrameImage\" consumer event handler exception: {0}", ex.Message);
-            }
-        }
+        private void m_frameParser_ReceivedFrameImage(object sender, EventArgs<FundamentalFrameType, int> e) => 
+            ReceivedFrameImage?.SafeInvoke(this, e);
 
-        private void m_frameParser_ReceivedFrameBufferImage(object sender, EventArgs<FundamentalFrameType, byte[], int, int> e)
-        {
-            // We don't stop parsing for exceptions thrown in consumer event handlers
-            try
-            {
-                ReceivedFrameBufferImage?.Invoke(this, e);
-            }
-            catch (Exception ex)
-            {
-                OnParsingException(ex, "MultiProtocolFrameParser \"ReceivedFrameBufferImage\" consumer event handler exception: {0}", ex.Message);
-            }
-        }
+        private void m_frameParser_ReceivedFrameBufferImage(object sender, EventArgs<FundamentalFrameType, byte[], int, int> e) => 
+            ReceivedFrameBufferImage?.SafeInvoke(this, e);
 
-        private void m_frameParser_ConfigurationChanged(object sender, EventArgs e)
-        {
-            // We don't stop parsing for exceptions thrown in consumer event handlers
-            try
-            {
-                ConfigurationChanged?.Invoke(this, e);
-            }
-            catch (Exception ex)
-            {
-                OnParsingException(ex, "MultiProtocolFrameParser \"ConfigurationChanged\" consumer event handler exception: {0}", ex.Message);
-            }
-        }
+        private void m_frameParser_ConfigurationChanged(object sender, EventArgs e) => 
+            ConfigurationChanged?.SafeInvoke(this, e);
 
         private void m_frameParser_ParsingException(object sender, EventArgs<Exception> e)
         {
@@ -3645,18 +3596,8 @@ namespace Gemstone.PhasorProtocols
             OnParsingException(ex);
         }
 
-        private void m_frameParser_BufferParsed(object sender, EventArgs e)
-        {
-            // We don't stop parsing for exceptions thrown in consumer event handlers
-            try
-            {
-                BufferParsed?.Invoke(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                OnParsingException(ex, "MultiProtocolFrameParser \"BufferParsed\" consumer event handler exception: {0}", ex.Message);
-            }
-        }
+        private void m_frameParser_BufferParsed(object sender, EventArgs e) => 
+            BufferParsed?.SafeInvoke(this, EventArgs.Empty);
 
         private void ReadNextFileBuffer()
         {

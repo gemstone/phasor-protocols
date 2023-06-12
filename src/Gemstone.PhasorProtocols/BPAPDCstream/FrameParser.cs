@@ -30,6 +30,7 @@
 using System;
 using System.IO;
 using System.Text;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
 using Gemstone.IO.Parsing;
 
@@ -387,12 +388,12 @@ namespace Gemstone.PhasorProtocols.BPAPDCstream
             {
                 case DataFrame dataFrame:
                 {
-                    ReceivedDataFrame?.Invoke(this, new EventArgs<DataFrame>(dataFrame));
+                    ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
                     break;
                 }
                 case ConfigurationFrame configFrame:
                 {
-                    ReceivedConfigurationFrame?.Invoke(this, new EventArgs<ConfigurationFrame>(configFrame));
+                    ReceivedConfigurationFrame?.SafeInvoke(this, new EventArgs<ConfigurationFrame>(configFrame));
                     break;
                 }
             }

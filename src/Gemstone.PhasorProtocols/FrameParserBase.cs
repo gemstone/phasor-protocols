@@ -35,6 +35,7 @@
 using System;
 using System.Text;
 using Gemstone.ArrayExtensions;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO.Parsing;
 using Gemstone.Threading.Collections;
 
@@ -298,35 +299,35 @@ namespace Gemstone.PhasorProtocols
         /// </summary>
         /// <param name="frame"><see cref="IConfigurationFrame"/> to send to <see cref="ReceivedConfigurationFrame"/> event.</param>
         protected virtual void OnReceivedConfigurationFrame(IConfigurationFrame frame) => 
-            ReceivedConfigurationFrame?.Invoke(this, new EventArgs<IConfigurationFrame>(frame));
+            ReceivedConfigurationFrame?.SafeInvoke(this, new EventArgs<IConfigurationFrame>(frame));
 
         /// <summary>
         /// Raises the <see cref="ReceivedDataFrame"/> event.
         /// </summary>
         /// <param name="frame"><see cref="IDataFrame"/> to send to <see cref="ReceivedDataFrame"/> event.</param>
         protected virtual void OnReceivedDataFrame(IDataFrame frame) => 
-            ReceivedDataFrame?.Invoke(this, new EventArgs<IDataFrame>(frame));
+            ReceivedDataFrame?.SafeInvoke(this, new EventArgs<IDataFrame>(frame));
 
         /// <summary>
         /// Raises the <see cref="ReceivedHeaderFrame"/> event.
         /// </summary>
         /// <param name="frame"><see cref="IHeaderFrame"/> to send to <see cref="ReceivedHeaderFrame"/> event.</param>
         protected virtual void OnReceivedHeaderFrame(IHeaderFrame frame) => 
-            ReceivedHeaderFrame?.Invoke(this, new EventArgs<IHeaderFrame>(frame));
+            ReceivedHeaderFrame?.SafeInvoke(this, new EventArgs<IHeaderFrame>(frame));
 
         /// <summary>
         /// Raises the <see cref="ReceivedCommandFrame"/> event.
         /// </summary>
         /// <param name="frame"><see cref="ICommandFrame"/> to send to <see cref="ReceivedCommandFrame"/> event.</param>
         protected virtual void OnReceivedCommandFrame(ICommandFrame frame) => 
-            ReceivedCommandFrame?.Invoke(this, new EventArgs<ICommandFrame>(frame));
+            ReceivedCommandFrame?.SafeInvoke(this, new EventArgs<ICommandFrame>(frame));
 
         /// <summary>
         /// Raises the <see cref="ReceivedUndeterminedFrame"/> event.
         /// </summary>
         /// <param name="frame"><see cref="IChannelFrame"/> to send to <see cref="ReceivedUndeterminedFrame"/> event.</param>
         protected virtual void OnReceivedUndeterminedFrame(IChannelFrame frame) => 
-            ReceivedUndeterminedFrame?.Invoke(this, new EventArgs<IChannelFrame>(frame));
+            ReceivedUndeterminedFrame?.SafeInvoke(this, new EventArgs<IChannelFrame>(frame));
 
         /// <summary>
         /// Raises the <see cref="ReceivedFrameImage"/> and <see cref="ReceivedFrameBufferImage"/> event.
@@ -338,7 +339,7 @@ namespace Gemstone.PhasorProtocols
         protected virtual void OnReceivedFrameBufferImage(FundamentalFrameType frameType, byte[] buffer, int offset, int length)
         {
             // It is more light-weight for consumers to attach to the "ReceivedFrameImage" event if they don't need the buffer
-            ReceivedFrameImage?.Invoke(this, new EventArgs<FundamentalFrameType, int>(frameType, length));
+            ReceivedFrameImage?.SafeInvoke(this, new EventArgs<FundamentalFrameType, int>(frameType, length));
 
             if (ReceivedFrameBufferImage is null)
                 return;
@@ -364,7 +365,7 @@ namespace Gemstone.PhasorProtocols
             //{
             //    try
             //    {
-            //        ReceivedFrameBufferImage?.Invoke(this, new EventArgs<FundamentalFrameType, byte[], int, int>(frameType, bufferSegment, 0, bufferSegment.Length));
+            //        ReceivedFrameBufferImage?.SafeInvoke(this, new EventArgs<FundamentalFrameType, byte[], int, int>(frameType, bufferSegment, 0, bufferSegment.Length));
             //    }
             //    catch (Exception ex)
             //    {
@@ -383,7 +384,7 @@ namespace Gemstone.PhasorProtocols
         /// Raises the <see cref="ConfigurationChanged"/> event.
         /// </summary>
         protected virtual void OnConfigurationChanged() => 
-            ConfigurationChanged?.Invoke(this, EventArgs.Empty);
+            ConfigurationChanged?.SafeInvoke(this, EventArgs.Empty);
 
         /// <summary>
         /// Casts the parsed <see cref="IChannelFrame"/> to its specific implementation (i.e., <see cref="IDataFrame"/>, <see cref="IConfigurationFrame"/>, <see cref="ICommandFrame"/> or <see cref="IHeaderFrame"/>).

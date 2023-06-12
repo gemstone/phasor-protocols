@@ -25,6 +25,7 @@
 
 using System;
 using System.Text;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
 
@@ -362,17 +363,17 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
             {
                 case DataFrame dataFrame:
                 {
-                    ReceivedDataFrame?.Invoke(this, new EventArgs<DataFrame>(dataFrame));
+                    ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
                     break;
                 }
                 case ConfigurationFrame configFrame:
                 {
-                    ReceivedConfigurationFrame?.Invoke(this, new EventArgs<ConfigurationFrame>(configFrame));
+                    ReceivedConfigurationFrame?.SafeInvoke(this, new EventArgs<ConfigurationFrame>(configFrame));
                     break;
                 }
                 case CommandFrame commandFrame:
                 {
-                    ReceivedCommandFrame?.Invoke(this, new EventArgs<CommandFrame>(commandFrame));
+                    ReceivedCommandFrame?.SafeInvoke(this, new EventArgs<CommandFrame>(commandFrame));
                     break;
                 }
             }
