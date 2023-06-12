@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Gemstone.Numeric;
 using Gemstone.Numeric.EE;
 using Gemstone.Numeric.UnitExtensions;
 using Gemstone.Timeseries;
