@@ -14,8 +14,8 @@ The Gemstone PhasorProtocols Library organizes all Gemstone functionality relate
 
 This library includes helpful phasor protocol classes like the following:
 
-* [Class](https://gemstone.github.io/phasor-protocols/help/html/T_gemstone_phasor-protocols_Class.htm):
-  * Represents a phasor protocol class for handling phasor-protocol operations.
+* [Class](https://gemstone.github.io/phasor-protocols/help/html/T_Gemstone_phasor-protocols_MultiProtocolFrameParser.htm):
+  * Represents a protocol independent frame parser that takes all protocol frame parsing implementations and reduces them to a single simple-to-use class exposing all data through abstract interfaces (e.g., IConfigurationFrame, IDataFrame, etc.) and also implements a variety of transport options (e.g., TCP, UDP, Serial, etc.), hides the complexities of this connectivity and internally pushes all data received from the selected transport protocol to the selected phasor parsing protocol.
 
 Among others.
 
