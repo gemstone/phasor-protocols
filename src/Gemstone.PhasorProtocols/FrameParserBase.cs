@@ -35,7 +35,6 @@
 using System;
 using System.Text;
 using Gemstone.ArrayExtensions;
-using Gemstone.Collections;
 using Gemstone.IO.Parsing;
 using Gemstone.Threading.Collections;
 

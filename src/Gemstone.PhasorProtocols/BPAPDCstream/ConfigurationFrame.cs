@@ -33,7 +33,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
-using Gemstone.Interop;
 using Gemstone.IO.Checksums.ChecksumExtensions;
 using Gemstone.IO.Parsing;
 using Gemstone.Reflection;

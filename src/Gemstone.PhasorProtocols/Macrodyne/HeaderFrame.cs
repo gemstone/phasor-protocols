@@ -25,7 +25,6 @@
 
 using System;
 using System.Runtime.Serialization;
-using Gemstone.IO.Checksums;
 using Gemstone.IO.Checksums.ChecksumExtensions;
 using Gemstone.IO.Parsing;
 

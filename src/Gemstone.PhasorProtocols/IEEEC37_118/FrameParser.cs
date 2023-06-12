@@ -27,7 +27,6 @@
 
 using System;
 using System.Text;
-using Gemstone.Diagnostics;
 using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
 

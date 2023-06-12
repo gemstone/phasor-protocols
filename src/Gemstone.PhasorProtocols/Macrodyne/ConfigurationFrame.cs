@@ -34,8 +34,6 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using Gemstone.ArrayExtensions;
-using Gemstone.Interop;
-using Gemstone.IO.Checksums;
 using Gemstone.IO.Checksums.ChecksumExtensions;
 using Gemstone.IO.Parsing;
 using Gemstone.Reflection;

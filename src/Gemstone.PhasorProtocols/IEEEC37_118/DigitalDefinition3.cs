@@ -27,7 +27,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using Gemstone.Numeric.BitExtensions;
 using Gemstone.StringExtensions;
 
 // ReSharper disable VirtualMemberCallInConstructor

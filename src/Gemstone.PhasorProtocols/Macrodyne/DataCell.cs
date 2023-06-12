@@ -29,7 +29,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using Gemstone.Numeric;
 using Gemstone.Numeric.EE;
 
 namespace Gemstone.PhasorProtocols.Macrodyne

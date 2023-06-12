@@ -32,7 +32,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Text;
-using Gemstone.Numeric.BitExtensions;
 
 namespace Gemstone.PhasorProtocols.IEEEC37_118
 {
