@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Gemstone.Numeric.BitExtensions;
 using Gemstone.StringExtensions;
 using Gemstone.Timeseries;
 
