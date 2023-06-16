@@ -49,7 +49,7 @@ namespace Gemstone.PhasorProtocols
         PhasorType Type { get; }
 
         /// <summary>
-        /// Gets <see cref="Units.EE.Phasor"/> value from this <see cref="IPhasorValue"/>.
+        /// Gets <see cref="Numeric.EE.Phasor"/> value from this <see cref="IPhasorValue"/>.
         /// </summary>
         Phasor Phasor { get; }
 

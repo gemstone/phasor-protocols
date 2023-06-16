@@ -40,27 +40,171 @@
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Protected, ProtectedInternalAsProtected, EditorBrowsableNever, NonBrowsable</VisibleItems>
-    <ComponentConfigurations>
-      <ComponentConfig id="Code Block Component" enabled="True">
-        <component id="Code Block Component">
-  <basePath value="{@HtmlEncProjectFolder}" />
-  <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
-  <allowMissingSource value="false" />
-  <removeRegionMarkers value="false" />
-  <colorizer syntaxFile="{@CoreComponentsFolder}Colorizer\highlight.xml" styleFile="{@CoreComponentsFolder}Colorizer\highlight.xsl" stylesheet="{@CoreComponentsFolder}Colorizer\highlight.css" scriptFile="{@CoreComponentsFolder}Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
-</component>
-      </ComponentConfig>
-<ComponentConfig id="API Token Resolution" enabled="True"><component id="API Token Resolution">{@TokenFiles}
-<replace elements="/*//token" item="string(.)" /></component></ComponentConfig>
-<ComponentConfig id="IntelliSense Component" enabled="True"><component id="IntelliSense Component"><output includeNamespaces="false" namespacesFile="Namespaces" folder="{@OutputFolder}" boundedCapacity="100" /></component></ComponentConfig>
-<ComponentConfig id="Syntax Component" enabled="True"><component id="Syntax Component"><syntax input="/document/reference" output="/document/syntax" renderReferenceLinks="true" /><generators>
-    {@SyntaxFilters}
-</generators><containerElement name="codeSnippetGroup" addNoExampleTabs="true" includeOnSingleSnippets="false" groupingEnabled="{@CodeSnippetGrouping}" /><configurations><generator id="C#" /><generator id="Visual Basic"><includeLineContinuation value="false" /></generator><generator id="Visual Basic Usage"><includeLineContinuation value="false" /></generator><generator id="Managed C++" /><generator id="F#" /><generator id="J#" /><generator id="JScript" /><generator id="JavaScript" /><generator id="XAML Usage" /><generator id="ASP.NET" /><generator id="X#" /></configurations></component></ComponentConfig></ComponentConfigurations>
     <PlugInConfigurations>
       <PlugInConfig id="Table of Contents Exclusion" enabled="True">
         <configuration />
       </PlugInConfig>
+      <PlugInConfig id="Additional Reference Links" enabled="True">
+        <configuration>
+          <targets>
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\..\common\src\DocGen\docgen.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\..\communication\src\DocGen\docgen.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\..\diagnostics\src\DocGen\docgen.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\..\io\src\DocGen\docgen.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\..\numeric\src\DocGen\docgen.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\..\timeseries\src\DocGen\docgen.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\..\threading\src\DocGen\docgen.shfbproj" />
+          </targets>
+        </configuration>
+      </PlugInConfig>
     </PlugInConfigurations>
+    <ComponentConfigurations>
+      <ComponentConfig id="Code Block Component" enabled="True">
+        <component id="Code Block Component">
+          <basePath value="{@HtmlEncProjectFolder}" />
+          <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
+          <allowMissingSource value="false" />
+          <removeRegionMarkers value="false" />
+          <colorizer syntaxFile="{@CoreComponentsFolder}Colorizer\highlight.xml" styleFile="{@CoreComponentsFolder}Colorizer\highlight.xsl" stylesheet="{@CoreComponentsFolder}Colorizer\highlight.css" scriptFile="{@CoreComponentsFolder}Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
+        </component>
+      </ComponentConfig>
+      <ComponentConfig id="API Token Resolution" enabled="True">
+        <component id="API Token Resolution">{@TokenFiles}
+      <replace elements="/*//token" item="string(.)" /></component>
+      </ComponentConfig>
+      <ComponentConfig id="Resolve ThirdParty Reference Links" enabled="True">
+        <component id="Resolve ThirdParty Reference Links">
+          <configuration>
+            <urlProviders>
+              <formattedProvider title="Gemstone.Communication URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Communication\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/communication/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.Threading URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Threading\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/threading/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.Timeseries URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Timeseries\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/timeseries/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.Diagnostics URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Diagnostics\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/diagnostics/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.IO URL Provider">
+                <targetMatcher pattern=".:Gemstone\.IO\.(?!Parsing\.).+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/io/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.Numeric URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Numeric\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/numeric/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <!-- Add Gemstone root namespace last because it has the widest match criteria -->
+              <!-- Pattern excludes target namespace so local memmbers are not redirected to common -->
+              <formattedProvider title="Gemstone Common URL Provider">
+                <targetMatcher pattern=".:Gemstone\.(?!PhasorProtocols\.)..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/common/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+            </urlProviders>
+          </configuration>
+        </component>
+      </ComponentConfig>
+      <ComponentConfig id="IntelliSense Component" enabled="True">
+        <component id="IntelliSense Component">
+          <output includeNamespaces="false" namespacesFile="Namespaces" folder="{@OutputFolder}" boundedCapacity="100" />
+        </component>
+      </ComponentConfig>
+      <ComponentConfig id="Syntax Component" enabled="True">
+        <component id="Syntax Component">
+          <syntax input="/document/reference" output="/document/syntax" renderReferenceLinks="true" />
+          <generators>
+              {@SyntaxFilters}
+          </generators>
+          <containerElement name="codeSnippetGroup" addNoExampleTabs="true" includeOnSingleSnippets="false" groupingEnabled="{@CodeSnippetGrouping}" />
+          <configurations>
+            <generator id="C#" />
+            <generator id="Visual Basic">
+              <includeLineContinuation value="false" />
+            </generator>
+            <generator id="Visual Basic Usage">
+              <includeLineContinuation value="false" />
+            </generator>
+            <generator id="Managed C++" />
+            <generator id="F#" />
+            <generator id="J#" />
+            <generator id="JScript" />
+            <generator id="JavaScript" />
+            <generator id="XAML Usage" />
+            <generator id="ASP.NET" />
+            <generator id="X#" />
+          </configurations>
+        </component>
+      </ComponentConfig>
+    </ComponentConfigurations>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\Gemstone.PhasorProtocols\Gemstone.PhasorProtocols.csproj" />
     </DocumentationSources>

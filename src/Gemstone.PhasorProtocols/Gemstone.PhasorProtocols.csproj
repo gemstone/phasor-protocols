@@ -13,7 +13,7 @@
     <PackageIcon>gemstone-square-128.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>GPA Gemstone PhasorProtocols Library</Description>
-    <Copyright>Copyright © 2022</Copyright>
+    <Copyright>Copyright © 2023</Copyright>
     <PackageProjectUrl>https://github.com/gemstone</PackageProjectUrl>
     <RepositoryUrl>https://github.com/gemstone/phasor-protocols</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -71,6 +71,9 @@
 
      <ProjectReference Include="..\..\..\communication\src\Gemstone.Communication\Gemstone.Communication.csproj" Condition="'$(Configuration)'=='Development'" /> 
      <PackageReference Include="Gemstone.Communication" Version="1.0.93" Condition="'$(Configuration)'!='Development'" /> 
+
+     <ProjectReference Include="..\..\..\threading\src\Gemstone.Threading\Gemstone.Threading.csproj" Condition="'$(Configuration)'=='Development'" /> 
+     <PackageReference Include="Gemstone.Threading" Version="1.0.92" Condition="'$(Configuration)'!='Development'" /> 
 
      <ProjectReference Include="..\..\..\timeseries\src\Gemstone.Timeseries\Gemstone.Timeseries.csproj" Condition="'$(Configuration)'=='Development'" /> 
      <PackageReference Include="Gemstone.Timeseries" Version="1.0.93" Condition="'$(Configuration)'!='Development'" /> 
