@@ -930,7 +930,7 @@
             Override with needed checksum calculation for particular protocol.
             <example>
             This example provides a CRC-CCITT checksum:
-            <code language="cs">
+            <code>
             using GSF.IO.Checksums;
             
             protected override ushort CalculateChecksum(byte[] buffer, int offset, int length)
