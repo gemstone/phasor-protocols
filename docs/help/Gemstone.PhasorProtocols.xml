@@ -930,7 +930,7 @@
             Override with needed checksum calculation for particular protocol.
             <example>
             This example provides a CRC-CCITT checksum:
-            <code>
+            <code language="cs">
             using GSF.IO.Checksums;
             
             protected override ushort CalculateChecksum(byte[] buffer, int offset, int length)
@@ -6966,23 +6966,8 @@
       <summary>
             Gets a generated INI configuration file image.
             </summary>
-      <param name="configFrame">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>configFrame</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.BPAPDCstream.ConfigurationFrame.GetIniFileImage(Gemstone.PhasorProtocols.IConfigurationFrame)</parameter>
-          </include>
-        </markup>
-      </param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.BPAPDCstream.ConfigurationFrame.GetIniFileImage(Gemstone.PhasorProtocols.IConfigurationFrame)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <param name="configFrame">Configuration frame to use for generating INI configuration file image.</param>
+      <returns>Generated INI configuration file image.</returns>
     </member>
     <member name="M:Gemstone.PhasorProtocols.BPAPDCstream.ConfigurationFrame.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
       <summary>
@@ -9237,15 +9222,7 @@
       <param name="tag">Sampled value tag to encode.</param>
       <param name="buffer">Buffer to hold encoded sampled value.</param>
       <param name="index">Start index of buffer where tag will begin - will be auto-incremented.</param>
-      <typeparam name="T">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>typeparam</parameter>
-            <parameter>T</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.EncodeTagValue``1(``0,Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Byte[],System.Int32@)</parameter>
-          </include>
-        </markup>
-      </typeparam>
+      <typeparam name="T">Type of value to encode.</typeparam>
     </member>
     <member name="F:Gemstone.PhasorProtocols.IEC61850_90_5.Common.KeySize">
       <summary>
@@ -9284,14 +9261,7 @@
       <param name="buffer">Buffer containing sampled value.</param>
       <param name="tag">Sampled value tag to parse.</param>
       <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseByteTag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>Parsed byte tag.</returns>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseStringTag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)">
       <summary>
@@ -9300,14 +9270,7 @@
       <param name="buffer">Buffer containing sampled value.</param>
       <param name="tag">Sampled value tag to parse.</param>
       <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseStringTag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>Parsed string tag.</returns>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseTagLength(System.Byte[],System.Int32@)">
       <summary>
@@ -9324,14 +9287,7 @@
       <param name="buffer">Buffer containing sampled value.</param>
       <param name="tag">Sampled value tag to parse.</param>
       <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseUInt16Tag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>Parsed uint16 tag.</returns>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseUInt24Tag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)">
       <summary>
@@ -9340,14 +9296,7 @@
       <param name="buffer">Buffer containing sampled value.</param>
       <param name="tag">Sampled value tag to parse.</param>
       <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseUInt24Tag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>Parsed uint24 tag.</returns>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseUInt32Tag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)">
       <summary>
@@ -9356,14 +9305,7 @@
       <param name="buffer">Buffer containing sampled value.</param>
       <param name="tag">Sampled value tag to parse.</param>
       <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseUInt32Tag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>Parsed uint32 tag.</returns>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseUInt64Tag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)">
       <summary>
@@ -9372,14 +9314,7 @@
       <param name="buffer">Buffer containing sampled value.</param>
       <param name="tag">Sampled value tag to parse.</param>
       <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ParseUInt64Tag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>Parsed uint64 tag.</returns>
     </member>
     <member name="F:Gemstone.PhasorProtocols.IEC61850_90_5.Common.SessionHeaderSize">
       <summary>
@@ -9403,14 +9338,7 @@
       <param name="buffer">Buffer containing sampled value tag length.</param>
       <param name="tag">Sampled value tag to validate.</param>
       <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.IEC61850_90_5.Common.ValidateTag(System.Byte[],Gemstone.PhasorProtocols.IEC61850_90_5.SampledValueTag,System.Int32@)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>Length of sampled value tag.</returns>
     </member>
     <member name="T:Gemstone.PhasorProtocols.IEC61850_90_5.CommonFrameHeader">
       <summary>
@@ -16154,23 +16082,8 @@
       <summary>
             Gets a generated INI configuration file image.
             </summary>
-      <param name="configFrame">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>configFrame</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.Macrodyne.ConfigurationFrame.GetIniFileImage(Gemstone.PhasorProtocols.IConfigurationFrame)</parameter>
-          </include>
-        </markup>
-      </param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.Macrodyne.ConfigurationFrame.GetIniFileImage(Gemstone.PhasorProtocols.IConfigurationFrame)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <param name="configFrame">Configuration frame to use for generating INI configuration file image.</param>
+      <returns>Generated INI configuration file image.</returns>
     </member>
     <member name="M:Gemstone.PhasorProtocols.Macrodyne.ConfigurationFrame.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
       <summary>

@@ -554,6 +554,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
         /// <param name="buffer">Buffer containing sampled value tag length.</param>
         /// <param name="tag">Sampled value tag to validate.</param>
         /// <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
+        /// <returns>Length of sampled value tag.</returns>
         public static int ValidateTag(this byte[] buffer, SampledValueTag tag, ref int index)
         {
             if ((SampledValueTag)buffer[index] != tag)
@@ -569,6 +570,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
         /// <param name="buffer">Buffer containing sampled value.</param>
         /// <param name="tag">Sampled value tag to parse.</param>
         /// <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
+        /// <returns>Parsed byte tag.</returns>
         public static byte ParseByteTag(this byte[] buffer, SampledValueTag tag, ref int index)
         {
             if ((SampledValueTag)buffer[index] != tag)
@@ -592,6 +594,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
         /// <param name="buffer">Buffer containing sampled value.</param>
         /// <param name="tag">Sampled value tag to parse.</param>
         /// <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
+        /// <returns>Parsed uint16 tag.</returns>
         public static ushort ParseUInt16Tag(this byte[] buffer, SampledValueTag tag, ref int index)
         {
             if ((SampledValueTag)buffer[index] != tag)
@@ -615,6 +618,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
         /// <param name="buffer">Buffer containing sampled value.</param>
         /// <param name="tag">Sampled value tag to parse.</param>
         /// <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
+        /// <returns>Parsed uint24 tag.</returns>
         public static UInt24 ParseUInt24Tag(this byte[] buffer, SampledValueTag tag, ref int index)
         {
             if ((SampledValueTag)buffer[index] != tag)
@@ -638,6 +642,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
         /// <param name="buffer">Buffer containing sampled value.</param>
         /// <param name="tag">Sampled value tag to parse.</param>
         /// <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
+        /// <returns>Parsed uint32 tag.</returns>
         public static uint ParseUInt32Tag(this byte[] buffer, SampledValueTag tag, ref int index)
         {
             if ((SampledValueTag)buffer[index] != tag)
@@ -661,6 +666,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
         /// <param name="buffer">Buffer containing sampled value.</param>
         /// <param name="tag">Sampled value tag to parse.</param>
         /// <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
+        /// <returns>Parsed uint64 tag.</returns>
         public static ulong ParseUInt64Tag(this byte[] buffer, SampledValueTag tag, ref int index)
         {
             if ((SampledValueTag)buffer[index] != tag)
@@ -684,6 +690,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
         /// <param name="buffer">Buffer containing sampled value.</param>
         /// <param name="tag">Sampled value tag to parse.</param>
         /// <param name="index">Start index of buffer where tag length begins - will be auto-incremented.</param>
+        /// <returns>Parsed string tag.</returns>
         public static string ParseStringTag(this byte[] buffer, SampledValueTag tag, ref int index)
         {
             if ((SampledValueTag)buffer[index] != tag)
@@ -720,6 +727,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
         /// <param name="tag">Sampled value tag to encode.</param>
         /// <param name="buffer">Buffer to hold encoded sampled value.</param>
         /// <param name="index">Start index of buffer where tag will begin - will be auto-incremented.</param>
+        /// <typeparam name="T">Type of value to encode.</typeparam>
         public static void EncodeTagValue<T>(this T value, SampledValueTag tag, byte[] buffer, ref int index) where T : struct, IConvertible
         {
             if (!typeof(T).IsPrimitive)

@@ -612,6 +612,8 @@ namespace Gemstone.PhasorProtocols.Macrodyne
         /// <summary>
         /// Gets a generated INI configuration file image.
         /// </summary>
+        /// <param name="configFrame">Configuration frame to use for generating INI configuration file image.</param>
+        /// <returns>Generated INI configuration file image.</returns>
         public static string GetIniFileImage(IConfigurationFrame configFrame)
         {
             StringBuilder fileImage = new();
