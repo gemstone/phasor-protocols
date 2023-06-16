@@ -4781,7 +4781,7 @@
     </member>
     <member name="P:Gemstone.PhasorProtocols.IPhasorValue.Phasor">
       <summary>
-            Gets <see cref="!:Units.EE.Phasor" /> value from this <see cref="T:Gemstone.PhasorProtocols.IPhasorValue" />.
+            Gets <see cref="T:Gemstone.Numeric.EE.Phasor" /> value from this <see cref="T:Gemstone.PhasorProtocols.IPhasorValue" />.
             </summary>
     </member>
     <member name="P:Gemstone.PhasorProtocols.IPhasorValue.Real">
