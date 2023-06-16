@@ -128,8 +128,9 @@
                 </targetFormatter>
                 <urlFormatter format="https://gemstone.github.io/diagnostics/help/html/{target}.htm" target="_self" />
               </formattedProvider>
+              <!-- Match Gemstone IO namespace for classes not in common -->
               <formattedProvider title="Gemstone.IO URL Provider">
-                <targetMatcher pattern=".:Gemstone\.IO\.(?!Parsing\.).+" fullyQualifiedMemberName="false" />
+                <targetMatcher pattern=".:Gemstone\.IO\.(?!(?:Block|FilePath|Parsing\.I?Binary|Parsing\.Boolean|Parsing\.ISupportBinary|Parsing\.StringParser)).+" fullyQualifiedMemberName="false" />
                 <targetFormatter>
                   <steps>
                     <replace pattern="T:" with="T_" />
