@@ -1,4 +1,4 @@
-﻿/* Fixed layout settings.  Disabled for now.  If enabled, the In This Article section doesn't stick to the top.
+/* Fixed layout settings.  Disabled for now.  If enabled, the In This Article section doesn't stick to the top.
 html, body {
     height: 100%;
     overflow: hidden;
@@ -74,8 +74,13 @@ html, body {
 }
 
 .pageHeader {
+    /* Gemstone Style Change from:
     background-color: #333333;
     color: #d0d0d0;
+    */
+    background-color: #159957;
+    background-image: linear-gradient(120deg, #155799, #159957);
+    color: #fff;
 }
 
 .is-active-quickLink {
@@ -108,7 +113,9 @@ div.is-centered {
 
 /* Underline content, footer, and breadcrumb anchors when hovered */
 .content a:hover, .footer a:hover, .breadcrumb a:hover {
-    text-decoration: underline;
+    /* Gemstone Style Change from: text-decoration: underline; */
+    text-decoration: none;
+    color: #3390b1;
 }
 
 /* Add an outer border to tables */
@@ -345,6 +352,7 @@ span.bibliographyPublisher {
 
 sup.citation a:link a:visited a:active {
     text-decoration: none;
+    color: #1364c4;
 }
 
 /* Expand/collapse toggles */
