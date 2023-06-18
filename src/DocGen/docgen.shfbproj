@@ -79,76 +79,34 @@
           <configuration>
             <urlProviders>
               <formattedProvider title="Gemstone.Communication URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Communication(\.|$).*" fullyQualifiedMemberName="false" />
-                <targetFormatter>
-                  <steps>
-                    <replace pattern=":|\.|`" with="_" />
-                    <replace pattern="\(([^\)]*)\)" with="" />
-                  </steps>
-                </targetFormatter>
+                <targetMatcher pattern=".:Gemstone\.Communication(\.|$).*" fullyQualifiedMemberName="false" sandcastleTarget="true" />
                 <urlFormatter format="https://gemstone.github.io/communication/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <formattedProvider title="Gemstone.Threading URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Threading(\.|$).*" fullyQualifiedMemberName="false" />
-                <targetFormatter>
-                  <steps>
-                    <replace pattern=":|\.|`" with="_" />
-                    <replace pattern="\(([^\)]*)\)" with="" />
-                  </steps>
-                </targetFormatter>
+                <targetMatcher pattern=".:Gemstone\.Threading(\.|$).*" fullyQualifiedMemberName="false" sandcastleTarget="true" />
                 <urlFormatter format="https://gemstone.github.io/threading/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <formattedProvider title="Gemstone.Timeseries URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Timeseries(\.|$).*" fullyQualifiedMemberName="false" />
-                <targetFormatter>
-                  <steps>
-                    <replace pattern=":|\.|`" with="_" />
-                    <replace pattern="\(([^\)]*)\)" with="" />
-                  </steps>
-                </targetFormatter>
+                <targetMatcher pattern=".:Gemstone\.Timeseries(\.|$).*" fullyQualifiedMemberName="false" sandcastleTarget="true" />
                 <urlFormatter format="https://gemstone.github.io/timeseries/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <formattedProvider title="Gemstone.Diagnostics URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Diagnostics(\.|$).*" fullyQualifiedMemberName="false" />
-                <targetFormatter>
-                  <steps>
-                    <replace pattern=":|\.|`" with="_" />
-                    <replace pattern="\(([^\)]*)\)" with="" />
-                  </steps>
-                </targetFormatter>
+                <targetMatcher pattern=".:Gemstone\.Diagnostics(\.|$).*" fullyQualifiedMemberName="false" sandcastleTarget="true" />
                 <urlFormatter format="https://gemstone.github.io/diagnostics/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <!-- Match Gemstone IO namespace for classes not in common -->
               <formattedProvider title="Gemstone.IO URL Provider">
-                <targetMatcher pattern=".:Gemstone\.IO(\.|$)(?!(?:Block|FilePath|Parsing\.I?Binary|Parsing\.Boolean|Parsing\.ISupportBinary|Parsing\.StringParser)).*" fullyQualifiedMemberName="false" />
-                <targetFormatter>
-                  <steps>
-                    <replace pattern=":|\.|`" with="_" />
-                    <replace pattern="\(([^\)]*)\)" with="" />
-                  </steps>
-                </targetFormatter>
+                <targetMatcher pattern=".:Gemstone\.IO(\.|$)(?!(?:Block|FilePath|Parsing\.I?Binary|Parsing\.Boolean|Parsing\.ISupportBinary|Parsing\.StringParser)).*" fullyQualifiedMemberName="false" sandcastleTarget="true" />
                 <urlFormatter format="https://gemstone.github.io/io/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <formattedProvider title="Gemstone.Numeric URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Numeric(\.|$).*" fullyQualifiedMemberName="false" />
-                <targetFormatter>
-                  <steps>
-                    <replace pattern=":|\.|`" with="_" />
-                    <replace pattern="\(([^\)]*)\)" with="" />
-                  </steps>
-                </targetFormatter>
+                <targetMatcher pattern=".:Gemstone\.Numeric(\.|$).*" fullyQualifiedMemberName="false" sandcastleTarget="true" />
                 <urlFormatter format="https://gemstone.github.io/numeric/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <!-- Add Gemstone root namespace last because it has the widest match criteria -->
               <!-- Pattern excludes target namespace so local memmbers are not redirected to common -->
               <formattedProvider title="Gemstone Common URL Provider">
-                <targetMatcher pattern=".:Gemstone\.(?!PhasorProtocols(\.|$)).*" fullyQualifiedMemberName="false" />
-                <targetFormatter>
-                  <steps>
-                    <replace pattern=":|\.|`" with="_" />
-                    <replace pattern="\(([^\)]*)\)" with="" />
-                  </steps>
-                </targetFormatter>
+                <targetMatcher pattern=".:Gemstone\.(?!PhasorProtocols(\.|$)).*" fullyQualifiedMemberName="false" sandcastleTarget="true" />
                 <urlFormatter format="https://gemstone.github.io/common/help/html/{target}.htm" target="_self" />
               </formattedProvider>
             </urlProviders>
