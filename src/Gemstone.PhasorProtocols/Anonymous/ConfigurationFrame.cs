@@ -111,6 +111,7 @@ namespace Gemstone.PhasorProtocols.Anonymous
         // Static Constructor
         static ConfigurationFrame()
         {
+            // TODO: Move configuration caching to host application - not the best location to have this here
             s_configurationBackups = -1;
             //s_configurationCacheQueue = ProcessQueue<Tuple<IConfigurationFrame, Action<Exception>, string>>.CreateRealTimeQueue(CacheConfigurationFile);
             //s_configurationCacheQueue.SynchronizedOperationType = SynchronizedOperationType.LongBackground;
