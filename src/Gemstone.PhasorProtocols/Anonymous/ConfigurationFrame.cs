@@ -272,6 +272,7 @@ namespace Gemstone.PhasorProtocols.Anonymous
         /// <returns>File name with path of the specified <paramref name="configurationName"/>.</returns>
         public static string GetConfigurationCacheFileName(string configurationName)
         {
+            // Path traversal attacks are prevented by replacing invalid file name characters
             return $"{ConfigurationCachePath}{configurationName.ReplaceCharacters('_', c => Path.GetInvalidFileNameChars().Contains(c))}.configuration.xml";
         }
 
