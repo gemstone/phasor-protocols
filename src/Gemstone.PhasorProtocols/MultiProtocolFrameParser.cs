@@ -1550,6 +1550,22 @@ namespace Gemstone.PhasorProtocols
         }
 
         /// <summary>
+        /// Gets or sets specific configuration frame version to request from device which overrides default that otherwise
+        /// requests latest configuration frame version for current protocol.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If user selects IEEE C37.118-2011 protocol, this will default to requesting a configuration frame 3 frame. If
+        /// remote device does not support this, this property can be set to send a configuration frame 2 frame instead.
+        /// </para>
+        /// <para>
+        /// This property can be assigned as a connection string parameter, e.g.: <c>configurationFrameVersion=2</c> or
+        /// <c>configurationFrameVersion=SendConfigurationFrame2</c>
+        /// </para>
+        /// </remarks>
+        public DeviceCommand ConfigurationFrameVersion { get; set; } = DeviceCommand.SendLatestConfigurationFrameVersion;
+
+        /// <summary>
         /// Gets or sets the key/value pair based connection information required by the <see cref="MultiProtocolFrameParser"/> to connect to a device.
         /// </summary>
         public string ConnectionString
@@ -1586,6 +1602,40 @@ namespace Gemstone.PhasorProtocols
                 DeviceSupportsCommands = settings.TryGetValue(nameof(DeviceSupportsCommands), out setting) ?
                     setting.ParseBoolean() :
                     DeriveCommandSupport();
+
+                if (settings.TryGetValue(nameof(ConfigurationFrameVersion), out setting))
+                {
+                    DeviceCommand unsupportedConfigurationFrameVersion()
+                    {
+                        OnParsingException(null, $"Configuration frame version \"{setting}\" is not supported, defaulting to latest configuration frame version...");
+                        return DeviceCommand.SendLatestConfigurationFrameVersion;
+                    }
+
+                    // Try simple integer specification of version number first
+                    if (int.TryParse(setting, out int version))
+                    {
+                        ConfigurationFrameVersion = version switch
+                        {
+                            1 => DeviceCommand.SendConfigurationFrame1,
+                            2 => DeviceCommand.SendConfigurationFrame2,
+                            3 => DeviceCommand.SendConfigurationFrame3,
+                            _ => unsupportedConfigurationFrameVersion()
+                        };
+                    }
+                    else
+                    {
+                        // Attempt to parse configuration frame version as a DeviceCommand enum name
+                        if (Enum.TryParse(setting, true, out DeviceCommand command))
+                        {
+                            ConfigurationFrameVersion = command is DeviceCommand.SendConfigurationFrame1 or DeviceCommand.SendConfigurationFrame2 or DeviceCommand.SendConfigurationFrame3 ?
+                                command : unsupportedConfigurationFrameVersion();
+                        }
+                        else
+                        {
+                            ConfigurationFrameVersion = unsupportedConfigurationFrameVersion();
+                        }
+                    }
+                }
             }
         }
 
@@ -2852,7 +2902,8 @@ namespace Gemstone.PhasorProtocols
         /// Command will only be sent if <see cref="DeviceSupportsCommands"/> is <c>true</c> and <see cref="MultiProtocolFrameParser"/>.
         /// </remarks>
         /// <returns>A <see cref="WaitHandle"/> for send operation.</returns>
-        public WaitHandle SendRawDeviceCommand(ushort rawCommand) => SendDeviceCommand((DeviceCommand)rawCommand);
+        public WaitHandle SendRawDeviceCommand(ushort rawCommand) =>
+            SendDeviceCommand((DeviceCommand)rawCommand);
 
         /// <summary>
         /// Sends the specified <see cref="DeviceCommand"/> to the remote device.
@@ -2876,6 +2927,14 @@ namespace Gemstone.PhasorProtocols
                 if (DeviceSupportsCommands && (m_dataChannel is not null || m_serverBasedDataChannel is not null || m_commandChannel is not null))
                 {
                     ICommandFrame commandFrame;
+
+                    // Check to see if a specific configuration frame version override has been requested
+                    if (command == DeviceCommand.SendLatestConfigurationFrameVersion && ConfigurationFrameVersion != DeviceCommand.SendLatestConfigurationFrameVersion)
+                        command = ConfigurationFrameVersion;
+
+                    // Translate latest configuration frame version into proper command based on protocol
+                    if (command == DeviceCommand.SendLatestConfigurationFrameVersion)
+                        command = m_phasorProtocol == PhasorProtocol.IEEEC37_118V2 ? DeviceCommand.SendConfigurationFrame3 : DeviceCommand.SendConfigurationFrame2;
 
                     // Only IEEE C37.118-2011 supports requests for config frame 3, for any other protocol,
                     // downgrade frame request to config frame 2
@@ -3049,7 +3108,7 @@ namespace Gemstone.PhasorProtocols
         /// <param name="innerException">Actual exception to send as inner exception to <see cref="ParsingException"/> event.</param>
         /// <param name="message">Message of new exception to send to <see cref="ParsingException"/> event.</param>
         /// <param name="args">Arguments of message of new exception to send to <see cref="ParsingException"/> event.</param>
-        private void OnParsingException(Exception innerException, string message, params object[] args)
+        private void OnParsingException(Exception? innerException, string message, params object[] args)
         {
             if (innerException is not ThreadAbortException && innerException is not ObjectDisposedException)
                 OnParsingException(new Exception(string.Format(message, args), innerException));
@@ -3171,7 +3230,7 @@ namespace Gemstone.PhasorProtocols
                         break;
                     default:
                         // Otherwise we just request the configuration frame
-                        SendDeviceCommand(DeviceCommand.SendConfigurationFrame3);
+                        SendDeviceCommand(DeviceCommand.SendLatestConfigurationFrameVersion);
                         break;
                 }
             }
