@@ -129,8 +129,7 @@ namespace Gemstone.PhasorProtocols.Macrodyne
         /// Gets or sets device section label, as defined in associated INI file.
         /// </summary>
         [Category("Required Connection Parameters")]
-        [Description(
-            "Set to the Macrodyne device ID label as defined in the associated INI file as a [section] entry. This is only required when protocol version is 1690G.")]
+        [Description("Set to the Macrodyne device ID label as defined in the associated INI file as a [section] entry. This is only required when protocol version is 1690G.")]
         public string DeviceLabel
         {
             get => m_deviceLabel;

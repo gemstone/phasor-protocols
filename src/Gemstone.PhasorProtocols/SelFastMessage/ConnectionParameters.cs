@@ -78,8 +78,7 @@ namespace Gemstone.PhasorProtocols.SelFastMessage
         /// Gets or sets desired <see cref="SelFastMessage.MessagePeriod"/> for SEL device.
         /// </summary>
         [Category("Optional Connection Parameters")]
-        [Description(
-            "Defines desired message period for SEL device. Default rate is 20 messages per second. Note that slower rates (i.e., 20 messages per minute down to 1 message per minute) are only supported by the SEL 300 series relays.")]
+        [Description("Defines desired message period for SEL device. Default rate is 20 messages per second. Note that slower rates (i.e., 20 messages per minute down to 1 message per minute) are only supported by the SEL 300 series relays.")]
         [DefaultValue(typeof(MessagePeriod), "DefaultRate")]
         public MessagePeriod MessagePeriod
         {

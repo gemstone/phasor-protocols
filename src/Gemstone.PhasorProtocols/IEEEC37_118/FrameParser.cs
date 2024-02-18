@@ -386,13 +386,13 @@ namespace Gemstone.PhasorProtocols.IEEEC37_118
                     ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
                     break;
                 }
-                // Configuration frame type 3 has priority over type 2, so we check it first
+                // Configuration frame type 3 is more specific than type 1 (and more common), so we check it first
                 case ConfigurationFrame3 configFrame3:
                 {
                     ReceivedConfigurationFrame3?.SafeInvoke(this, new EventArgs<ConfigurationFrame3>(configFrame3));
                     break;
                 }
-                // Configuration frame type 2 is more specific than type 1 (and more common), so we check it next
+                // Configuration frame type 2 is more specific than type 1 (and more common), so we check it first
                 case ConfigurationFrame2 configFrame2:
                 {
                     ReceivedConfigurationFrame2?.SafeInvoke(this, new EventArgs<ConfigurationFrame2>(configFrame2));

@@ -2193,6 +2193,7 @@ namespace Gemstone.PhasorProtocols
                 status.AppendLine($"Allowed parsing exceptions: {AllowedParsingExceptions:N0}");
                 status.AppendLine($"  Parsing exception window: {ParsingExceptionWindow.ToSeconds():0.00} seconds");
                 status.AppendLine($"Using simulated timestamps: {(InjectSimulatedTimestamp ? "Yes" : "No")}");
+                status.AppendLine($"Configuration frame option: {ConfigurationFrameVersion}");
 
                 if (m_transportProtocol == TransportProtocol.File)
                 {
