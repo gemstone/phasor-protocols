@@ -142,6 +142,8 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
             m_configurationRevision = info.GetUInt32("configurationRevision");
             SampleSynchronization = info.GetByte("sampleSynchronization");
             m_sampleRate = info.GetUInt16("sampleRate");
+            m_frameHeader.Timestamp = base.Timestamp;
+            m_frameHeader.IDCode = base.IDCode;
         }
 
         #endregion
@@ -177,6 +179,11 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
                 CommonHeader.Timestamp = value;
                 base.Timestamp = value;
             }
+        }
+        public override ushort IDCode
+        {
+            get => CommonHeader.IDCode;
+            set => CommonHeader.IDCode = value;
         }
 
         /// <summary>
