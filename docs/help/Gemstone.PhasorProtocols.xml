@@ -6107,11 +6107,29 @@
       <param name="fromCache">Set to True retrieve from cache, False to retrieve from specified file name in <paramref name="configurationName" /></param>
       <returns>Cached configuration frame, or null if not available.</returns>
     </member>
-    <member name="M:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.GetConfigurationCacheFileName(System.String)">
+    <member name="M:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.GetConfigurationCacheFileName(System.String,System.String,System.String)">
       <summary>
             Gets the file name with path of the specified <paramref name="configurationName" />.
             </summary>
       <param name="configurationName">Name of the configuration to get file name for.</param>
+      <param name="extension">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>extension</parameter>
+            <parameter>M:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.GetConfigurationCacheFileName(System.String,System.String,System.String)</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="basePath">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>basePath</parameter>
+            <parameter>M:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.GetConfigurationCacheFileName(System.String,System.String,System.String)</parameter>
+          </include>
+        </markup>
+      </param>
       <returns>File name with path of the specified <paramref name="configurationName" />.</returns>
     </member>
     <member name="P:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.Name">
@@ -9162,6 +9180,16 @@
             Gets the length of the <see cref="P:Gemstone.PhasorProtocols.IEC61850_90_5.CommandFrame.HeaderImage" />.
             </summary>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.IEC61850_90_5.CommandFrame.IDCode">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.PhasorProtocols.IEC61850_90_5.CommandFrame.IDCode</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="M:Gemstone.PhasorProtocols.IEC61850_90_5.CommandFrame.ParseHeaderImage(System.Byte[],System.Int32,System.Int32)">
       <summary>
             Parses the binary header image.
@@ -9826,6 +9854,16 @@
             Gets the length of the <see cref="P:Gemstone.PhasorProtocols.IEC61850_90_5.ConfigurationFrame.HeaderImage" />.
             </summary>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.IEC61850_90_5.ConfigurationFrame.IDCode">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.PhasorProtocols.IEC61850_90_5.ConfigurationFrame.IDCode</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="M:Gemstone.PhasorProtocols.IEC61850_90_5.ConfigurationFrame.ParseFooterImage(System.Byte[],System.Int32,System.Int32)">
       <summary>
             Parses the binary footer image.
@@ -10183,6 +10221,16 @@
       <summary>
             Gets the length of the header image.
             </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.IEC61850_90_5.DataFrame.IDCode">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.PhasorProtocols.IEC61850_90_5.DataFrame.IDCode</parameter>
+          </include>
+        </markup>
+      </summary>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEC61850_90_5.DataFrame.ParseBinaryImage(System.Byte[],System.Int32,System.Int32)">
       <summary>
@@ -12766,9 +12814,19 @@
       <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
       <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.AnalogValue.Attributes">
+      <summary>
+        <see cref="T:System.Collections.Generic.Dictionary`2" /> of string based property names and values for the <see cref="T:Gemstone.PhasorProtocols.AnalogValueBase" /> object.
+            </summary>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.AnalogValue.Definition">
       <summary>
             Gets or sets the <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.AnalogDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.AnalogValue" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.AnalogValue.Definition3">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.AnalogDefinition3" /> associated with this <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.AnalogValue" />.
             </summary>
     </member>
     <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.AnalogValue.Parent">
@@ -13038,6 +13096,11 @@
     <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.CommandFrame.HeaderLength">
       <summary>
             Gets the length of the <see cref="P:Gemstone.PhasorProtocols.IEEEC37_118.CommandFrame.HeaderImage" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.CommandFrame.IDCode">
+      <summary>
+            Gets or sets the ID code.
             </summary>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEEEC37_118.CommandFrame.ParseHeaderImage(System.Byte[],System.Int32,System.Int32)">
@@ -13660,9 +13723,9 @@
             Gets the length of the <see cref="P:Gemstone.PhasorProtocols.IEEEC37_118.ConfigurationFrame1.HeaderImage" />.
             </summary>
     </member>
-    <member name="F:Gemstone.PhasorProtocols.IEEEC37_118.ConfigurationFrame1.m_timebase">
+    <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.ConfigurationFrame1.IDCode">
       <summary>
-            Represents the TimeBase of the configuration frame.
+            Gets or sets the ID code.
             </summary>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEEEC37_118.ConfigurationFrame1.ParseFooterImage(System.Byte[],System.Int32,System.Int32)">
@@ -14089,6 +14152,11 @@
     <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.DataFrame.HeaderLength">
       <summary>
             Gets the length of the <see cref="P:Gemstone.PhasorProtocols.IEEEC37_118.DataFrame.HeaderImage" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.DataFrame.IDCode">
+      <summary>
+            Gets or sets the ID code.
             </summary>
     </member>
     <member name="M:Gemstone.PhasorProtocols.IEEEC37_118.DataFrame.ParseHeaderImage(System.Byte[],System.Int32,System.Int32)">
@@ -14853,6 +14921,11 @@
             Gets the length of the <see cref="P:Gemstone.PhasorProtocols.IEEEC37_118.HeaderFrame.HeaderImage" />.
             </summary>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.HeaderFrame.IDCode">
+      <summary>
+            Gets or sets the ID code.
+            </summary>
+    </member>
     <member name="M:Gemstone.PhasorProtocols.IEEEC37_118.HeaderFrame.ParseHeaderImage(System.Byte[],System.Int32,System.Int32)">
       <summary>
             Parses the binary header image.
@@ -15200,9 +15273,19 @@
       <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
       <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.PhasorValue.Attributes">
+      <summary>
+        <see cref="T:System.Collections.Generic.Dictionary`2" /> of string based property names and values for the <see cref="T:Gemstone.PhasorProtocols.AnalogValueBase" /> object.
+            </summary>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.PhasorValue.Definition">
       <summary>
             Gets or sets the <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.PhasorDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.PhasorValue" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.PhasorValue.Definition3">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.PhasorDefinition3" /> associated with this <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.PhasorValue" />.
             </summary>
     </member>
     <member name="P:Gemstone.PhasorProtocols.IEEEC37_118.PhasorValue.Parent">
