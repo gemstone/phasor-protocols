@@ -38,6 +38,7 @@ using Gemstone.ArrayExtensions;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.IO.Parsing;
 using Gemstone.Threading.Collections;
+using Gemstone.Timeseries;
 
 namespace Gemstone.PhasorProtocols
 {
@@ -361,23 +362,22 @@ namespace Gemstone.PhasorProtocols
             // a copy of the relevant buffer segment and enqueue this for processing
             byte[] bufferSegment = buffer.BlockCopy(offset, length);
 
-            //if (OptimizationOptions.DisableAsyncQueueInProtocolParsing)
-            //{
-            //    try
-            //    {
-            //        ReceivedFrameBufferImage?.SafeInvoke(this, new EventArgs<FundamentalFrameType, byte[], int, int>(frameType, bufferSegment, 0, bufferSegment.Length));
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        OnParsingException(ex);
-            //    }
-            //}
-            //else
-            //{
-            
-            m_frameImageQueue.Enqueue(new EventArgs<FundamentalFrameType, byte[], int, int>(frameType, bufferSegment, 0, bufferSegment.Length));
-            
-            //}
+            if (OptimizationOptions.DisableAsyncQueueInProtocolParsing)
+            {
+                try
+                {
+                    ReceivedFrameBufferImage?.SafeInvoke(this, new EventArgs<FundamentalFrameType, byte[], int, int>(frameType, bufferSegment, 0, bufferSegment.Length));
+                }
+                catch (Exception ex)
+                {
+                    OnParsingException(ex);
+                }
+            }
+            else
+            {
+
+                m_frameImageQueue.Enqueue(new EventArgs<FundamentalFrameType, byte[], int, int>(frameType, bufferSegment, 0, bufferSegment.Length));
+            }
         }
 
         /// <summary>
