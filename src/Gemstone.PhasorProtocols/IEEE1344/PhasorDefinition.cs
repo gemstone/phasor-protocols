@@ -106,7 +106,7 @@ namespace Gemstone.PhasorProtocols.IEEE1344
 
                 buffer[0] = (byte)(PhasorType == PhasorType.Voltage ? 0 : 1);
 
-                BigEndian.CopyBytes(scalingFactor, buffer, 1);
+                BigEndianU24.CopyBytes(scalingFactor, buffer, 1);
 
                 return buffer;
             }
