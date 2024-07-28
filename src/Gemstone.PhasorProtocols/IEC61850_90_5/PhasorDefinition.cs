@@ -104,7 +104,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
 
                 buffer[0] = (byte)PhasorType;
 
-                BigEndian.CopyBytes(scalingFactor, buffer, 1);
+                BigEndianU24.CopyBytes(scalingFactor, buffer, 1);
 
                 return buffer;
             }
