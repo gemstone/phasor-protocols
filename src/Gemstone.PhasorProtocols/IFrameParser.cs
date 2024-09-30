@@ -216,12 +216,12 @@ namespace Gemstone.PhasorProtocols
         /// If a <see cref="IConfigurationFrame"/> has been parsed, this will return a reference to the parsed frame.  Consumer can manually assign a
         /// <see cref="IConfigurationFrame"/> to start parsing data if one has not been encountered in the stream.
         /// </remarks>
-        IConfigurationFrame ConfigurationFrame { get; set; }
+        IConfigurationFrame? ConfigurationFrame { get; set; }
 
         /// <summary>
         /// Gets or sets any connection specific <see cref="IConnectionParameters"/> that may be needed for parsing.
         /// </summary>
-        IConnectionParameters ConnectionParameters { get; set; }
+        IConnectionParameters? ConnectionParameters { get; set; }
 
         /// <summary>
         /// Gets or sets flags that determine if check-sums for specified frames should be validated.

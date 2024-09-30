@@ -1439,16 +1439,16 @@ namespace Gemstone.PhasorProtocols
         private int m_maximumConnectionAttempts;
         private bool m_autoRepeatCapturedPlayback;
         private int m_bufferSize;
-        private IFrameParser m_frameParser;
-        private IClient m_dataChannel;
-        private IServer m_serverBasedDataChannel;
-        private IClient m_commandChannel;
+        private IFrameParser? m_frameParser;
+        private IClient? m_dataChannel;
+        private IServer? m_serverBasedDataChannel;
+        private IClient? m_commandChannel;
         private IPAddress m_receiveFromAddress;
         private IPAddress m_multicastServerAddress;
         private PrecisionInputTimer m_inputTimer;
         private ShortSynchronizedOperation m_readNextBuffer;
         private SharedTimer m_rateCalcTimer;
-        private IConfigurationFrame m_configurationFrame;
+        private IConfigurationFrame? m_configurationFrame;
         private CheckSumValidationFrameTypes m_checkSumValidationFrameTypes;
         private long m_dataStreamStartTime;
         private long m_missingFramesOverflow;
@@ -1871,7 +1871,7 @@ namespace Gemstone.PhasorProtocols
         /// If a <see cref="IConfigurationFrame"/> has been parsed, this will return a reference to the parsed frame.  Consumer can manually assign a
         /// <see cref="IConfigurationFrame"/> to start parsing data if one has not been encountered in the stream.
         /// </remarks>
-        public IConfigurationFrame ConfigurationFrame
+        public IConfigurationFrame? ConfigurationFrame
         {
             get => m_configurationFrame;
             set
@@ -2903,7 +2903,7 @@ namespace Gemstone.PhasorProtocols
         /// Command will only be sent if <see cref="DeviceSupportsCommands"/> is <c>true</c> and <see cref="MultiProtocolFrameParser"/>.
         /// </remarks>
         /// <returns>A <see cref="WaitHandle"/> for send operation.</returns>
-        public WaitHandle SendRawDeviceCommand(ushort rawCommand) =>
+        public WaitHandle? SendRawDeviceCommand(ushort rawCommand) =>
             SendDeviceCommand((DeviceCommand)rawCommand);
 
         /// <summary>
@@ -2919,7 +2919,7 @@ namespace Gemstone.PhasorProtocols
         /// can assume function failed if returned <see cref="WaitHandle"/> is <c>null</c>, which will be the case if device does not support
         /// commands or no channel is available for publication.
         /// </remarks>
-        public WaitHandle SendDeviceCommand(DeviceCommand command)
+        public WaitHandle? SendDeviceCommand(DeviceCommand command)
         {
             WaitHandle handle = null;
 
