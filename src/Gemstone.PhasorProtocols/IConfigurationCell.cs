@@ -96,7 +96,7 @@ namespace Gemstone.PhasorProtocols
         /// <summary>
         /// Gets or sets the <see cref="IFrequencyDefinition"/> of this <see cref="IConfigurationCell"/>.
         /// </summary>
-        IFrequencyDefinition FrequencyDefinition { get; set; }
+        IFrequencyDefinition? FrequencyDefinition { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DataFormat"/> of the <see cref="FrequencyDefinition"/> of this <see cref="IConfigurationCell"/>.

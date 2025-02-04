@@ -78,7 +78,7 @@ namespace Gemstone.PhasorProtocols
         /// <summary>
         /// Defines additional connection information such as alternate command channel from PmuConnection file.
         /// </summary>
-        public IConnectionParameters ConnectionParameters;
+        public IConnectionParameters? ConnectionParameters;
 
         #endregion
 
