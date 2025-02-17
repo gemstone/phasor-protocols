@@ -85,11 +85,11 @@ using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
 using Gemstone.IO.Parsing;
+using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Timeseries;
 using Gemstone.Units;
 using Gemstone.Numeric.EE;
-using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using TcpClient = Gemstone.Communication.TcpClient;
 using UdpClient = Gemstone.Communication.UdpClient;
@@ -1445,7 +1445,7 @@ namespace Gemstone.PhasorProtocols
         private IClient? m_commandChannel;
         private IPAddress m_receiveFromAddress;
         private IPAddress m_multicastServerAddress;
-        private PrecisionInputTimer m_inputTimer;
+        private PrecisionInputTimer? m_inputTimer;
         private ShortSynchronizedOperation m_readNextBuffer;
         private SharedTimer m_rateCalcTimer;
         private IConfigurationFrame? m_configurationFrame;
@@ -1461,7 +1461,7 @@ namespace Gemstone.PhasorProtocols
         private bool m_initiatingDataStream;
         private long m_initialBytesReceived;
         private bool m_initiatingSerialConnection;
-        private IConnectionParameters m_connectionParameters;
+        private IConnectionParameters? m_connectionParameters;
         private int m_connectionAttempts;
         private int m_serverIndex;
         private bool m_enabled;
@@ -1578,7 +1578,7 @@ namespace Gemstone.PhasorProtocols
                 // Parse connection string to see if a phasor or transport protocol was assigned
                 Dictionary<string, string> settings = m_connectionString.ParseKeyValuePairs();
 
-                if (settings.TryGetValue(nameof(PhasorProtocol), out string setting))
+                if (settings.TryGetValue(nameof(PhasorProtocol), out string? setting))
                     PhasorProtocol = (PhasorProtocol)Enum.Parse(typeof(PhasorProtocol), setting, true);
 
                 if (settings.TryGetValue(nameof(TransportProtocol), out setting) || settings.TryGetValue("protocol", out setting))
@@ -1636,6 +1636,9 @@ namespace Gemstone.PhasorProtocols
                         }
                     }
                 }
+
+                if (settings.TryGetValue("autoRepeatFile", out setting) || settings.TryGetValue(nameof(AutoRepeatCapturedPlayback), out setting))
+                    AutoRepeatCapturedPlayback = setting.ParseBoolean();
             }
         }
 
@@ -1821,7 +1824,7 @@ namespace Gemstone.PhasorProtocols
         public DateTime ReplayStopTime { get; set; } = DateTime.MaxValue;
 
         /// <summary>
-        /// Gets or sets flag indicating whether or not to inject local system time into parsed data frames.
+        /// Gets or sets flag indicating whether to inject local system time into parsed data frames.
         /// </summary>
         /// <remarks>
         /// When connection is made to a file for replay purposes or consumer doesn't trust remote clock source, this flag
@@ -1850,7 +1853,7 @@ namespace Gemstone.PhasorProtocols
                     fileClient.AutoRepeat = value;
 
                     // May be sitting at end of file even while parsing data from queued buffers
-                    if (fileClient.CurrentState == ClientState.Connected && fileClient.AtEOF)
+                    if (fileClient is { CurrentState: ClientState.Connected, AtEOF: true })
                         m_readNextBuffer.RunAsync();
                 }
             }
@@ -3242,7 +3245,7 @@ namespace Gemstone.PhasorProtocols
         }
 
         // Calculate frame and data rates
-        private void m_rateCalcTimer_Elapsed(object sender, EventArgs<DateTime> e)
+        private void m_rateCalcTimer_Elapsed(object? sender, EventArgs<DateTime> e)
         {
             double time = Ticks.ToSeconds(DateTime.UtcNow.Ticks - m_dataStreamStartTime);
 
