@@ -1639,6 +1639,9 @@ namespace Gemstone.PhasorProtocols
 
                 if (settings.TryGetValue("autoRepeatFile", out setting) || settings.TryGetValue(nameof(AutoRepeatCapturedPlayback), out setting))
                     AutoRepeatCapturedPlayback = setting.ParseBoolean();
+
+                if (settings.TryGetValue("simulateTimestamp", out setting) || settings.TryGetValue(nameof(InjectSimulatedTimestamp), out setting))
+                    InjectSimulatedTimestamp = setting.ParseBoolean();
             }
         }
 
