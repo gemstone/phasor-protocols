@@ -45,6 +45,36 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="BPAPDCstream\UI\BPAPDCStream.js" />
+    <None Remove="BPAPDCstream\UI\BPAPDCstreamChunk.js" />
+    <None Remove="FNET\UI\FNET.js" />
+    <None Remove="FNET\UI\FNETChunk.js" />
+    <None Remove="IEC61850_90_5\UI\Iec61850_90_5.js" />
+    <None Remove="IEC61850_90_5\UI\IEC61850_90_5Chunk.js" />
+    <None Remove="Macrodyne\UI\chunk.js" />
+    <None Remove="Macrodyne\UI\Macrodyne.js" />
+    <None Remove="Macrodyne\UI\MacrodyneChunk.js" />
+    <None Remove="Macrodyne\UI\main.js" />
+    <None Remove="SelFastMessage\UI\chunk.js" />
+    <None Remove="SelFastMessage\UI\main.js" />
+    <None Remove="SelFastMessage\UI\SelFastMessage.js" />
+    <None Remove="SelFastMessage\UI\SelFastMessageChunk.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BPAPDCstream\UI\BPAPDCstream.js" />
+    <EmbeddedResource Include="BPAPDCstream\UI\BPAPDCstreamChunk.js" />
+    <EmbeddedResource Include="FNET\UI\FNET.js" />
+    <EmbeddedResource Include="FNET\UI\FNETChunk.js" />
+    <EmbeddedResource Include="IEC61850_90_5\UI\IEC61850_90_5.js" />
+    <EmbeddedResource Include="IEC61850_90_5\UI\IEC61850_90_5Chunk.js" />
+    <EmbeddedResource Include="Macrodyne\UI\Macrodyne.js" />
+    <EmbeddedResource Include="Macrodyne\UI\MacrodyneChunk.js" />
+    <EmbeddedResource Include="SelFastMessage\UI\SelFastMessage.js" />
+    <EmbeddedResource Include="SelFastMessage\UI\SelFastMessageChunk.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\docs\README.md" Link="README.md" Visible="false">
       <Pack>True</Pack>
       <PackagePath />
