@@ -106,7 +106,7 @@ namespace Gemstone.PhasorProtocols
         /// <summary>
         /// Gets or sets the label of this <see cref="IChannelDefinition"/>.
         /// </summary>
-        string Label { get; set; }
+        string? Label { get; set; }
 
         /// <summary>
         /// Gets the binary image of the <see cref="Label"/> of this <see cref="IChannelDefinition"/>.
