@@ -80,7 +80,7 @@ namespace Gemstone.PhasorProtocols.Macrodyne
         private string m_configurationFileName;
         private bool m_refreshConfigurationFileOnChange;
         private SafeFileWatcher m_configurationFileWatcher;
-        private readonly object m_syncLock;
+        private readonly Lock m_syncLock;
         private bool m_disposed;
 
         #endregion
@@ -98,7 +98,7 @@ namespace Gemstone.PhasorProtocols.Macrodyne
         public FrameParser(CheckSumValidationFrameTypes checkSumValidationFrameTypes = CheckSumValidationFrameTypes.AllFrames, bool trustHeaderLength = true, ProtocolVersion protocolVersion = ProtocolVersion.M, string configurationFileName = null, string deviceLabel = null)
             : base(checkSumValidationFrameTypes, trustHeaderLength)
         {
-            m_syncLock = new object();
+            m_syncLock = new Lock();
             m_protocolVersion = protocolVersion;
             DeviceLabel = deviceLabel;
             ConfigurationFileName = configurationFileName;
