@@ -79,7 +79,7 @@ namespace Gemstone.PhasorProtocols.SelFastMessage
             : base(checkSumValidationFrameTypes, trustHeaderLength)
         {
             // Initialize protocol synchronization bytes for this frame parser
-            base.ProtocolSyncBytes = new[] { Common.HeaderByte1, Common.HeaderByte2 };
+            base.ProtocolSyncBytes = [Common.HeaderByte1, Common.HeaderByte2];
 
             MessagePeriod = messagePeriod;
         }
@@ -157,7 +157,7 @@ namespace Gemstone.PhasorProtocols.SelFastMessage
         public override void Start()
         {
             // We narrow down parsing types to just those needed...
-            base.Start(new[] { typeof(DataFrame) });
+            base.Start([typeof(DataFrame)]);
         }
 
         /// <summary>

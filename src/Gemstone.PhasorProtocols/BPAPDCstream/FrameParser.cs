@@ -86,7 +86,7 @@ namespace Gemstone.PhasorProtocols.BPAPDCstream
             : base(checkSumValidationFrameTypes, trustHeaderLength)
         {
             // Initialize protocol synchronization bytes for this frame parser
-            base.ProtocolSyncBytes = new[] { PhasorProtocols.Common.SyncByte };
+            base.ProtocolSyncBytes = [PhasorProtocols.Common.SyncByte];
             m_syncLock = new object();
             m_configurationFileName = configurationFileName;
         }
@@ -255,7 +255,7 @@ namespace Gemstone.PhasorProtocols.BPAPDCstream
         public override void Start()
         {
             // We narrow down parsing types to just those needed...
-            base.Start(new[] { typeof(DataFrame), typeof(ConfigurationFrame) });
+            base.Start([typeof(DataFrame), typeof(ConfigurationFrame)]);
         }
 
         /// <summary>

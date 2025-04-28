@@ -136,7 +136,7 @@ namespace Gemstone.PhasorProtocols.IEEE1344
         public override void Start()
         {
             // We narrow down parsing types to just those needed...
-            base.Start(new[] { typeof(DataFrame), typeof(ConfigurationFrame), typeof(HeaderFrame) });
+            base.Start([typeof(DataFrame), typeof(ConfigurationFrame), typeof(HeaderFrame)]);
         }
 
         /// <summary>

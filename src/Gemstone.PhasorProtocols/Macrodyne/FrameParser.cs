@@ -254,7 +254,7 @@ namespace Gemstone.PhasorProtocols.Macrodyne
         public override void Start()
         {
             // We narrow down parsing types to just those needed...
-            base.Start(new[] { typeof(DataFrame), typeof(HeaderFrame), typeof(ConfigurationFrame) });
+            base.Start([typeof(DataFrame), typeof(HeaderFrame), typeof(ConfigurationFrame)]);
 
             // Make sure we mark stream an initialized even though base class doesn't think we use sync-bytes
             StreamInitialized = false;

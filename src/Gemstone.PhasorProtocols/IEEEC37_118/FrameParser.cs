@@ -117,7 +117,7 @@ namespace Gemstone.PhasorProtocols.IEEEC37_118
             : base(checkSumValidationFrameTypes, trustHeaderLength)
         {
             // Initialize protocol synchronization bytes for this frame parser
-            base.ProtocolSyncBytes = new[] { PhasorProtocols.Common.SyncByte };
+            base.ProtocolSyncBytes = [PhasorProtocols.Common.SyncByte];
 
             DraftRevision = draftRevision;
         }
@@ -193,13 +193,16 @@ namespace Gemstone.PhasorProtocols.IEEEC37_118
             switch (DraftRevision)
             {
                 case DraftRevision.Draft6:
-                    base.Start(new[] { typeof(DataFrame), typeof(ConfigurationFrame1Draft6), typeof(ConfigurationFrame2Draft6), typeof(HeaderFrame) });
+                    base.Start([typeof(DataFrame), typeof(ConfigurationFrame1Draft6), typeof(ConfigurationFrame2Draft6), typeof(HeaderFrame)
+                    ]);
                     break;
                 case DraftRevision.Std2005:
-                    base.Start(new[] { typeof(DataFrame), typeof(ConfigurationFrame1), typeof(ConfigurationFrame2), typeof(HeaderFrame) });
+                    base.Start([typeof(DataFrame), typeof(ConfigurationFrame1), typeof(ConfigurationFrame2), typeof(HeaderFrame)
+                    ]);
                     break;
                 case DraftRevision.Std2011:
-                    base.Start(new[] { typeof(DataFrame), typeof(ConfigurationFrame1), typeof(ConfigurationFrame2), typeof(ConfigurationFrame3), typeof(HeaderFrame) });
+                    base.Start([typeof(DataFrame), typeof(ConfigurationFrame1), typeof(ConfigurationFrame2), typeof(ConfigurationFrame3), typeof(HeaderFrame)
+                    ]);
                     break;
             }
         }

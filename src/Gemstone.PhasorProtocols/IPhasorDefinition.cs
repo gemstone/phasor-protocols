@@ -89,6 +89,6 @@ namespace Gemstone.PhasorProtocols
         /// <remarks>
         /// This only applies to current phasors.
         /// </remarks>
-        IPhasorDefinition VoltageReference { get; set; }
+        IPhasorDefinition? VoltageReference { get; set; }
     }
 }

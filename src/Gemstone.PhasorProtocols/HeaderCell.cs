@@ -106,7 +106,7 @@ namespace Gemstone.PhasorProtocols
         {
             get
             {
-                return new[] { m_character };
+                return [m_character];
             }
         }
 

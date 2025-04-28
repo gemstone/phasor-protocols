@@ -81,7 +81,7 @@ namespace Gemstone.PhasorProtocols.FNET
             : base(checkSumValidationFrameTypes, trustHeaderLength)
         {
             // Initialize protocol synchronization bytes for this frame parser
-            base.ProtocolSyncBytes = new[] { Common.StartByte };
+            base.ProtocolSyncBytes = [Common.StartByte];
 
             FrameRate = frameRate;
             NominalFrequency = nominalFrequency;
@@ -198,7 +198,7 @@ namespace Gemstone.PhasorProtocols.FNET
         public override void Start()
         {
             // We narrow down parsing types to just those needed...
-            base.Start(new[] { typeof(DataFrame) });
+            base.Start([typeof(DataFrame)]);
         }
 
         /// <summary>

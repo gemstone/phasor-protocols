@@ -225,7 +225,7 @@ namespace Gemstone.PhasorProtocols.IEC61850_90_5
             m_unexpectedCommandFrames = 0;
 
             //// We narrow down parsing types to just those needed...
-            base.Start(new[] { typeof(DataFrame), typeof(ConfigurationFrame) });
+            base.Start([typeof(DataFrame), typeof(ConfigurationFrame)]);
         }
 
         /// <summary>

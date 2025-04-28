@@ -422,7 +422,7 @@ namespace Gemstone.PhasorProtocols.BPAPDCstream
                     // from the configuration frame will be mapped to their associated config file cell by ID label
                     // when the configuration cell is parsed from the configuration frame
                     if (ConfigurationFileCells is null)
-                        ConfigurationFileCells = new ConfigurationCellCollection();
+                        ConfigurationFileCells = [];
 
                     ConfigurationFileCells.Clear();
 
@@ -489,7 +489,7 @@ namespace Gemstone.PhasorProtocols.BPAPDCstream
                         if (refreshCausedByFrameParse)
                         {
                             // Create a new configuration cell collection that will account for PDC block cells
-                            ConfigurationCellCollection cellCollection = new();
+                            ConfigurationCellCollection cellCollection = [];
 
                             // For freshly parsed configuration frames we'll have no PMU's in configuration
                             // frame for PDCxchng blocks - so we'll need to dynamically create them

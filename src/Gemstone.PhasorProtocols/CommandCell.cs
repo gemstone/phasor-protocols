@@ -105,7 +105,7 @@ namespace Gemstone.PhasorProtocols
         {
             get
             {
-                return new[] { m_extendedDataByte };
+                return [m_extendedDataByte];
             }
         }
 

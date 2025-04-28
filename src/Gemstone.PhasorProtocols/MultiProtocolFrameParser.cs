@@ -346,7 +346,7 @@ namespace Gemstone.PhasorProtocols
             /// <summary>
             /// Gets the IDs of clients connected to the server.
             /// </summary>
-            public Guid[] ClientIDs => m_tcpServer?.ClientIDs ?? Array.Empty<Guid>();
+            public Guid[] ClientIDs => m_tcpServer?.ClientIDs ?? [];
 
             /// <summary>
             /// Gets the <see cref="Time"/> for which the server has been running.
@@ -468,7 +468,10 @@ namespace Gemstone.PhasorProtocols
             /// <param name="offset">The zero-based position in the <paramref name="data"/> at which to begin sending data.</param>
             /// <param name="length">The number of bytes to be sent from <paramref name="data"/> starting at the <paramref name="offset"/>.</param>
             /// <returns>Array of <see cref="WaitHandle"/> for the asynchronous operation.</returns>
-            public WaitHandle[] MulticastAsync(byte[] data, int offset, int length) => m_tcpServer is null ? Array.Empty<WaitHandle>() : new[] { m_tcpServer.SendToAsync(m_clientID, data, offset, length) };
+            public WaitHandle[] MulticastAsync(byte[] data, int offset, int length) => m_tcpServer is null ? [] :
+            [
+                m_tcpServer.SendToAsync(m_clientID, data, offset, length)
+            ];
 
             /// <summary>
             /// Reads a number of bytes from the current received data buffer and writes those bytes into a byte array at the specified offset.

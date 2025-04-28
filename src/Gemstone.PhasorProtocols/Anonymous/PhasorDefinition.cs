@@ -51,7 +51,7 @@ namespace Gemstone.PhasorProtocols.Anonymous
         /// <param name="voltageReference">The associated <see cref="IPhasorDefinition"/> that represents the voltage reference (if any).</param>
         /// <param name="originalSourceIndex">The original source phasor index, if applicable.</param>
         /// <param name="phase">The phase of this <see cref="PhasorDefinition"/>.</param>
-        public PhasorDefinition(ConfigurationCell parent, string label, uint scale, PhasorType type, PhasorDefinition voltageReference, int originalSourceIndex = -1, char phase = '+')
+        public PhasorDefinition(ConfigurationCell parent, string label, uint scale, PhasorType type, PhasorDefinition? voltageReference, int originalSourceIndex = -1, char phase = '+')
             : base(parent, label, scale, 0.0D, type, voltageReference)
         {
             OriginalSourceIndex = originalSourceIndex;
@@ -79,7 +79,7 @@ namespace Gemstone.PhasorProtocols.Anonymous
         /// </summary>
         public new virtual ConfigurationCell Parent
         {
-            get => base.Parent as ConfigurationCell;
+            get => (base.Parent as ConfigurationCell)!;
             set => base.Parent = value;
         }
 

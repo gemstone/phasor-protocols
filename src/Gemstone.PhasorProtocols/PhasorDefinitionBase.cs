@@ -40,7 +40,7 @@ namespace Gemstone.PhasorProtocols
 
         // Fields
         private PhasorType m_type;
-        private IPhasorDefinition m_voltageReference;
+        private IPhasorDefinition? m_voltageReference;
 
         #endregion
 
@@ -64,15 +64,11 @@ namespace Gemstone.PhasorProtocols
         /// <param name="offset">The offset of this <see cref="PhasorDefinitionBase"/>.</param>
         /// <param name="type">The <see cref="PhasorType"/> of this <see cref="PhasorDefinitionBase"/>.</param>
         /// <param name="voltageReference">The associated <see cref="IPhasorDefinition"/> that represents the voltage reference (if any).</param>
-        protected PhasorDefinitionBase(IConfigurationCell parent, string label, uint scale, double offset, PhasorType type, IPhasorDefinition voltageReference)
+        protected PhasorDefinitionBase(IConfigurationCell parent, string label, uint scale, double offset, PhasorType type, IPhasorDefinition? voltageReference)
             : base(parent, label, scale, offset)
         {
             m_type = type;
-
-            if (type == PhasorType.Voltage)
-                m_voltageReference = this;
-            else
-                m_voltageReference = voltageReference;
+            m_voltageReference = type == PhasorType.Voltage ? this : voltageReference;
         }
 
         /// <summary>
@@ -84,8 +80,8 @@ namespace Gemstone.PhasorProtocols
             : base(info, context)
         {
             // Deserialize phasor definition
-            m_type = (PhasorType)info.GetValue("type", typeof(PhasorType));
-            m_voltageReference = (IPhasorDefinition)info.GetValue("voltageReference", typeof(IPhasorDefinition));
+            m_type = (PhasorType)info.GetValue("type", typeof(PhasorType))!;
+            m_voltageReference = (IPhasorDefinition)info.GetValue("voltageReference", typeof(IPhasorDefinition))!;
         }
 
         #endregion
@@ -122,16 +118,10 @@ namespace Gemstone.PhasorProtocols
         /// <remarks>
         /// This only applies to current phasors.
         /// </remarks>
-        public virtual IPhasorDefinition VoltageReference
+        public virtual IPhasorDefinition? VoltageReference
         {
             get => m_voltageReference;
-            set
-            {
-                if (m_type == PhasorType.Voltage)
-                    m_voltageReference = this;
-                else
-                    m_voltageReference = value;
-            }
+            set => m_voltageReference = m_type == PhasorType.Voltage ? this : value;
         }
 
         /// <summary>
