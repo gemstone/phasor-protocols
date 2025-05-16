@@ -51,6 +51,10 @@
     <None Remove="FNET\UI\FNETChunk.js" />
     <None Remove="IEC61850_90_5\UI\Iec61850_90_5.js" />
     <None Remove="IEC61850_90_5\UI\IEC61850_90_5Chunk.js" />
+    <None Remove="IEEEC37_118\UI\IEEC37_118_2-2011.js" />
+    <None Remove="IEEEC37_118\UI\IEEC37_118_2-2011Chunk.js" />
+    <None Remove="IEEEC37_118\UI\IEEEC37_118V2.js" />
+    <None Remove="IEEEC37_118\UI\IEEEC37_118V2Chunk.js" />
     <None Remove="Macrodyne\UI\chunk.js" />
     <None Remove="Macrodyne\UI\Macrodyne.js" />
     <None Remove="Macrodyne\UI\MacrodyneChunk.js" />
@@ -68,6 +72,8 @@
     <EmbeddedResource Include="FNET\UI\FNETChunk.js" />
     <EmbeddedResource Include="IEC61850_90_5\UI\IEC61850_90_5.js" />
     <EmbeddedResource Include="IEC61850_90_5\UI\IEC61850_90_5Chunk.js" />
+    <EmbeddedResource Include="IEEEC37_118\UI\IEEEC37_118V2.js" />
+    <EmbeddedResource Include="IEEEC37_118\UI\IEEEC37_118V2Chunk.js" />
     <EmbeddedResource Include="Macrodyne\UI\Macrodyne.js" />
     <EmbeddedResource Include="Macrodyne\UI\MacrodyneChunk.js" />
     <EmbeddedResource Include="SelFastMessage\UI\SelFastMessage.js" />
