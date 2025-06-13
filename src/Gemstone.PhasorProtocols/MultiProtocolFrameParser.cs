@@ -2470,6 +2470,8 @@ namespace Gemstone.PhasorProtocols
                         // INI file name setting is required
                         if (settings.TryGetValue("iniFileName", out setting))
                             bpaPdcParameters.ConfigurationFileName = FilePath.GetAbsolutePath(setting);
+                        else if (settings.TryGetValue("configurationFileName", out setting))
+                            bpaPdcParameters.ConfigurationFileName = FilePath.GetAbsolutePath(setting);
                         else if (string.IsNullOrWhiteSpace(bpaPdcParameters.ConfigurationFileName))
                             throw new ArgumentException("BPA PDCstream INI filename setting (e.g., \"iniFileName=DEVICE_PDC.ini\") was not found. This setting is required for BPA PDCstream protocol connections - frame parser initialization terminated.");
 
