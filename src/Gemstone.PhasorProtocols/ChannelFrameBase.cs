@@ -85,7 +85,7 @@ namespace Gemstone.PhasorProtocols
             m_lifespan = ShortTime.Now;
             m_trustHeaderLength = true;
             m_validateCheckSum = true;
-            Measurements = new ConcurrentDictionary<MeasurementKey, IMeasurement>();
+            Measurements = [];
             m_sortedMeasurements = -1;
         }
 
@@ -103,7 +103,7 @@ namespace Gemstone.PhasorProtocols
             m_lifespan = ShortTime.Now;
             m_trustHeaderLength = true;
             m_validateCheckSum = true;
-            Measurements = new ConcurrentDictionary<MeasurementKey, IMeasurement>();
+            Measurements = [];
             m_sortedMeasurements = -1;
         }
 
@@ -149,7 +149,7 @@ namespace Gemstone.PhasorProtocols
         /// <remarks>
         /// Represents a dictionary of measurements, keyed by <see cref="MeasurementKey"/>.
         /// </remarks>
-        public ConcurrentDictionary<MeasurementKey, IMeasurement> Measurements { get; }
+        public MeasurementDictionary Measurements { get; }
 
         /// <summary>
         /// Gets or sets the ID code of this <see cref="ChannelFrameBase{T}"/>.
