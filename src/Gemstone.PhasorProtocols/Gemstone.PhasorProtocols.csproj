@@ -78,6 +78,8 @@
     <EmbeddedResource Include="Macrodyne\UI\MacrodyneChunk.js" />
     <EmbeddedResource Include="SelFastMessage\UI\SelFastMessage.js" />
     <EmbeddedResource Include="SelFastMessage\UI\SelFastMessageChunk.js" />
+    <EmbeddedResource Include="Virtual\UI\VirtualInput.js" />
+    <EmbeddedResource Include="Virtual\UI\VirtualInputChunk.js" />
   </ItemGroup>
 
   <ItemGroup>
