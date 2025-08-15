@@ -44,15 +44,23 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Write NuGet.config with source mapping
+      - name: Write NuGet.config with sources, creds, and mapping
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat > NuGet.config <<'XML'
+          cat > NuGet.config <<EOF
           <?xml version="1.0" encoding="utf-8"?>
           <configuration>
             <packageSources>
               <add key="github" value="https://nuget.pkg.github.com/Gemstone/index.json" />
               <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
             </packageSources>
+            <packageSourceCredentials>
+              <github>
+                <add key="Username" value="${GITHUB_ACTOR}" />
+                <add key="ClearTextPassword" value="${NUGET_AUTH_TOKEN}" />
+              </github>
+            </packageSourceCredentials>
             <packageSourceMapping>
               <packageSource key="github">
                 <package pattern="Gemstone.*" />
@@ -62,8 +70,7 @@ jobs:
               </packageSource>
             </packageSourceMapping>
           </configuration>
-          XML
-
+          EOF
           
       - name: Pin SDK via global.json
         run: echo '{"sdk":{"version":"${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > global.json
