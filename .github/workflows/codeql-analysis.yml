@@ -44,6 +44,8 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
+        # Setup CodeQL to restore Gemstone packages from GitHub Packages,
+        # this way the packages are immediately available for analysis.
       - name: Write NuGet.config with sources, creds, and mapping
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +90,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: manual
-          # queries: security-and-quality   # optional
+          queries: security-and-quality
 
       - name: Restore
         run: dotnet restore ./src/Gemstone.PhasorProtocols/Gemstone.PhasorProtocols.csproj --configfile NuGet.config
