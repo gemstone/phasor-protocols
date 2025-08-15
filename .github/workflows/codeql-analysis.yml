@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      packages: read
 
     env:
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -38,7 +39,30 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-
+          source-url: https://nuget.pkg.github.com/Gemstone/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Write NuGet.config with source mapping
+        run: |
+          cat > NuGet.config <<'XML'
+            <?xml version="1.0" encoding="utf-8"?>
+            <configuration>
+              <packageSources>
+                <add key="github" value="https://nuget.pkg.github.com/<OWNER>/index.json" />
+                <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+              </packageSources>
+              <packageSourceMapping>
+                <packageSource key="github">
+                  <package pattern="Gemstone.*" />
+                </packageSource>
+                <packageSource key="nuget.org">
+                  <package pattern="*" />
+                </packageSource>
+              </packageSourceMapping>
+            </configuration>
+          XML          
+          
       - name: Pin SDK via global.json
         run: echo '{"sdk":{"version":"${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > global.json
 
@@ -58,7 +82,7 @@ jobs:
           # queries: security-and-quality   # optional
 
       - name: Restore
-        run: dotnet restore ./src/Gemstone.PhasorProtocols/Gemstone.PhasorProtocols.csproj
+        run: dotnet restore ./src/Gemstone.PhasorProtocols/Gemstone.PhasorProtocols.csproj --configfile NuGet.config
 
       - name: Build
         run: dotnet build -c Release ./src/Gemstone.PhasorProtocols/Gemstone.PhasorProtocols.csproj --no-restore
