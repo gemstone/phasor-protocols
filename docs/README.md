@@ -10,7 +10,7 @@ The Gemstone PhasorProtocols Library organizes all Gemstone functionality relate
 [![GitHub license](https://img.shields.io/github/license/gemstone/phasor-protocols?color=4CC61E)](https://github.com/gemstone/phasor-protocols/blob/master/LICENSE)
 [![Build status](https://ci.appveyor.com/api/projects/status/u6qs98vlw8abidrv?svg=true)](https://ci.appveyor.com/project/ritchiecarroll/phasor-protocols)
 ![CodeQL](https://github.com/gemstone/phasor-protocols/workflows/CodeQL/badge.svg)
-[![NuGet](https://buildstats.info/nuget/Gemstone.PhasorProtocols)](https://www.nuget.org/packages/Gemstone.PhasorProtocols#readme-body-tab)
+[![NuGet](https://img.shields.io/nuget/vpre/Gemstone.PhasorProtocols)](https://www.nuget.org/packages/Gemstone.PhasorProtocols#readme-body-tab)
 
 This library includes helpful phasor protocol classes like the following:
 
