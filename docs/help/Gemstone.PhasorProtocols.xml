@@ -5110,7 +5110,7 @@
     </member>
     <member name="P:Gemstone.PhasorProtocols.MultiProtocolFrameParser.InjectSimulatedTimestamp">
       <summary>
-            Gets or sets flag indicating whether or not to inject local system time into parsed data frames.
+            Gets or sets flag indicating whether to inject local system time into parsed data frames.
             </summary>
       <remarks>
             When connection is made to a file for replay purposes or consumer doesn't trust remote clock source, this flag
