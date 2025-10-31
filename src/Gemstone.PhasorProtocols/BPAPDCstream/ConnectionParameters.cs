@@ -155,6 +155,7 @@ namespace Gemstone.PhasorProtocols.BPAPDCstream
         /// Determines if selected BPA PDCstream configuration file exists.
         /// </summary>
         [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool ValuesAreValid => File.Exists(m_configurationFileName);
 
         #endregion

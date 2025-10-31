@@ -152,6 +152,7 @@ namespace Gemstone.PhasorProtocols.Macrodyne
         /// Determines if selected Macrodyne configuration file exists when needed.
         /// </summary>
         [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool ValuesAreValid
         {
             get
