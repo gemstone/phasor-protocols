@@ -142,7 +142,11 @@ namespace Gemstone.PhasorProtocols
         /// <summary>
         /// IEC 61850-90-5 protocol.
         /// </summary>
-        IEC61850_90_5
+        IEC61850_90_5,
+        /// <summary>
+        /// SEL CWS protocol.
+        /// </summary>
+        SelCWS
     }
 
     #endregion
@@ -1527,6 +1531,7 @@ namespace Gemstone.PhasorProtocols
                     PhasorProtocol.SelFastMessage => new SelFastMessage.ConnectionParameters(),
                     PhasorProtocol.IEC61850_90_5 => new IEC61850_90_5.ConnectionParameters(),
                     PhasorProtocol.Macrodyne => new Macrodyne.ConnectionParameters(),
+                    PhasorProtocol.SelCWS => new SelCWS.ConnectionParameters(),
                     _ => null,
                 };
             }
@@ -2423,7 +2428,7 @@ namespace Gemstone.PhasorProtocols
         /// <param name="settings">Key/value pairs dictionary parsed from connection string.</param>
         private void InitializeFrameParser(Dictionary<string, string> settings)
         {
-            string setting;
+            string? setting;
 
             // Instantiate protocol specific frame parser
             switch (m_phasorProtocol)
@@ -2537,6 +2542,22 @@ namespace Gemstone.PhasorProtocols
 
                         if (settings.TryGetValue("refreshConfigFileOnChange", out setting))
                             macrodyneParameters.RefreshConfigurationFileOnChange = setting.ParseBoolean();
+                    }
+                    break;
+                case PhasorProtocol.SelCWS:
+                    m_frameParser = new SelCWS.FrameParser(m_checkSumValidationFrameTypes, TrustHeaderLength);
+
+                    // Check for SEL CWS protocol specific parameters in connection string
+                    if (m_connectionParameters is SelCWS.ConnectionParameters selCWSParameters)
+                    {
+                        if (settings.TryGetValue("calculatePhaseEstimates", out setting))
+                            selCWSParameters.CalculatePhaseEstimates = setting.ParseBoolean();
+
+                        if (settings.TryGetValue("frameRate", out setting) && ushort.TryParse(setting, out ushort frameRate))
+                            selCWSParameters.FrameRate = frameRate;
+
+                        if (settings.TryGetValue("nominalFrequency", out setting) && Enum.TryParse(setting, true, out LineFrequency nominalFrequency))
+                            selCWSParameters.NominalFrequency = nominalFrequency;
                     }
                     break;
                 default:
