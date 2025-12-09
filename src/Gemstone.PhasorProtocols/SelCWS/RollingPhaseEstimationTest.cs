@@ -104,6 +104,7 @@ internal class Program
         for (int i = 0; i < TotalSamples; i++)
         {
             double t = i / sampleRate;
+
             double ia = amplitude * Math.Sin(Omega * t);
             double ib = amplitude * Math.Sin(Omega * t - 2.0 * Math.PI / 3.0);
             double ic = amplitude * Math.Sin(Omega * t + 2.0 * Math.PI / 3.0);
@@ -158,7 +159,7 @@ internal class Program
         for (int i = 0; i < TotalSamples; i++)
         {
             double t = i / sampleRate;
-
+            
             double ia = peakAmplitudes[0] * Math.Sin(Omega * t);
             double ib = peakAmplitudes[1] * Math.Sin(Omega * t - 2.0 * Math.PI / 3.0);
             double ic = peakAmplitudes[2] * Math.Sin(Omega * t + 2.0 * Math.PI / 3.0);
@@ -180,7 +181,7 @@ internal class Program
             string[] names = { "IA", "IB", "IC", "VA", "VB", "VC" };
             for (int i = 0; i < 6; i++)
             {
-                double error = Math.Abs(lastEstimate.Magnitudes[i] - expectedRms[i]);
+                double error = Math.Abs(lastEstimate.Magnitudes![i] - expectedRms[i]);
                 double errorPct = error / expectedRms[i] * 100;
                 System.Console.WriteLine($"  {names[i]}: Measured={lastEstimate.Magnitudes[i]:F4}, Expected={expectedRms[i]:F4}, Error={errorPct:F2}%");
             }
@@ -203,6 +204,7 @@ internal class Program
         const double CurrentLeadRad = 30.0 * Math.PI / 180.0;
         const int TotalSamples = (int)(sampleRate / nominalFreq * 5);
         const long SamplePeriodNs = (long)(1e9 / sampleRate);
+        const double Omega = 2.0 * Math.PI * nominalFreq;
         long epochNs = 0;
 
         PhaseEstimate lastEstimate = new();
@@ -211,17 +213,16 @@ internal class Program
         for (int i = 0; i < TotalSamples; i++)
         {
             double t = i / sampleRate;
-            double omega = 2.0 * Math.PI * nominalFreq;
 
             // Currents with 30° lead
-            double ia = amplitude * Math.Sin(omega * t + CurrentLeadRad);
-            double ib = amplitude * Math.Sin(omega * t - 2.0 * Math.PI / 3.0 + CurrentLeadRad);
-            double ic = amplitude * Math.Sin(omega * t + 2.0 * Math.PI / 3.0 + CurrentLeadRad);
+            double ia = amplitude * Math.Sin(Omega * t + CurrentLeadRad);
+            double ib = amplitude * Math.Sin(Omega * t - 2.0 * Math.PI / 3.0 + CurrentLeadRad);
+            double ic = amplitude * Math.Sin(Omega * t + 2.0 * Math.PI / 3.0 + CurrentLeadRad);
 
             // Voltages (reference)
-            double va = amplitude * Math.Sin(omega * t);
-            double vb = amplitude * Math.Sin(omega * t - 2.0 * Math.PI / 3.0);
-            double vc = amplitude * Math.Sin(omega * t + 2.0 * Math.PI / 3.0);
+            double va = amplitude * Math.Sin(Omega * t);
+            double vb = amplitude * Math.Sin(Omega * t - 2.0 * Math.PI / 3.0);
+            double vc = amplitude * Math.Sin(Omega * t + 2.0 * Math.PI / 3.0);
 
             if (estimator.Step(ia, ib, ic, va, vb, vc, epochNs, out PhaseEstimate? estimate))
             {
