@@ -69,6 +69,7 @@ public class ConfigurationFrame : ConfigurationFrameBase, ISupportSourceIdentifi
     public ConfigurationFrame()
         : base(0, new ConfigurationCellCollection(), 0, 0)
     {
+        FrameRate = Common.DefaultFrameRate;
     }
 
     /// <summary>

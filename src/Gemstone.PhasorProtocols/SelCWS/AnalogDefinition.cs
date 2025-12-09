@@ -28,73 +28,72 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Gemstone.PhasorProtocols.SelCWS
+namespace Gemstone.PhasorProtocols.SelCWS;
+
+/// <summary>
+/// Represents the SEL CWS implementation of an <see cref="IAnalogDefinition"/>.
+/// </summary>
+[Serializable]
+public class AnalogDefinition : AnalogDefinitionBase
 {
+    #region [ Members ]
+
+    // Constants        
+    internal const int ConversionFactorLength = 4;
+
+    #endregion
+
+    #region [ Constructors ]
+
     /// <summary>
-    /// Represents the SEL CWS implementation of an <see cref="IAnalogDefinition"/>.
+    /// Creates a new <see cref="AnalogDefinition"/> from specified parameters.
     /// </summary>
-    [Serializable]
-    public class AnalogDefinition : AnalogDefinitionBase
+    /// <param name="parent">The <see cref="IConfigurationCell"/> parent of this <see cref="AnalogDefinition"/>.</param>
+    public AnalogDefinition(IConfigurationCell parent)
+        : base(parent)
     {
-        #region [ Members ]
-
-        // Constants        
-        internal const int ConversionFactorLength = 4;
-
-        #endregion
-
-        #region [ Constructors ]
-
-        /// <summary>
-        /// Creates a new <see cref="AnalogDefinition"/> from specified parameters.
-        /// </summary>
-        /// <param name="parent">The <see cref="IConfigurationCell"/> parent of this <see cref="AnalogDefinition"/>.</param>
-        public AnalogDefinition(IConfigurationCell parent)
-            : base(parent)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="AnalogDefinition"/> from specified parameters.
-        /// </summary>
-        /// <param name="parent">The <see cref="ConfigurationCell"/> parent of this <see cref="AnalogDefinition"/>.</param>
-        /// <param name="label">The label of this <see cref="AnalogDefinition"/>.</param>
-        /// <param name="scale">The integer scaling value of this <see cref="AnalogDefinition"/>.</param>
-        /// <param name="offset">The offset of this <see cref="AnalogDefinition"/>.</param>
-        /// <param name="type">The <see cref="AnalogType"/> of this <see cref="AnalogDefinition"/>.</param>
-        public AnalogDefinition(ConfigurationCell parent, string label, uint scale, double offset, AnalogType type)
-            : base(parent, label, scale, offset, type)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="AnalogDefinition"/> from serialization parameters.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/> with populated with data.</param>
-        /// <param name="context">The source <see cref="StreamingContext"/> for this deserialization.</param>
-        protected AnalogDefinition(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-
-        #endregion
-
-        #region [ Properties ]
-
-        /// <summary>
-        /// Gets or sets the <see cref="ConfigurationCell"/> parent of this <see cref="AnalogDefinition"/>.
-        /// </summary>
-        public new virtual ConfigurationCell Parent
-        {
-            get => (base.Parent as ConfigurationCell)!;
-            set => base.Parent = value;
-        }
-
-        /// <summary>
-        /// Gets or set scalar for this POW analog.
-        /// </summary>
-        public double Scalar { get; set; }
-
-        #endregion
     }
+
+    /// <summary>
+    /// Creates a new <see cref="AnalogDefinition"/> from specified parameters.
+    /// </summary>
+    /// <param name="parent">The <see cref="ConfigurationCell"/> parent of this <see cref="AnalogDefinition"/>.</param>
+    /// <param name="label">The label of this <see cref="AnalogDefinition"/>.</param>
+    /// <param name="scale">The integer scaling value of this <see cref="AnalogDefinition"/>.</param>
+    /// <param name="offset">The offset of this <see cref="AnalogDefinition"/>.</param>
+    /// <param name="type">The <see cref="AnalogType"/> of this <see cref="AnalogDefinition"/>.</param>
+    public AnalogDefinition(ConfigurationCell parent, string label, uint scale, double offset, AnalogType type)
+        : base(parent, label, scale, offset, type)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="AnalogDefinition"/> from serialization parameters.
+    /// </summary>
+    /// <param name="info">The <see cref="SerializationInfo"/> with populated with data.</param>
+    /// <param name="context">The source <see cref="StreamingContext"/> for this deserialization.</param>
+    protected AnalogDefinition(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    {
+    }
+
+    #endregion
+
+    #region [ Properties ]
+
+    /// <summary>
+    /// Gets or sets the <see cref="ConfigurationCell"/> parent of this <see cref="AnalogDefinition"/>.
+    /// </summary>
+    public new virtual ConfigurationCell Parent
+    {
+        get => (base.Parent as ConfigurationCell)!;
+        set => base.Parent = value;
+    }
+
+    /// <summary>
+    /// Gets or set scalar for this POW analog.
+    /// </summary>
+    public double Scalar { get; set; }
+
+    #endregion
 }

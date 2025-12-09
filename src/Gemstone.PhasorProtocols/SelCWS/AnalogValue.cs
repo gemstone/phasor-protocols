@@ -28,85 +28,84 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Gemstone.PhasorProtocols.SelCWS
+namespace Gemstone.PhasorProtocols.SelCWS;
+
+/// <summary>
+/// Represents the SEL CWS implementation of an <see cref="IAnalogValue"/>.
+/// </summary>
+[Serializable]
+public class AnalogValue : AnalogValueBase
 {
+    #region [ Constructors ]
+
     /// <summary>
-    /// Represents the SEL CWS implementation of an <see cref="IAnalogValue"/>.
+    /// Creates a new <see cref="AnalogValue"/>.
     /// </summary>
-    [Serializable]
-    public class AnalogValue : AnalogValueBase
+    /// <param name="parent">The <see cref="IDataCell"/> parent of this <see cref="AnalogValue"/>.</param>
+    /// <param name="analogDefinition">The <see cref="IAnalogDefinition"/> associated with this <see cref="AnalogValue"/>.</param>
+    public AnalogValue(IDataCell parent, IAnalogDefinition analogDefinition)
+        : base(parent, analogDefinition)
     {
-        #region [ Constructors ]
-
-        /// <summary>
-        /// Creates a new <see cref="AnalogValue"/>.
-        /// </summary>
-        /// <param name="parent">The <see cref="IDataCell"/> parent of this <see cref="AnalogValue"/>.</param>
-        /// <param name="analogDefinition">The <see cref="IAnalogDefinition"/> associated with this <see cref="AnalogValue"/>.</param>
-        public AnalogValue(IDataCell parent, IAnalogDefinition analogDefinition)
-            : base(parent, analogDefinition)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="AnalogValue"/> from specified parameters.
-        /// </summary>
-        /// <param name="parent">The <see cref="DataCell"/> parent of this <see cref="AnalogValue"/>.</param>
-        /// <param name="analogDefinition">The <see cref="AnalogDefinition"/> associated with this <see cref="AnalogValue"/>.</param>
-        /// <param name="value">The floating point value that represents this <see cref="AnalogValue"/>.</param>
-        public AnalogValue(DataCell parent, AnalogDefinition analogDefinition, double value)
-            : base(parent, analogDefinition, value)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="AnalogValue"/> from serialization parameters.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/> with populated with data.</param>
-        /// <param name="context">The source <see cref="StreamingContext"/> for this deserialization.</param>
-        protected AnalogValue(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-
-        #endregion
-
-        #region [ Properties ]
-
-        /// <summary>
-        /// Gets or sets the <see cref="DataCell"/> parent of this <see cref="AnalogValue"/>.
-        /// </summary>
-        public new virtual DataCell Parent
-        {
-            get => (base.Parent as DataCell)!;
-            set => base.Parent = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the <see cref="AnalogDefinition"/> associated with this <see cref="AnalogValue"/>.
-        /// </summary>
-        public new virtual AnalogDefinition Definition
-        {
-            get => (base.Definition as AnalogDefinition)!;
-            set => base.Definition = value;
-        }
-
-        #endregion
-
-        #region [ Static ]
-
-        // Static Methods
-
-        // Delegate handler to create a new SEL CWS analog value
-        internal static IAnalogValue CreateNewValue(IDataCell parent, IAnalogDefinition definition, byte[] buffer, int startIndex, out int parsedLength)
-        {
-            IAnalogValue analog = new AnalogValue(parent, definition);
-
-            parsedLength = analog.ParseBinaryImage(buffer, startIndex, 0);
-
-            return analog;
-        }
-
-        #endregion
     }
+
+    /// <summary>
+    /// Creates a new <see cref="AnalogValue"/> from specified parameters.
+    /// </summary>
+    /// <param name="parent">The <see cref="DataCell"/> parent of this <see cref="AnalogValue"/>.</param>
+    /// <param name="analogDefinition">The <see cref="AnalogDefinition"/> associated with this <see cref="AnalogValue"/>.</param>
+    /// <param name="value">The floating point value that represents this <see cref="AnalogValue"/>.</param>
+    public AnalogValue(DataCell parent, AnalogDefinition analogDefinition, double value)
+        : base(parent, analogDefinition, value)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="AnalogValue"/> from serialization parameters.
+    /// </summary>
+    /// <param name="info">The <see cref="SerializationInfo"/> with populated with data.</param>
+    /// <param name="context">The source <see cref="StreamingContext"/> for this deserialization.</param>
+    protected AnalogValue(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    {
+    }
+
+    #endregion
+
+    #region [ Properties ]
+
+    /// <summary>
+    /// Gets or sets the <see cref="DataCell"/> parent of this <see cref="AnalogValue"/>.
+    /// </summary>
+    public new virtual DataCell Parent
+    {
+        get => (base.Parent as DataCell)!;
+        set => base.Parent = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="AnalogDefinition"/> associated with this <see cref="AnalogValue"/>.
+    /// </summary>
+    public new virtual AnalogDefinition Definition
+    {
+        get => (base.Definition as AnalogDefinition)!;
+        set => base.Definition = value;
+    }
+
+    #endregion
+
+    #region [ Static ]
+
+    // Static Methods
+
+    // Delegate handler to create a new SEL CWS analog value
+    internal static IAnalogValue CreateNewValue(IDataCell parent, IAnalogDefinition definition, byte[] buffer, int startIndex, out int parsedLength)
+    {
+        IAnalogValue analog = new AnalogValue(parent, definition);
+
+        parsedLength = analog.ParseBinaryImage(buffer, startIndex, 0);
+
+        return analog;
+    }
+
+    #endregion
 }

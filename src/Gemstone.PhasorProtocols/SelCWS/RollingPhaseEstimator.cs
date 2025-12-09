@@ -383,8 +383,8 @@ internal sealed class RollingPhaseEstimator
     // Computes the phase estimate from current phasor values.
     private PhaseEstimate ComputeEstimate(long epochNanoseconds)
     {
-        var angles = new Angle[NumChannels];
-        var magnitudes = new double[NumChannels];
+        Angle[] angles = new Angle[NumChannels];
+        double[] magnitudes = new double[NumChannels];
 
         // Scaling factor for RMS magnitude from DFT
         // For a pure sinusoid: DFT magnitude = N * A / 2, where A is peak amplitude
@@ -469,8 +469,7 @@ internal sealed class RollingPhaseEstimator
             double instantaneousRocof = (m_smoothedFrequency - m_prevSmoothedFrequency) / deltaTimeSeconds;
 
             // Smooth ROCOF
-            m_smoothedRocof = m_rocofAlpha * instantaneousRocof +
-                              (1.0 - m_rocofAlpha) * m_smoothedRocof;
+            m_smoothedRocof = m_rocofAlpha * instantaneousRocof + (1.0 - m_rocofAlpha) * m_smoothedRocof;
             rocof = m_smoothedRocof;
         }
         else

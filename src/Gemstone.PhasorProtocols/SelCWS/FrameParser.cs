@@ -230,7 +230,7 @@ public class FrameParser : FrameParserBase<FrameType>
 
         DataCell cell = dataFrame.Cells[0];
 
-        if (cell.PhasorValues.Count != 6)
+        if (cell.AnalogValues.Count != 6)
             return;
 
         // Expected order defined by SEL CWS protocol:
