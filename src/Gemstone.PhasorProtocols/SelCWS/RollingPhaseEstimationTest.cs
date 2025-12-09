@@ -1,4 +1,6 @@
-﻿using System;
+﻿// ReSharper disable UnusedParameter.Local
+
+using System;
 using Gemstone.Numeric.EE;
 
 namespace Gemstone.PhasorProtocols.SelCWS;
@@ -28,7 +30,7 @@ internal class Program
         System.Console.WriteLine("\nAll tests completed.");
     }
 
-    static void TestNominalFrequency()
+    private static void TestNominalFrequency()
     {
         System.Console.WriteLine("Test 1: Nominal Frequency Operation (60 Hz)");
         System.Console.WriteLine("-------------------------------------------");
@@ -63,7 +65,7 @@ internal class Program
 
             if (estimator.Step(ia, ib, ic, va, vb, vc, epochNs, out PhaseEstimate? estimate))
             {
-                lastEstimate = estimate!.Value;
+                lastEstimate = estimate.Value;
                 gotEstimate = true;
                 estimateCount++;
             }
@@ -82,7 +84,7 @@ internal class Program
         System.Console.WriteLine();
     }
 
-    static void TestFrequencyDeviation()
+    private static void TestFrequencyDeviation()
     {
         System.Console.WriteLine("Test 2: Frequency Deviation Detection (61 Hz vs 60 Hz nominal)");
         System.Console.WriteLine("--------------------------------------------------------------");
@@ -130,7 +132,7 @@ internal class Program
         System.Console.WriteLine();
     }
 
-    static void TestMagnitudeMeasurement()
+    private static void TestMagnitudeMeasurement()
     {
         System.Console.WriteLine("Test 3: Magnitude Measurement (various amplitudes)");
         System.Console.WriteLine("--------------------------------------------------");
@@ -141,7 +143,7 @@ internal class Program
         RollingPhaseEstimator estimator = new(sampleRate, LineFrequency.Hz60);
 
         // Different amplitudes for each channel
-        double[] peakAmplitudes = { 100.0, 150.0, 200.0, 120.0, 180.0, 90.0 };
+        double[] peakAmplitudes = [100.0, 150.0, 200.0, 120.0, 180.0, 90.0];
         double[] expectedRms = new double[6];
         
         for (int i = 0; i < 6; i++)
@@ -178,7 +180,7 @@ internal class Program
 
         if (gotEstimate)
         {
-            string[] names = { "IA", "IB", "IC", "VA", "VB", "VC" };
+            string[] names = ["IA", "IB", "IC", "VA", "VB", "VC"];
             for (int i = 0; i < 6; i++)
             {
                 double error = Math.Abs(lastEstimate.Magnitudes![i] - expectedRms[i]);
@@ -189,7 +191,7 @@ internal class Program
         System.Console.WriteLine();
     }
 
-    static void TestPhaseAngles()
+    private static void TestPhaseAngles()
     {
         System.Console.WriteLine("Test 4: Phase Angle Relationships");
         System.Console.WriteLine("----------------------------------");
@@ -235,7 +237,7 @@ internal class Program
 
         if (gotEstimate)
         {
-            string[] names = { "IA", "IB", "IC", "VA", "VB", "VC" };
+            string[] names = ["IA", "IB", "IC", "VA", "VB", "VC"];
             
             System.Console.WriteLine("  Angles relative to VA:");
             
