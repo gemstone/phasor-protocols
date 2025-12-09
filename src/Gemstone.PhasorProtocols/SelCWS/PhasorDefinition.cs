@@ -82,10 +82,5 @@ public class PhasorDefinition : PhasorDefinitionBase
         set => base.Parent = value;
     }
 
-    /// <summary>
-    /// Gets or set scalar for this phasor.
-    /// </summary>
-    public double Scalar { get; set; }
-
     #endregion
 }

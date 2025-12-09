@@ -53,11 +53,15 @@ public class DataCell : DataCellBase
         : base(parent, configurationCell, 0x0000, Common.MaximumPhasorValues, Common.MaximumAnalogValues, Common.MaximumDigitalValues)
     {
         // Initialize frequency and df/dt
-        FrequencyValue = new FrequencyValue(this, configurationCell.FrequencyDefinition as FrequencyDefinition, double.NaN, double.NaN);
+        FrequencyValue = new FrequencyValue(this, (configurationCell.FrequencyDefinition as FrequencyDefinition)!, double.NaN, double.NaN);
+
+        // Initialize analog values
+        foreach (IAnalogDefinition definition in configurationCell.AnalogDefinitions)
+            AnalogValues.Add(new AnalogValue(this, (definition as AnalogDefinition)!, double.NaN));
 
         // Initialize phasor values
         foreach (IPhasorDefinition definition in configurationCell.PhasorDefinitions)
-            PhasorValues.Add(new PhasorValue(this, definition as PhasorDefinition, (Angle)double.NaN, double.NaN));
+            PhasorValues.Add(new PhasorValue(this, (definition as PhasorDefinition)!, (Angle)double.NaN, double.NaN));
     }
 
     /// <summary>
@@ -148,10 +152,10 @@ public class DataCell : DataCellBase
     {
         int index = startIndex;
 
-        // Update phasor values
-        foreach (PhasorValue phasor in PhasorValues.Cast<PhasorValue>())
+        // Update analog values
+        foreach (AnalogValue analog in AnalogValues.Cast<AnalogValue>())
         {
-            phasor.Magnitude = BigEndian.ToInt32(buffer, index) * phasor.Definition.Scalar;
+            analog.Value = BigEndian.ToInt32(buffer, index) * analog.Definition.Scalar;
             index += 4;
         }
 
