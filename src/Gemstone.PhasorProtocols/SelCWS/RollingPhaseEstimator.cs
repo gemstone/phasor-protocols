@@ -29,6 +29,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Gemstone.Numeric.EE;
+using Gemstone.Numeric.UnitExtensions;
 using Gemstone.Units;
 
 namespace Gemstone.PhasorProtocols.SelCWS;
