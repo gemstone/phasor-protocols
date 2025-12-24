@@ -68,6 +68,7 @@ public class FrameParser : FrameParserBase<FrameType>
     private ConfigurationFrame? m_configurationFrame;
     private DataFrame? m_initialDataFrame;
     private RollingPhaseEstimator? m_phaseEstimator;
+    private long[]? m_nanosecondPacketFrameOffsets;
 
     #endregion
 
@@ -176,7 +177,7 @@ public class FrameParser : FrameParserBase<FrameType>
             return null;
 
         // Parse common frame header
-        CommonFrameHeader parsedFrameHeader = new(buffer, offset, length);
+        CommonFrameHeader parsedFrameHeader = new(buffer, offset, length) { NominalFrequency = NominalFrequency };
 
         // Expose the frame buffer image in case client needs this data for any reason
         OnReceivedFrameBufferImage(parsedFrameHeader.FundamentalFrameType, buffer, offset, parsedFrameHeader.FrameLength);
@@ -253,7 +254,7 @@ public class FrameParser : FrameParserBase<FrameType>
             return parsedLength;
 
         // Ensure static nanosecond frame distribution is initialized
-        s_nanosecondPacketFrameOffsets ??= CalculateNanosecondPacketFrameOffsets(FrameRate, FramesPerPacket);
+        m_nanosecondPacketFrameOffsets ??= CalculateNanosecondPacketFrameOffsets(FrameRate, FramesPerPacket);
 
         // Move offset past initial data frame which includes 64-bit nanosecond timestamp
         offset += 32;
@@ -262,7 +263,7 @@ public class FrameParser : FrameParserBase<FrameType>
         // In the case of data frames in CWS, the source buffer has 49 more frames to parse after the first
         for (int i = 1; i < FramesPerPacket; i++)
         {
-            long nanosecondsTimestamp = m_initialDataFrame.NanosecondTimestamp + s_nanosecondPacketFrameOffsets[i];
+            long nanosecondsTimestamp = m_initialDataFrame.NanosecondTimestamp + m_nanosecondPacketFrameOffsets[i];
 
             DataFrame dataFrame = new(nanosecondsTimestamp, m_initialDataFrame.ConfigurationFrame)
             {
@@ -410,8 +411,6 @@ public class FrameParser : FrameParserBase<FrameType>
     #endregion
 
     #region [ Static ]
-
-    private static long[]? s_nanosecondPacketFrameOffsets;
 
     private static long[] CalculateNanosecondPacketFrameOffsets(long framesPerSecond, int framesPerPacket)
     {
