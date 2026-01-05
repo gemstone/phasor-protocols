@@ -364,7 +364,7 @@ public class FrameParser : FrameParserBase<FrameType>
         if (buffer[offset] != (byte)FrameType.DataFrame || m_initialDataFrame is null)
             return parsedLength;
 
-        // Ensure static nanosecond frame distribution is initialized
+        // Ensure nanosecond frame distribution is initialized
         m_nanosecondPacketFrameOffsets ??= CalculateNanosecondPacketFrameOffsets(FramesPerPacket);
 
         // Move offset past initial data frame which includes 64-bit nanosecond timestamp
