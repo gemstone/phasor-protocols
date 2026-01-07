@@ -323,7 +323,7 @@ namespace Gemstone.PhasorProtocols
         /// <remarks>
         /// The body image of the <see cref="ChannelFrameBase{T}"/> is the combined images of all the <see cref="Cells"/>.
         /// </remarks>
-        protected override byte[] BodyImage => m_cells.BinaryImage();
+        protected override byte[]? BodyImage => m_cells.BinaryImage();
 
         /// <summary>
         /// Gets the parsed binary length derived from the parsing state, if any.
@@ -454,7 +454,14 @@ namespace Gemstone.PhasorProtocols
         /// </remarks>
         protected virtual void AppendChecksum(byte[] buffer, int startIndex)
         {
-            BigEndian.CopyBytes(CalculateChecksum(buffer, 0, startIndex), buffer, startIndex);
+            try
+            {
+                BigEndian.CopyBytes(CalculateChecksum(buffer, 0, startIndex), buffer, startIndex);
+            }
+            catch (NotImplementedException)
+            {
+                // Ignore unimplemented checksum calculations
+            }
         }
 
         /// <summary>
