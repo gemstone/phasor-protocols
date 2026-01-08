@@ -5422,9 +5422,9 @@
       <returns>
         <c>true</c> if frame parser was successfully initialized; otherwise <c>false</c>.</returns>
       <remarks>
-            Starting the multi-protocol frame parser will automatically initialize the frame parsers so calling
+            Starting the multiprotocol frame parser will automatically initialize the frame parsers so calling
             this method then will be unnecessary, however, if you are using this class just to edit custom
-            connection parameters then initializing the will be necessary.
+            connection parameters then initializing them will be necessary.
             </remarks>
     </member>
     <member name="P:Gemstone.PhasorProtocols.MultiProtocolFrameParser.UseHighResolutionInputTimer">
@@ -5596,6 +5596,11 @@
     <member name="F:Gemstone.PhasorProtocols.PhasorProtocol.IEC61850_90_5">
       <summary>
             IEC 61850-90-5 protocol.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.PhasorProtocol.SelCWS">
+      <summary>
+            SEL CWS protocol.
             </summary>
     </member>
     <member name="T:Gemstone.PhasorProtocols.PhasorValueBase">
@@ -5807,6 +5812,32 @@
             </summary>
       <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
       <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.ReplayTimer">
+      <summary>
+            Replay timer class used to pace frame publication for file-based playback.
+            </summary>
+      <remarks>
+            This class uses a combination of coarse sleeping, yielding, and spinning for
+            accurate wait times with minimal CPU usage. Supports common frame rates, e.g.,
+            30 or 60, and very high frame rates, e.g., 3000.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.ReplayTimer.#ctor(System.Int32)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.ReplayTimer" /> instance.
+            </summary>
+      <param name="definedFrameRate">The defined frame rate in frames per second.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.ReplayTimer.DefinedFrameRate">
+      <summary>
+            Gets the defined frame rate for this timer.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.ReplayTimer.WaitNext">
+      <summary>
+            Blocks until the next scheduled frame rate interval.
+            </summary>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SourceChannel">
       <summary>
@@ -18063,6 +18094,1288 @@
     <member name="F:Gemstone.PhasorProtocols.Macrodyne.TriggerReason.UserDefined">
       <summary>
             000 USER - Manual trigger.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition">
+      <summary>
+            Represents the SEL CWS implementation of an <see cref="T:Gemstone.PhasorProtocols.IAnalogDefinition" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition.#ctor(Gemstone.PhasorProtocols.IConfigurationCell)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.IConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition.#ctor(Gemstone.PhasorProtocols.SelCWS.ConfigurationCell,System.String,System.UInt32,System.Double,Gemstone.PhasorProtocols.AnalogType)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" />.</param>
+      <param name="label">The label of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" />.</param>
+      <param name="scale">The integer scaling value of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" />.</param>
+      <param name="offset">The offset of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" />.</param>
+      <param name="type">The <see cref="T:Gemstone.PhasorProtocols.AnalogType" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition.Attributes">
+      <summary>
+            Gets a <see cref="T:System.Collections.Generic.Dictionary`2" /> of string based property names and values for this <see cref="T:Gemstone.PhasorProtocols.AnalogDefinitionBase" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
+      <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
+      <exception cref="T:System.Security.SecurityException">The caller does not have the required permission.</exception>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition.Parent">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition.Scalar">
+      <summary>
+            Gets or sets the scalar for this Point-on-Wave (POW) analog.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue">
+      <summary>
+            Represents the SEL CWS implementation of an <see cref="T:Gemstone.PhasorProtocols.IAnalogValue" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.AnalogValue.#ctor(Gemstone.PhasorProtocols.IDataCell,Gemstone.PhasorProtocols.IAnalogDefinition)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" />.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.IDataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" />.</param>
+      <param name="analogDefinition">The <see cref="T:Gemstone.PhasorProtocols.IAnalogDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.AnalogValue.#ctor(Gemstone.PhasorProtocols.SelCWS.DataCell,Gemstone.PhasorProtocols.SelCWS.AnalogDefinition,System.Double)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" />.</param>
+      <param name="analogDefinition">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" />.</param>
+      <param name="value">The floating point value that represents this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.AnalogValue.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.AnalogValue.Definition">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.AnalogValue.Parent">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.AnalogValue" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.Common">
+      <summary>
+            Common SEL CWS declarations and functions.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.Common.DefaultFramePerSecond">
+      <summary>
+            Default frame rate for SEL CWS devices is 3000 frames per second.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.Common.DefaultNominalFrequency">
+      <summary>
+            Default nominal frequency for SEL CWS devices is 60Hz.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.Common.FramesPerPacket">
+      <summary>
+            Frames per UDP packet for SEL CWS devices is 50 samples.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.Common.MaximumAnalogValues">
+      <summary>
+            Absolute maximum number of possible analog values that could fit into a data frame.
+            </summary>
+      <remarks>SEL CWS doesn't support analog values.</remarks>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.Common.MaximumDigitalValues">
+      <summary>
+            Absolute maximum number of possible digital values that could fit into a data frame.
+            </summary>
+      <remarks>SEL CWS doesn't support digital values.</remarks>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.Common.MaximumPhasorValues">
+      <summary>
+            Absolute maximum number of possible phasor values that could fit into a data frame.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.Common.Version">
+      <summary>
+            SEL CWS data supported version.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader">
+      <summary>
+            Represents the common header for a SEL CWS frame of data.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.#ctor(Gemstone.PhasorProtocols.SelCWS.FrameType)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader" /> from <paramref name="frameType" />.
+            </summary>
+      <param name="frameType">Type of the frame.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.#ctor(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader" /> from given <paramref name="buffer" />.
+            </summary>
+      <param name="buffer">Buffer that contains data to parse.</param>
+      <param name="startIndex">Start index into buffer where valid data begins.</param>
+      <param name="length">Length of valid data in <paramref name="buffer" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.ChannelID">
+      <summary>
+            Gets the channel ID associated with this SEL CWS frame.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.FixedLength">
+      <summary>
+            Total fixed length of <see cref="T:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.FrameLength">
+      <summary>
+            Gets the length of this SEL CWS frame.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.FundamentalFrameType">
+      <summary>
+            Gets the fundamental frame type of this frame.
+            </summary>
+      <remarks>
+            Frames are generally classified as data, configuration or header frames. This returns the general frame classification.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
+      <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.NominalFrequency">
+      <summary>
+            Gets the nominal <see cref="T:Gemstone.Numeric.EE.LineFrequency" /> of the SEL CWS device.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.PacketCount">
+      <summary>
+            Gets the packet count for this SEL CWS frame.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.TypeID">
+      <summary>
+            Gets the <see cref="P:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader.TypeID" /> of this SEL CWS frame.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell">
+      <summary>
+            Represents the SEL CWS implementation of a <see cref="T:Gemstone.PhasorProtocols.IConfigurationCell" /> that can be sent or received.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.AnalogDataFormat">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.DataFormat" /> for the <see cref="T:Gemstone.PhasorProtocols.IAnalogDefinition" /> objects in the <see cref="P:Gemstone.PhasorProtocols.ConfigurationCellBase.AnalogDefinitions" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" />.
+            </summary>
+      <remarks>
+            This property only supports floating-point data; SEL CWS doesn't transport scaled values.
+            </remarks>
+      <exception cref="T:System.NotSupportedException">SEL CWS only supports floating-point data.</exception>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.FrequencyDataFormat">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.DataFormat" /> of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" />.
+            </summary>
+      <remarks>
+            This property only supports floating-point data; SEL CWS doesn't transport scaled values.
+            </remarks>
+      <exception cref="T:System.NotSupportedException">SEL CWS only supports floating-point data.</exception>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.IDCode">
+      <summary>
+            Gets or sets the ID code of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.MaximumStationNameLength">
+      <summary>
+            Gets the maximum length of the <see cref="P:Gemstone.PhasorProtocols.ConfigurationCellBase.StationName" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.Parent">
+      <summary>
+            Gets a reference to the parent <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame" /> for this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.ParseBodyImage(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses the binary body image.
+            </summary>
+      <param name="buffer">Binary image to parse.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
+      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
+      <returns>The length of the data that was parsed.</returns>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.ParseFooterImage(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses the binary footer image.
+            </summary>
+      <param name="buffer">Binary image to parse.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
+      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
+      <returns>The length of the data that was parsed.</returns>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.ParseHeaderImage(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses the binary header image.
+            </summary>
+      <param name="buffer">Binary image to parse.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
+      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
+      <returns>The length of the data that was parsed.</returns>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.PhasorCoordinateFormat">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.CoordinateFormat" /> for the <see cref="T:Gemstone.PhasorProtocols.IPhasorDefinition" /> objects in the <see cref="P:Gemstone.PhasorProtocols.ConfigurationCellBase.PhasorDefinitions" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" />.
+            </summary>
+      <remarks>
+            This property only supports polar phasor data; SEL CWS doesn't transport rectangular phasor values.
+            </remarks>
+      <exception cref="T:System.NotSupportedException">SEL CWS only supports polar phasor data.</exception>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell.PhasorDataFormat">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.DataFormat" /> for the <see cref="T:Gemstone.PhasorProtocols.IPhasorDefinition" /> objects in the <see cref="P:Gemstone.PhasorProtocols.ConfigurationCellBase.PhasorDefinitions" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" />.
+            </summary>
+      <remarks>
+            This property only supports fixed-integer phasor data; SEL CWS doesn't transport floating-point phasor values.
+            </remarks>
+      <exception cref="T:System.NotSupportedException">SEL CWS only supports fixed-integer data.</exception>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCellCollection">
+      <summary>
+            Represents a SEL CWS implementation of a collection of <see cref="T:Gemstone.PhasorProtocols.IConfigurationCell" /> objects.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationCellCollection.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCellCollection" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationCellCollection.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCellCollection" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationCellCollection.Item(System.Int32)">
+      <summary>
+            Gets or sets <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" /> at specified <paramref name="index" />.
+            </summary>
+      <param name="index">Index of value to get or set.</param>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame">
+      <summary>
+            Represents the SEL CWS implementation of a <see cref="T:Gemstone.PhasorProtocols.IConfigurationFrame" /> that can be sent or received.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame" />.
+            </summary>
+      <remarks>
+            This constructor is used by <see cref="T:Gemstone.IO.Parsing.FrameImageParserBase`2" /> to parse an SEL CWS configuration frame.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.Attributes">
+      <summary>
+        <see cref="T:System.Collections.Generic.Dictionary`2" /> of string based property names and values for the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> object.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.BodyLength">
+      <summary>
+            Gets the length of the <see cref="P:Gemstone.PhasorProtocols.ChannelFrameBase`1.BodyImage" />.
+            </summary>
+      <remarks>
+            The length of the <see cref="T:Gemstone.PhasorProtocols.ChannelFrameBase`1" /> body image is the combined length of all the <see cref="P:Gemstone.PhasorProtocols.ChannelFrameBase`1.Cells" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.CalculateChecksum(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Method is not implemented.
+            </summary>
+      <param name="buffer">A <see cref="T:System.Byte" /> array.</param>
+      <param name="length">An <see cref="T:System.Int32" /> for the offset.</param>
+      <param name="offset">An <see cref="T:System.Int32" /> for the length.</param>
+      <returns>An <see cref="T:System.UInt16" />.</returns>
+      <exception cref="T:System.NotImplementedException">SEL CWS doesn't use checksums.</exception>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.Cells">
+      <summary>
+            Gets reference to the <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCellCollection" /> for this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.ChannelID">
+      <summary>
+            Gets the channel ID of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.ChecksumIsValid(System.Byte[],System.Int32)">
+      <summary>
+            Determines if checksum in the <paramref name="buffer" /> is valid.
+            </summary>
+      <param name="buffer">Buffer image to validate.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to perform checksum.</param>
+      <returns>Flag that determines if checksum over <paramref name="buffer" /> is valid.</returns>
+      <remarks>
+            SEL CWS doesn't use checksums - this always returns true.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.CommonHeader">
+      <summary>
+            Gets or sets current <see cref="T:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.FixedHeaderLength">
+      <summary>
+            Represents the Length of the fixed part of this header.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.FooterLength">
+      <summary>
+            Gets the length of the footer portion of the <see cref="T:Gemstone.IO.Parsing.BinaryImageBase" /> object.
+            </summary>
+      <remarks>
+            This property is typically overridden by a specific protocol implementation.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
+      <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.HeaderLength">
+      <summary>
+            Gets the length of the header portion of the <see cref="T:Gemstone.IO.Parsing.BinaryImageBase" /> object.
+            </summary>
+      <remarks>
+            This property is typically overridden by a specific protocol implementation.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.NominalFrequency">
+      <summary>
+            Gets or sets the nominal <see cref="T:Gemstone.Numeric.EE.LineFrequency" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.ParseBodyImage(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses the binary body image.
+            </summary>
+      <param name="buffer">Binary image to parse.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
+      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
+      <returns>The length of the data that was parsed.</returns>
+      <remarks>
+            The body image of the <see cref="T:Gemstone.PhasorProtocols.ChannelFrameBase`1" /> is parsed to create a collection of <see cref="P:Gemstone.PhasorProtocols.ChannelFrameBase`1.Cells" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.ParseHeaderImage(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses the binary header image.
+            </summary>
+      <param name="buffer">Binary image to parse.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
+      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
+      <returns>The length of the data that was parsed.</returns>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.TypeID">
+      <summary>
+            Gets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrameType" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame.Version">
+      <summary>
+            Gets the SEL CWS protocol version of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters">
+      <summary>
+            Represents the extra connection parameters required for a connection to a SEL CWS device.
+            </summary>
+      <remarks>
+            This class is designed to be exposed by a "PropertyGrid" so a UI can request protocol specific connection parameters.
+            As a result the <see cref="T:System.ComponentModel.CategoryAttribute" /> and <see cref="T:System.ComponentModel.DescriptionAttribute" /> elements should be defined for
+            each of the exposed properties.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.CalculatePhaseEstimates">
+      <summary>
+            Gets or sets flag that determines if current and voltage phase estimates, frequency and dF/dt should be
+            calculated for PoW data.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.CalculationFrameRate">
+      <summary>
+            Gets or sets the configured frame rate for phase estimate calculations.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.DefaultCalculatePhaseEstimates">
+      <summary>
+            Default value for <see cref="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.CalculatePhaseEstimates" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.DefaultRepeatLastCalculatedValueWhenDownSampling">
+      <summary>
+            Default value for <see cref="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.RepeatLastCalculatedValueWhenDownSampling" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.EnableIntervalAveraging">
+      <summary>
+            Gets or sets a flag that determines if interval averaging (boxcar averaging) is enabled across each publish interval when down-sampling.
+            </summary>
+      <remarks>
+            Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency
+            content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces
+            jitter and improves published stability.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.EnablePublishEMA">
+      <summary>
+            Gets or sets a flag that determines if an additional exponential moving average (EMA) is applied to the published stream (after interval averaging).
+            </summary>
+      <remarks>
+            Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a "calm"
+            display or control signal. This is usually the most intuitive "knob" for operators/consumers because it acts on
+            the actual output cadence.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
+      <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.NominalFrequency">
+      <summary>
+            Gets or sets the nominal <see cref="T:Gemstone.Numeric.EE.LineFrequency" /> of this SEL CWS device.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.PublishAnglesTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published phase angles.
+            </summary>
+      <remarks>
+            Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors
+            (cos/sin) rather than naïvely averaging radians. This avoids discontinuities at ±π.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.PublishFrequencyTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published frequency.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.PublishMagnitudesTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published RMS magnitudes.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.PublishRocofTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published ROCOF (dF/dt).
+            </summary>
+      <remarks>
+            ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from
+            heavier smoothing (larger τ) than frequency.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.RecalculationCycles">
+      <summary>
+            Gets or sets the number of nominal cycles between full DFT recalculations for numerical stability.
+            </summary>
+      <remarks>
+            Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation
+            re-anchors the phasor sums.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.ReferenceChannel">
+      <summary>
+            Gets or sets the reference channel for frequency tracking.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.RepeatLastCalculatedValueWhenDownSampling">
+      <summary>
+            Gets or sets flag that determines if last value should be repeated when down-sampling, i.e.,
+            when <see cref="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.CalculationFrameRate" /> is less than SEL CWS frame rate (commonly 3000Hz);
+            otherwise <see cref="F:System.Double.NaN" /> will be used.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.SampleFrequencyTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator before any down-sampling/publish filtering.
+            </summary>
+      <remarks>
+            When interval averaging + publish EMA are enabled, this can be relatively light. If you disable publish smoothing,
+            you may want to increase this τ.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.SampleRocofTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed frequency).
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.TargetCycles">
+      <summary>
+            Gets or sets the number of nominal cycles contained in the sliding DFT analysis window.
+            </summary>
+      <remarks>
+            Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.
+            </remarks>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.DataCell">
+      <summary>
+            Represents the SEL CWS implementation of a <see cref="T:Gemstone.PhasorProtocols.IDataCell" /> that can be sent or received.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataCell.#ctor(Gemstone.PhasorProtocols.IDataFrame,Gemstone.PhasorProtocols.IConfigurationCell)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" />.
+            </summary>
+      <param name="parent">The reference to parent <see cref="T:Gemstone.PhasorProtocols.IDataFrame" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" />.</param>
+      <param name="configurationCell">The <see cref="T:Gemstone.PhasorProtocols.IConfigurationCell" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataCell.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.ConfigurationCell">
+      <summary>
+            Gets or sets the <see cref="P:Gemstone.PhasorProtocols.SelCWS.DataCell.ConfigurationCell" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.DataIsValid">
+      <summary>
+            Gets or sets flag that determines if data of this <see cref="T:Gemstone.PhasorProtocols.DataCellBase" /> is valid.
+            </summary>
+      <remarks>
+            This value is used to abstractly assign the protocol independent set of <see cref="P:Gemstone.PhasorProtocols.DataCellBase.CommonStatusFlags" />.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.DataSortingType">
+      <summary>
+            Gets or sets <see cref="T:Gemstone.PhasorProtocols.DataSortingType" /> of this <see cref="T:Gemstone.PhasorProtocols.DataCellBase" />.
+            </summary>
+      <remarks>
+            This value is used to abstractly assign the protocol independent set of <see cref="P:Gemstone.PhasorProtocols.DataCellBase.CommonStatusFlags" />.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.DeviceError">
+      <summary>
+            Gets or sets flag that determines if source device of this <see cref="T:Gemstone.PhasorProtocols.DataCellBase" /> is reporting an error.
+            </summary>
+      <remarks>
+            This value is used to abstractly assign the protocol independent set of <see cref="P:Gemstone.PhasorProtocols.DataCellBase.CommonStatusFlags" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataCell.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
+      <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.Parent">
+      <summary>
+            Gets or sets the reference to parent <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataCell.ParseBodyImage(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses the binary body image.
+            </summary>
+      <param name="buffer">Binary image to parse.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
+      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
+      <returns>The length of the data that was parsed.</returns>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.SynchronizationIsValid">
+      <summary>
+            Gets or sets flag that determines if timestamp of this <see cref="T:Gemstone.PhasorProtocols.DataCellBase" /> is valid based on GPS lock.
+            </summary>
+      <remarks>
+            This value is used to abstractly assign the protocol independent set of <see cref="P:Gemstone.PhasorProtocols.DataCellBase.CommonStatusFlags" />.
+            </remarks>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.DataCellCollection">
+      <summary>
+            Represents a SEL CWS implementation of a collection of <see cref="T:Gemstone.PhasorProtocols.IDataCell" /> objects.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataCellCollection.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCellCollection" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataCellCollection.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCellCollection" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCellCollection.Item(System.Int32)">
+      <summary>
+            Gets or sets <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> at specified <paramref name="index" />.
+            </summary>
+      <param name="index">Index of value to get or set.</param>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.DataFrame">
+      <summary>
+            Represents the SEL CWS implementation of a <see cref="T:Gemstone.PhasorProtocols.IDataFrame" /> that can be sent or received.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" />.
+            </summary>
+      <remarks>
+            This constructor is used by <see cref="T:Gemstone.IO.Parsing.FrameImageParserBase`2" /> to parse an SEL CWS data frame.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.#ctor(System.Int64,Gemstone.PhasorProtocols.SelCWS.ConfigurationFrame)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> from specified parameters.
+            </summary>
+      <param name="nanosecondTimestamp">The exact timestamp, in nanoseconds, of the data represented by this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" />.</param>
+      <param name="configurationFrame">The <see cref="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.ConfigurationFrame" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" />.</param>
+      <remarks>
+            This constructor is used by a consumer to generate a SEL CWS data frame.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.AllowQueuedPublication">
+      <summary>
+            Gets flag that determines if frame image can be queued for publication or should be processed immediately.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.Attributes">
+      <summary>
+        <see cref="T:System.Collections.Generic.Dictionary`2" /> of string based property names and values for the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> object.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.BinaryLength">
+      <summary>
+            Gets the length of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" />.
+            </summary>
+      <remarks>
+            This property is overridden so the length can be adjusted for lack of a checksum.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.CalculateChecksum(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Method is not implemented.
+            </summary>
+      <param name="buffer">Array of <see cref="T:System.Byte" />s.</param>
+      <param name="length">An <see cref="T:System.Int32" /> value for the bytes to read.</param>
+      <param name="offset">An <see cref="T:System.Int32" /> value for offset to read from.</param>
+      <returns>An <see cref="T:System.UInt16" /> as the checksum.</returns>
+      <exception cref="T:System.NotImplementedException">SEL CWS doesn't use checksums.</exception>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.Cells">
+      <summary>
+            Gets reference to the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCellCollection" /> for this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.ChecksumIsValid(System.Byte[],System.Int32)">
+      <summary>
+            Determines if checksum in the <paramref name="buffer" /> is valid.
+            </summary>
+      <param name="buffer">Buffer image to validate.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to perform checksum.</param>
+      <returns>Flag that determines if checksum over <paramref name="buffer" /> is valid.</returns>
+      <remarks>
+            SEL CWS doesn't use checksums - this always returns true.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.CommonHeader">
+      <summary>
+            Gets or sets current <see cref="T:Gemstone.PhasorProtocols.SelCWS.CommonFrameHeader" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.ConfigurationFrame">
+      <summary>
+            Gets or sets <see cref="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.ConfigurationFrame" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
+      <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.NanosecondTimestamp">
+      <summary>
+            Gets or sets the nanosecond timestamp.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.ParseBodyImage(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses the binary body image.
+            </summary>
+      <param name="buffer">Binary image to parse.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
+      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
+      <returns>The length of the data that was parsed.</returns>
+      <remarks>
+            The body image of the <see cref="T:Gemstone.PhasorProtocols.ChannelFrameBase`1" /> is parsed to create a collection of <see cref="P:Gemstone.PhasorProtocols.ChannelFrameBase`1.Cells" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.ParseHeaderImage(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses the binary header image.
+            </summary>
+      <param name="buffer">Binary image to parse.</param>
+      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
+      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
+      <returns>The length of the data that was parsed.</returns>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.TypeID">
+      <summary>
+            Gets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrameType" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.FrameParser">
+      <summary>
+            Represents a frame parser for a SEL CWS text based data stream that returns parsed data via events.
+            </summary>
+      <remarks>
+            Frame parser is implemented as a write-only stream - this way data can come from any source.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.#ctor(Gemstone.PhasorProtocols.CheckSumValidationFrameTypes,System.Boolean)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrameParser" />.
+            </summary>
+      <param name="checkSumValidationFrameTypes">Frame types that should perform check-sum validation; default to <see cref="F:Gemstone.PhasorProtocols.CheckSumValidationFrameTypes.AllFrames" /></param>
+      <param name="trustHeaderLength">Determines if header lengths should be trusted over parsed byte count.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.CalculatePhaseEstimates">
+      <summary>
+            Gets or sets flag that determines if current and voltage phase estimates, frequency and dF/dt should be
+            calculated for PoW data.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.CalculationFrameRate">
+      <summary>
+            Gets or sets the configured frame rate for phase estimate calculations.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ConfigurationFrame">
+      <summary>
+            Gets or sets current <see cref="T:Gemstone.PhasorProtocols.IConfigurationFrame" /> used for parsing <see cref="T:Gemstone.PhasorProtocols.IDataFrame" />'s encountered in the data stream from a device.
+            </summary>
+      <remarks>
+            If a <see cref="T:Gemstone.PhasorProtocols.IConfigurationFrame" /> has been parsed, this will return a reference to the parsed frame.  Consumer can manually assign a
+            <see cref="T:Gemstone.PhasorProtocols.IConfigurationFrame" /> to start parsing data if one has not been encountered in the stream.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ConnectionParameters">
+      <summary>
+            Gets or sets any connection specific <see cref="T:Gemstone.PhasorProtocols.IConnectionParameters" /> that may be needed for parsing.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.EnableIntervalAveraging">
+      <summary>
+            Gets or sets a flag that determines if interval averaging (boxcar averaging) is enabled across each publish interval when down-sampling.
+            </summary>
+      <remarks>
+            Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency
+            content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces
+            jitter and improves published stability.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.EnablePublishEMA">
+      <summary>
+            Gets or sets a flag that determines if an additional exponential moving average (EMA) is applied to the published stream (after interval averaging).
+            </summary>
+      <remarks>
+            Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a "calm"
+            display or control signal. This is usually the most intuitive "knob" for operators/consumers because it acts on
+            the actual output cadence.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.NominalFrequency">
+      <summary>
+            Gets the nominal <see cref="T:Gemstone.Numeric.EE.LineFrequency" /> of the SEL CWS device.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.OnParsingException(System.Exception)">
+      <summary>
+            Raises the <see cref="E:Gemstone.IO.Parsing.BinaryImageParserBase.ParsingException" /> event.
+            </summary>
+      <param name="ex">The <see cref="T:System.Exception" /> that was encountered during parsing.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.OnReceivedChannelFrame(Gemstone.PhasorProtocols.IChannelFrame)">
+      <summary>
+            Casts the parsed <see cref="T:Gemstone.PhasorProtocols.IChannelFrame" /> to its specific implementation (i.e., <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> or <see cref="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ConfigurationFrame" />).
+            </summary>
+      <param name="frame">
+        <see cref="T:Gemstone.PhasorProtocols.IChannelFrame" /> that was parsed by <see cref="T:Gemstone.IO.Parsing.FrameImageParserBase`2" /> that implements protocol specific common frame header interface.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.OnReceivedConfigurationFrame(Gemstone.PhasorProtocols.IConfigurationFrame)">
+      <summary>
+            Raises the <see cref="E:Gemstone.PhasorProtocols.FrameParserBase`1.ReceivedConfigurationFrame" /> event.
+            </summary>
+      <param name="frame">
+        <see cref="T:Gemstone.PhasorProtocols.IConfigurationFrame" /> to send to <see cref="E:Gemstone.PhasorProtocols.FrameParserBase`1.ReceivedConfigurationFrame" /> event.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.Parse(Gemstone.PhasorProtocols.SourceChannel,System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Queues a sequence of bytes, from the specified data source, onto the stream for parsing.
+            </summary>
+      <param name="source">Identifier of the data source.</param>
+      <param name="buffer">An array of bytes. This method copies count bytes from buffer to the queue.</param>
+      <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+      <param name="count">The number of bytes to be written to the current stream.</param>
+      <remarks>
+            This method associates a buffer with its data source identifier.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.ParseCommonHeader(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Parses a common header instance that implements <see cref="T:Gemstone.IO.Parsing.ICommonHeader`1" /> for the output type represented
+            in the binary image.
+            </summary>
+      <param name="buffer">Buffer containing data to parse.</param>
+      <param name="offset">Offset index into buffer that represents where to start parsing.</param>
+      <param name="length">Maximum length of valid data from offset.</param>
+      <returns>The <see cref="T:Gemstone.IO.Parsing.ICommonHeader`1" /> which includes a type ID for the <see cref="T:System.Type" /> to be parsed.</returns>
+      <remarks>
+        <para>
+            Derived classes need to provide a common header instance (i.e., class that implements <see cref="T:Gemstone.IO.Parsing.ICommonHeader`1" />)
+            for the output types; this will primarily include an ID of the <see cref="T:System.Type" /> that the data image represents.  This parsing is
+            only for common header information, actual parsing will be handled by output type via its <see cref="M:Gemstone.IO.Parsing.ISupportBinaryImage.ParseBinaryImage(System.Byte[],System.Int32,System.Int32)" />
+            method. This header image should also be used to add needed complex state information about the output type being parsed if needed.
+            </para>
+        <para>
+            If there is not enough buffer available to parse common header (as determined by <paramref name="length" />), return null.  Also, if
+            the protocol allows frame length to be determined at the time common header is being parsed and there is not enough buffer to parse
+            the entire frame, it will be optimal to prevent further parsing by returning null.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.ParseFrame(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Output type specific frame parsing algorithm.
+            </summary>
+      <param name="buffer">Buffer containing data to parse.</param>
+      <param name="offset">Offset index into buffer that represents where to start parsing.</param>
+      <param name="length">Maximum length of valid data from offset.</param>
+      <returns>The length of the data that was parsed.</returns>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ProtocolUsesSyncBytes">
+      <summary>
+            Gets flag that determines if SEL CWS protocol parsing implementation uses synchronization bytes.
+            </summary>
+      <remarks>
+            Protocol technically uses sync-bytes, but since they vary (0x00 or 0x01) we handle stream initialization
+            manually in the <see cref="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.Parse(Gemstone.PhasorProtocols.SourceChannel,System.Byte[],System.Int32,System.Int32)" /> method.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.PublishAnglesTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published phase angles.
+            </summary>
+      <remarks>
+            Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors
+            (cos/sin) rather than naïvely averaging radians. This avoids discontinuities at ±π.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.PublishFrequencyTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published frequency.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.PublishMagnitudesTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published RMS magnitudes.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.PublishRocofTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published ROCOF (dF/dt).
+            </summary>
+      <remarks>
+            ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from
+            heavier smoothing (larger τ) than frequency.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.RecalculationCycles">
+      <summary>
+            Gets or sets the number of nominal cycles between full DFT recalculations for numerical stability.
+            </summary>
+      <remarks>
+            Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation
+            re-anchors the phasor sums.
+            </remarks>
+    </member>
+    <member name="E:Gemstone.PhasorProtocols.SelCWS.FrameParser.ReceivedConfigurationFrame">
+      <summary>
+            Occurs when a SEL CWS <see cref="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ConfigurationFrame" /> has been received.
+            </summary>
+      <remarks>
+        <see cref="F:Gemstone.EventArgs`1.Argument" /> is the <see cref="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ConfigurationFrame" /> that was received.
+            </remarks>
+    </member>
+    <member name="E:Gemstone.PhasorProtocols.SelCWS.FrameParser.ReceivedDataFrame">
+      <summary>
+            Occurs when a SEL CWS <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> has been received.
+            </summary>
+      <remarks>
+        <see cref="F:Gemstone.EventArgs`1.Argument" /> is the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> that was received.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ReferenceChannel">
+      <summary>
+            Gets or sets the reference channel for frequency tracking.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.RepeatLastCalculatedValueWhenDownSampling">
+      <summary>
+            Gets or sets flag that determines if last value should be repeated when down-sampling, i.e.,
+            when <see cref="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.CalculationFrameRate" /> is less than SEL CWS frame rate (commonly 3000Hz);
+            otherwise <see cref="F:System.Double.NaN" /> will be used.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.SampleFrequencyTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator before any down-sampling/publish filtering.
+            </summary>
+      <remarks>
+            When interval averaging + publish EMA are enabled, this can be relatively light. If you disable publish smoothing,
+            you may want to increase this τ.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.SampleRocofTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed frequency).
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.Start">
+      <summary>
+            Start the data parser.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.TargetCycles">
+      <summary>
+            Gets or sets the number of nominal cycles contained in the sliding DFT analysis window.
+            </summary>
+      <remarks>
+            Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.
+            </remarks>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.FrameType">
+      <summary>
+            SEL CWS frame types enumeration.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.FrameType.DataFrame">
+      <summary>
+            Data frame.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.FrameType.ConfigurationFrame">
+      <summary>
+            Configuration frame.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition">
+      <summary>
+            Represents the SEL CWS implementation of a <see cref="T:Gemstone.PhasorProtocols.IFrequencyDefinition" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition.#ctor(Gemstone.PhasorProtocols.IConfigurationCell)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" />.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.IConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition.#ctor(Gemstone.PhasorProtocols.SelCWS.ConfigurationCell,System.String)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" />.</param>
+      <param name="label">The label of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition.Parent">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue">
+      <summary>
+            Represents the SEL CWS implementation of a <see cref="T:Gemstone.PhasorProtocols.IFrequencyValue" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrequencyValue.#ctor(Gemstone.PhasorProtocols.IDataCell,Gemstone.PhasorProtocols.IFrequencyDefinition)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.IDataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.</param>
+      <param name="frequencyDefinition">The <see cref="T:Gemstone.PhasorProtocols.IFrequencyDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrequencyValue.#ctor(Gemstone.PhasorProtocols.SelCWS.DataCell,Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition,System.Double,System.Double)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.</param>
+      <param name="frequencyDefinition">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.</param>
+      <param name="frequency">The floating point value that represents this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.</param>
+      <param name="dfdt">The floating point value that represents the change in this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" /> over time.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.FrequencyValue.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrequencyValue.Definition">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrequencyValue.Parent">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.PhaseChannel">
+      <summary>
+            Phase channels for SEL CWS PoW analogs.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IA">
+      <summary>
+            Phase A current (IA).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IB">
+      <summary>
+            Phase B current (IB).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IC">
+      <summary>
+            Phase C current (IC).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.VA">
+      <summary>
+            Phase A voltage (VA).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.VB">
+      <summary>
+            Phase B voltage (VB).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.VC">
+      <summary>
+            Phase C voltage (VC).
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate">
+      <summary>
+            Represents the output of the phase estimation algorithm.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate.Angles">
+      <summary>
+            Gets angles in radians, length 6: IA, IB, IC, VA, VB, VC.
+            </summary>
+      <remarks>
+            The data this span references is owned by the <see cref="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator" /> instance,
+            it is only valid during the scope of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler" /> delegate call.
+            If you need to retain the data, make a copy.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate.dFdt">
+      <summary>
+            Gets rate of change of frequency (ROCOF) in Hz/s.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate.Frequency">
+      <summary>
+            Gets smoothed frequency estimate in hertz.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate.Magnitudes">
+      <summary>
+            Gets RMS magnitudes, length 6: IA, IB, IC, VA, VB, VC.
+            </summary>
+      <remarks>
+            The data this span references is owned by the <see cref="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator" /> instance,
+            it is only valid during the scope of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler" /> delegate call.
+            If you need to retain the data, make a copy.
+            </remarks>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler">
+      <summary>
+            Delegate for handling a <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate" />.
+            </summary>
+      <param name="estimate">Phase estimate.</param>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition">
+      <summary>
+            Represents the SEL CWS implementation of a <see cref="T:Gemstone.PhasorProtocols.IPhasorDefinition" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition.#ctor(Gemstone.PhasorProtocols.IConfigurationCell)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.IConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition.#ctor(Gemstone.PhasorProtocols.SelCWS.ConfigurationCell,System.String,Gemstone.Numeric.EE.PhasorType)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" />.</param>
+      <param name="label">The label of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" />.</param>
+      <param name="type">The <see cref="T:Gemstone.Numeric.EE.PhasorType" /> of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition.Parent">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.ConfigurationCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue">
+      <summary>
+            Represents the SEL CWS implementation of a <see cref="T:Gemstone.PhasorProtocols.IPhasorValue" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.PhasorValue.#ctor(Gemstone.PhasorProtocols.IDataCell,Gemstone.PhasorProtocols.IPhasorDefinition)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.IDataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+      <param name="phasorDefinition">The <see cref="T:Gemstone.PhasorProtocols.IPhasorDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.PhasorValue.#ctor(Gemstone.PhasorProtocols.SelCWS.DataCell,Gemstone.PhasorProtocols.SelCWS.PhasorDefinition,Gemstone.Units.Angle,System.Double)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+      <param name="phasorDefinition">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+      <param name="angle">The <see cref="T:Gemstone.Units.Angle" /> value (a.k.a., the argument) of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />, in radians.</param>
+      <param name="magnitude">The magnitude value (a.k.a., the absolute value or modulus) of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.PhasorValue.#ctor(Gemstone.PhasorProtocols.SelCWS.DataCell,Gemstone.PhasorProtocols.SelCWS.PhasorDefinition,System.Double,System.Double)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" /> from specified parameters.
+            </summary>
+      <param name="parent">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+      <param name="phasorDefinition">The <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+      <param name="real">The real value of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+      <param name="imaginary">The imaginary value of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.</param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.PhasorValue.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" /> from serialization parameters.
+            </summary>
+      <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
+      <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.PhasorValue.Definition">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.PhasorValue.Parent">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.
             </summary>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SelFastMessage.CommandFrame">
