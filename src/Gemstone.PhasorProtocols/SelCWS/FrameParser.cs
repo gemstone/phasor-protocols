@@ -26,6 +26,7 @@
 
 using System;
 using Gemstone.ArrayExtensions;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO.Parsing;
 using Gemstone.Numeric.EE;
 using static Gemstone.PhasorProtocols.SelCWS.Common;
@@ -393,7 +394,7 @@ public class FrameParser : FrameParserBase<FrameType>
             OnReceivedDataFrame(dataFrame);
 
             // If event for native data frame is subscribed, raise it also
-            ReceivedDataFrame?.SaveInvoke(this, new EventArgs<DataFrame>(dataFrame));
+            ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));   
         }
 
         return parsedLength;
@@ -531,12 +532,12 @@ public class FrameParser : FrameParserBase<FrameType>
         {
             case DataFrame dataFrame:
             {
-                ReceivedDataFrame?.SaveInvoke(this, new EventArgs<DataFrame>(dataFrame));
+                ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
                 break;
             }
             case ConfigurationFrame configFrame:
             {
-                ReceivedConfigurationFrame?.SaveInvoke(this, new EventArgs<ConfigurationFrame>(configFrame));
+                ReceivedConfigurationFrame?.SafeInvoke(this, new EventArgs<ConfigurationFrame>(configFrame));
                 break;
             }
         }
