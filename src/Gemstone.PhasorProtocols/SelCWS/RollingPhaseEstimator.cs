@@ -86,12 +86,22 @@ public delegate void PhaseEstimateHandler(in PhaseEstimate estimate);
 /// </para>
 /// <para>
 /// Frequency estimation is performed by tracking the rate of change of phase angle from the
-/// reference channel (VA by default). The frequency and ROCOF outputs are smoothed using
+/// reference channel (VA by default). The SDFT twiddle factor rotation removes the nominal
+/// bin frequency component, so residual phase changes between samples directly represent
+/// frequency deviation from nominal. The frequency and ROCOF outputs are smoothed using
 /// exponential moving average filters.
 /// </para>
 /// <para>
 /// The algorithm is designed for nominal 50Hz or 60Hz systems sampled at 3000Hz, but can be
 /// configured for other sample rates.
+/// </para>
+/// <para>
+/// <b>Magnitude Output:</b><br/>
+/// The magnitude output represents the RMS value of the fundamental frequency component.
+/// If input data is already normalized (per-unit values with peak ≈ 1.0), the output RMS
+/// magnitudes will be approximately 1/√2 ≈ 0.707 per unit. To obtain actual engineering
+/// units, multiply output magnitudes by the appropriate scaling factor (e.g., VT/CT ratios
+/// or nominal voltage/current values).
 /// </para>
 /// </remarks>
 public sealed class RollingPhaseEstimator
@@ -898,7 +908,7 @@ public sealed class RollingPhaseEstimator
         int referenceChannel = (int)ReferenceChannel;
 
         // Scaling factor for RMS magnitude from DFT
-        // For a pure sinusoid: DFT magnitude = N * A / 2, where A is peak amplitude
+        // For a pure sinusoid at the bin frequency: DFT magnitude = N * A / 2, where A is peak amplitude
         // RMS = A / sqrt(2), so RMS = sqrt(2) * |X| / N
         double magnitudeScale = Math.Sqrt(2.0) / WindowSamples;
 
@@ -929,19 +939,42 @@ public sealed class RollingPhaseEstimator
                 deltaTimeSeconds = measuredDelta;
         }
 
-        // Frequency from reference channel phase progression
+        // Frequency estimation from DFT phase progression
+        //
+        // IMPORTANT: The accuracy of this frequency estimation depends critically on the
+        // sample rate passed to the constructor matching the actual data sample rate.
+        // A mismatch will cause systematic frequency bias.
+        //
+        // The sliding DFT computes the phasor at a specific DFT bin. For a window of N samples
+        // covering k cycles at the bin frequency f_bin:
+        //   - f_bin = k * sampleRate / N = nominalFrequency (by construction)
+        //   - The twiddle factor rotation of 2π*k/N per sample = 2π * f_bin / sampleRate
+        //
+        // When the actual signal frequency f_actual differs from f_bin:
+        //   - The DFT phasor phase rotates at rate (f_actual - f_bin) relative to the bin
+        //
+        // For accurate frequency estimation, we compute the phase change and interpret it
+        // as the frequency deviation: f_actual = f_bin + (Δφ / (2π * Δt))
+        //
+        // Note: This method tracks sample-to-sample phase changes in the DFT output.
+        // For a signal at exactly nominal frequency, the SDFT output phase should be
+        // stationary (no change) because the twiddle factor compensates for the signal's
+        // phase progression at the bin frequency.
         double currentPhase = Math.Atan2(m_phasorImag[referenceChannel], m_phasorReal[referenceChannel]);
         double instantaneousFrequency = NominalFrequencyHz;
 
         if (m_hasPrevPhase)
         {
+            // Compute phase change, normalized to [-π, π]
             double deltaPhase = NormalizeAngle(currentPhase - m_prevPhaseAngle);
-            double expectedDeltaPhase = TwoPI * NominalFrequencyHz * deltaTimeSeconds;
 
-            double phaseDeviation = deltaPhase - expectedDeltaPhase;
-            double frequencyDeviation = phaseDeviation / (TwoPI * deltaTimeSeconds);
+            // Any residual phase change indicates deviation from nominal:
+            //   Δφ = 2π * (f_actual - f_nominal) * Δt
+            //   f_actual = f_nominal + Δφ / (2π * Δt)
+            double frequencyDeviation = deltaPhase / (TwoPI * deltaTimeSeconds);
             instantaneousFrequency = NominalFrequencyHz + frequencyDeviation;
 
+            // Clamp to reasonable bounds (±10% of nominal)
             double minFreq = NominalFrequencyHz * 0.9D;
             double maxFreq = NominalFrequencyHz * 1.1D;
             instantaneousFrequency = Math.Max(minFreq, Math.Min(maxFreq, instantaneousFrequency));
