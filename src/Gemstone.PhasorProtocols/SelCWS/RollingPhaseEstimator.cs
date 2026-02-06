@@ -407,19 +407,19 @@ public sealed class RollingPhaseEstimator
         int recalculationCycles = DefaultRecalculationCycles)
     {
         // Validate rates / window
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRateHz, nameof(sampleRateHz));
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(outputRateHz, nameof(outputRateHz));
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(outputRateHz, sampleRateHz, nameof(outputRateHz));
-        ArgumentOutOfRangeException.ThrowIfLessThan(targetCycles, 1, nameof(targetCycles));
-        ArgumentOutOfRangeException.ThrowIfLessThan(recalculationCycles, 1, nameof(recalculationCycles));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRateHz);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(outputRateHz);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(outputRateHz, sampleRateHz);
+        ArgumentOutOfRangeException.ThrowIfLessThan(targetCycles, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(recalculationCycles, 1);
 
         // Validate taus (τ >= 0). τ == 0 means "no smoothing" (alpha = 1).
-        ArgumentOutOfRangeException.ThrowIfNegative(publishAnglesTauSeconds, nameof(publishAnglesTauSeconds));
-        ArgumentOutOfRangeException.ThrowIfNegative(publishMagnitudesTauSeconds, nameof(publishMagnitudesTauSeconds));
-        ArgumentOutOfRangeException.ThrowIfNegative(publishFrequencyTauSeconds, nameof(publishFrequencyTauSeconds));
-        ArgumentOutOfRangeException.ThrowIfNegative(publishRocofTauSeconds, nameof(publishRocofTauSeconds));
-        ArgumentOutOfRangeException.ThrowIfNegative(sampleFrequencyTauSeconds, nameof(sampleFrequencyTauSeconds));
-        ArgumentOutOfRangeException.ThrowIfNegative(sampleRocofTauSeconds, nameof(sampleRocofTauSeconds));
+        ArgumentOutOfRangeException.ThrowIfNegative(publishAnglesTauSeconds);
+        ArgumentOutOfRangeException.ThrowIfNegative(publishMagnitudesTauSeconds);
+        ArgumentOutOfRangeException.ThrowIfNegative(publishFrequencyTauSeconds);
+        ArgumentOutOfRangeException.ThrowIfNegative(publishRocofTauSeconds);
+        ArgumentOutOfRangeException.ThrowIfNegative(sampleFrequencyTauSeconds);
+        ArgumentOutOfRangeException.ThrowIfNegative(sampleRocofTauSeconds);
 
         // Store configuration
         SampleRateHz = sampleRateHz;
