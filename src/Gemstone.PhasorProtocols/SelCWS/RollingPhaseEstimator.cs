@@ -94,7 +94,7 @@ public delegate void PhaseEstimateHandler(in PhaseEstimate estimate);
 /// configured for other sample rates.
 /// </para>
 /// </remarks>
-internal sealed class RollingPhaseEstimator
+public sealed class RollingPhaseEstimator
 {
     #region [ Members ]
 
