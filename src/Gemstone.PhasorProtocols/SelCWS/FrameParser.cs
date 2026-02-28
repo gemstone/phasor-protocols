@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
 //  FrameParser.cs - Gbtc
 //
-//  Copyright © 2012, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2025, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,12 +16,8 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  02/08/2007 - J. Ritchie Carroll & Jian Ryan Zuo
+//  11/04/2025 - Ritchie Carroll
 //       Generated original version of source code.
-//  09/15/2009 - Stephen C. Wills
-//       Added new header and license agreement.
-//  12/17/2012 - Starlynn Danyelle Gilliam
-//       Modified Header.
 //
 //******************************************************************************************************
 // ReSharper disable IdentifierTypo
@@ -30,6 +26,7 @@
 
 using System;
 using Gemstone.ArrayExtensions;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO.Parsing;
 using Gemstone.Numeric.EE;
 using static Gemstone.PhasorProtocols.SelCWS.Common;
@@ -361,8 +358,15 @@ public class FrameParser : FrameParserBase<FrameType>
     {
         int parsedLength = base.ParseFrame(buffer, offset, length);
 
+        if (parsedLength == 0)
+            return 0;
+
         if (buffer[offset] != (byte)FrameType.DataFrame || m_initialDataFrame is null)
             return parsedLength;
+        
+        // Make sure enough frame buffer image is available for data frame to be parsed
+        if (length < parsedLength)
+            return 0;
 
         // Ensure nanosecond frame distribution is initialized
         m_nanosecondPacketFrameOffsets ??= CalculateNanosecondPacketFrameOffsets(FramesPerPacket);
@@ -390,7 +394,7 @@ public class FrameParser : FrameParserBase<FrameType>
             OnReceivedDataFrame(dataFrame);
 
             // If event for native data frame is subscribed, raise it also
-            ReceivedDataFrame?.Invoke(this, new EventArgs<DataFrame>(dataFrame));
+            ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));   
         }
 
         return parsedLength;
@@ -528,12 +532,12 @@ public class FrameParser : FrameParserBase<FrameType>
         {
             case DataFrame dataFrame:
             {
-                ReceivedDataFrame?.Invoke(this, new EventArgs<DataFrame>(dataFrame));
+                ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
                 break;
             }
             case ConfigurationFrame configFrame:
             {
-                ReceivedConfigurationFrame?.Invoke(this, new EventArgs<ConfigurationFrame>(configFrame));
+                ReceivedConfigurationFrame?.SafeInvoke(this, new EventArgs<ConfigurationFrame>(configFrame));
                 break;
             }
         }

@@ -401,12 +401,18 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <summary>
         /// Starts the server.
         /// </summary>
-        public void Start() => GetSharedServer();
+        public void Start()
+        {
+            GetSharedServer();
+        }
 
         /// <summary>
         /// Stops the server.
         /// </summary>
-        public void Stop() => ReturnSharedServer();
+        public void Stop()
+        {
+            ReturnSharedServer();
+        }
 
         /// <summary>
         /// Disconnects a connected client.
@@ -421,7 +427,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <summary>
         /// Disconnects all the connected clients.
         /// </summary>
-        public void DisconnectAll() => m_tcpServer?.DisconnectOne(m_clientID);
+        public void DisconnectAll()
+        {
+            m_tcpServer?.DisconnectOne(m_clientID);
+        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -448,7 +457,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <param name="data">The buffer that contains the binary data to be sent.</param>
         /// <param name="offset">The zero-based position in the <paramref name="data"/> at which to begin sending data.</param>
         /// <param name="length">The number of bytes to be sent from <paramref name="data"/> starting at the <paramref name="offset"/>.</param>
-        public void SendTo(Guid clientID, byte[] data, int offset, int length) => SendToAsync(m_clientID, data, offset, length).WaitOne();
+        public void SendTo(Guid clientID, byte[] data, int offset, int length)
+        {
+            SendToAsync(m_clientID, data, offset, length).WaitOne();
+        }
 
         /// <summary>
         /// Sends data to all the connected clients synchronously.
@@ -456,7 +468,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <param name="data">The buffer that contains the binary data to be sent.</param>
         /// <param name="offset">The zero-based position in the <paramref name="data"/> at which to begin sending data.</param>
         /// <param name="length">The number of bytes to be sent from <paramref name="data"/> starting at the <paramref name="offset"/>.</param>
-        public void Multicast(byte[] data, int offset, int length) => WaitHandle.WaitAll(MulticastAsync(data, offset, length));
+        public void Multicast(byte[] data, int offset, int length)
+        {
+            WaitHandle.WaitAll(MulticastAsync(data, offset, length));
+        }
 
         /// <summary>
         /// Sends data to the specified client asynchronously.
@@ -466,7 +481,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <param name="offset">The zero-based position in the <paramref name="data"/> at which to begin sending data.</param>
         /// <param name="length">The number of bytes to be sent from <paramref name="data"/> starting at the <paramref name="offset"/>.</param>
         /// <returns><see cref="WaitHandle"/> for the asynchronous operation.</returns>
-        public WaitHandle SendToAsync(Guid clientID, byte[] data, int offset, int length) => m_tcpServer?.SendToAsync(clientID, data, offset, length) ?? new ManualResetEvent(true);
+        public WaitHandle SendToAsync(Guid clientID, byte[] data, int offset, int length)
+        {
+            return m_tcpServer?.SendToAsync(clientID, data, offset, length) ?? new ManualResetEvent(true);
+        }
 
         /// <summary>
         /// Sends data to all the connected clients asynchronously.
@@ -475,10 +493,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <param name="offset">The zero-based position in the <paramref name="data"/> at which to begin sending data.</param>
         /// <param name="length">The number of bytes to be sent from <paramref name="data"/> starting at the <paramref name="offset"/>.</param>
         /// <returns>Array of <see cref="WaitHandle"/> for the asynchronous operation.</returns>
-        public WaitHandle[] MulticastAsync(byte[] data, int offset, int length) => m_tcpServer is null ? [] :
-        [
-            m_tcpServer.SendToAsync(m_clientID, data, offset, length)
-        ];
+        public WaitHandle[] MulticastAsync(byte[] data, int offset, int length)
+        {
+            return m_tcpServer is null ? [] : [m_tcpServer.SendToAsync(m_clientID, data, offset, length)];
+        }
 
         /// <summary>
         /// Reads a number of bytes from the current received data buffer and writes those bytes into a byte array at the specified offset.
@@ -492,7 +510,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// This function should only be called from within the <see cref="ReceiveClientData"/> event handler. Calling this method outside this
         /// event will have unexpected results.
         /// </remarks>
-        public int Read(Guid clientID, byte[] buffer, int startIndex, int length) => m_tcpServer?.Read(clientID, buffer, startIndex, length) ?? 0;
+        public int Read(Guid clientID, byte[] buffer, int startIndex, int length)
+        {
+            return m_tcpServer?.Read(clientID, buffer, startIndex, length) ?? 0;
+        }
 
         /// <summary>
         /// Gets a reference to the shared server listening
@@ -672,8 +693,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
 
         // Shared server client connecting exception handler.
         // Forwards event to users attached to this server.
-        private void SharedServer_ClientConnectingException(object? sender, EventArgs<Exception> e) => 
+        private void SharedServer_ClientConnectingException(object? sender, EventArgs<Exception> e)
+        {
             ClientConnectingException?.SafeInvoke(this, e);
+        }
 
         // Shared server receive client data handler.
         // Forwards event to users attached to this server.
@@ -701,13 +724,17 @@ public sealed class MultiProtocolFrameParser : IFrameParser
 
         // Shared server started handler.
         // Forwards event to users attached to this server.
-        private void SharedServer_ServerStarted(object? sender, EventArgs e) => 
+        private void SharedServer_ServerStarted(object? sender, EventArgs e)
+        {
             ServerStarted?.SafeInvoke(this, e);
+        }
 
         // Shared server stopped handler.
         // Forwards event to users attached to this server.
-        private void SharedServer_ServerStopped(object? sender, EventArgs e) => 
+        private void SharedServer_ServerStopped(object? sender, EventArgs e)
+        {
             ServerStopped?.SafeInvoke(this, e);
+        }
 
         #endregion
 
@@ -883,7 +910,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <summary>
         /// Connects the client to the server synchronously.
         /// </summary>
-        public void Connect() => ConnectAsync();
+        public void Connect()
+        {
+            ConnectAsync();
+        }
 
         /// <summary>
         /// Connects the client to the server asynchronously.
@@ -956,13 +986,19 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <paramref name="startIndex"/> or <paramref name="length"/> is less than 0 -or- 
         /// <paramref name="startIndex"/> and <paramref name="length"/> will exceed <paramref name="buffer"/> length.
         /// </exception>
-        public int Read(byte[] buffer, int startIndex, int length) => m_udpClient?.Read(buffer, startIndex, length) ?? 0;
+        public int Read(byte[] buffer, int startIndex, int length)
+        {
+            return m_udpClient?.Read(buffer, startIndex, length) ?? 0;
+        }
 
         /// <summary>
         /// Requests that the client attempt to move to the next <see cref="ServerIndex"/>.
         /// </summary>
         /// <returns><c>true</c> if request succeeded; otherwise, <c>false</c>.</returns>
-        public bool RequestNextServerIndex() => false;
+        public bool RequestNextServerIndex()
+        {
+            return false;
+        }
 
         /// <summary>
         /// Sends data to the server synchronously.
@@ -970,7 +1006,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <param name="data">The buffer that contains the binary data to be sent.</param>
         /// <param name="offset">The zero-based position in the <paramref name="data"/> at which to begin sending data.</param>
         /// <param name="length">The number of bytes to be sent from <paramref name="data"/> starting at the <paramref name="offset"/>.</param>
-        public void Send(byte[] data, int offset, int length) => SendAsync(data, offset, length).WaitOne();
+        public void Send(byte[] data, int offset, int length)
+        {
+            SendAsync(data, offset, length).WaitOne();
+        }
 
         /// <summary>
         /// Sends data to the server asynchronously.
@@ -979,7 +1018,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         /// <param name="offset">The zero-based position in the <paramref name="data"/> at which to begin sending data.</param>
         /// <param name="length">The number of bytes to be sent from <paramref name="data"/> starting at the <paramref name="offset"/>.</param>
         /// <returns><see cref="WaitHandle"/> for the asynchronous operation.</returns>
-        public WaitHandle SendAsync(byte[] data, int offset, int length) => m_sendDestination is null ? new ManualResetEvent(true) : m_udpClient?.SendDataToAsync(data, offset, length, m_sendDestination)!;
+        public WaitHandle SendAsync(byte[] data, int offset, int length)
+        {
+            return m_sendDestination is null ? new ManualResetEvent(true) : m_udpClient?.SendDataToAsync(data, offset, length, m_sendDestination)!;
+        }
 
         /// <summary>
         /// Initializes the client.
@@ -1180,12 +1222,17 @@ public sealed class MultiProtocolFrameParser : IFrameParser
 
         // Shared client connection attempt handler.
         // Forwards event to users attached to this client.
-        private void SharedClient_ConnectionAttempt(object? sender, EventArgs e) => 
+        private void SharedClient_ConnectionAttempt(object? sender, EventArgs e)
+        {
             ConnectionAttempt?.SafeInvoke(this, e);
+        }
 
         // Shared client connection established handler.
         // Forwards event to users attached to this client.
-        private void SharedClient_ConnectionEstablished(object? sender, EventArgs e) => OnConnectionEstablished();
+        private void SharedClient_ConnectionEstablished(object? sender, EventArgs e)
+        {
+            OnConnectionEstablished();
+        }
 
         // Shared client connection exception handler.
         // Forwards event to users attached to this client.
@@ -1201,8 +1248,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
 
         // Shared client connection terminated handler.
         // Forwards event to users attached to this client.
-        private void SharedClient_ConnectionTerminated(object? sender, EventArgs e) => 
+        private void SharedClient_ConnectionTerminated(object? sender, EventArgs e)
+        {
             ConnectionTerminated?.SafeInvoke(this, e);
+        }
 
         // Shared client receive data exception handler.
         // Forwards event to users attached to this client.
@@ -1218,8 +1267,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
 
         // Shared client receive data from handler.
         // Forwards event to users attached to this client.
-        private void SharedClient_ReceiveDataFrom(object? sender, EventArgs<EndPoint, IPPacketInformation, int> e) => 
+        private void SharedClient_ReceiveDataFrom(object? sender, EventArgs<EndPoint, IPPacketInformation, int> e)
+        {
             ReceiveDataFrom?.SafeInvoke(this, e);
+        }
 
         // Shared client send data handler.
         // Forwards event to users attached to this client.
@@ -1461,8 +1512,6 @@ public sealed class MultiProtocolFrameParser : IFrameParser
     private SharedTimer? m_rateCalcTimer;
     private IConfigurationFrame? m_configurationFrame;
     private CheckSumValidationFrameTypes m_checkSumValidationFrameTypes;
-    private long m_lastFramePublishTime;
-    private long m_targetFramePeriod;
     private long m_dataStreamStartTime;
     private long m_missingFramesOverflow;
     private int m_frameRateTotal;
@@ -1511,7 +1560,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
     /// <summary>
     /// Releases the unmanaged resources before the <see cref="MultiProtocolFrameParser"/> object is reclaimed by <see cref="GC"/>.
     /// </summary>
-    ~MultiProtocolFrameParser() => Dispose(false);
+    ~MultiProtocolFrameParser()
+    {
+        Dispose(false);
+    }
 
     #endregion
 
@@ -3105,8 +3157,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
     /// <param name="buffer">Buffer containing data to be parsed.</param>
     /// <param name="offset">Offset into buffer where data begins.</param>
     /// <param name="count">Length of data in buffer to be parsed.</param>
-    public void Write(byte[] buffer, int offset, int count) => 
+    public void Write(byte[] buffer, int offset, int count)
+    {
         Parse(SourceChannel.Other, buffer, offset, count);
+    }
 
     /// <summary>
     /// Writes a sequence of bytes onto the <see cref="IBinaryImageParser"/> stream for parsing.
@@ -3134,7 +3188,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
     /// <summary>
     /// Resets the value for the <see cref="TotalBytesReceived"/> statistic.
     /// </summary>
-    public void ResetTotalBytesReceived() => TotalBytesReceived = 0L;
+    public void ResetTotalBytesReceived()
+    {
+        TotalBytesReceived = 0L;
+    }
 
     /// <summary>
     /// Raises the <see cref="ParsingException"/> event.
@@ -3186,8 +3243,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
     /// <summary>
     /// Raises the <see cref="ExceededParsingExceptionThreshold"/> event.
     /// </summary>
-    private void OnExceededParsingExceptionThreshold() => 
+    private void OnExceededParsingExceptionThreshold()
+    {
         ExceededParsingExceptionThreshold?.SafeInvoke(this, EventArgs.Empty);
+    }
 
     /// <summary>
     /// Raises the <see cref="ConnectionException"/> event.
@@ -3412,9 +3471,6 @@ public sealed class MultiProtocolFrameParser : IFrameParser
             if (m_transportProtocol != TransportProtocol.File)
                 return;
             
-            // Calculate target frame period to miss before reading more file data
-            m_targetFramePeriod = (long)(TimeSpan.TicksPerSecond / (double)m_definedFrameRate * 1.5D);
-
             // Begin reading file data
             m_readNextBuffer?.RunAsync();
         }
@@ -3445,12 +3501,6 @@ public sealed class MultiProtocolFrameParser : IFrameParser
 
     private void m_dataChannel_ConnectionTerminated(object? sender, EventArgs e)
     {
-        if (m_transportProtocol == TransportProtocol.File)
-        {
-            m_lastFramePublishTime = 0L;
-            m_targetFramePeriod = 0L;
-        }
-
         ConnectionTerminated?.SafeInvoke(this, EventArgs.Empty);
     }
 
@@ -3643,8 +3693,10 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         }
     }
 
-    private void m_frameParser_ReceivedCommandFrame(object? sender, EventArgs<ICommandFrame> e) => 
+    private void m_frameParser_ReceivedCommandFrame(object? sender, EventArgs<ICommandFrame> e)
+    { 
         ReceivedCommandFrame?.SafeInvoke(this, e);
+    }
 
     private void m_frameParser_ReceivedConfigurationFrame(object? sender, EventArgs<IConfigurationFrame> e)
     {
@@ -3694,8 +3746,6 @@ public sealed class MultiProtocolFrameParser : IFrameParser
                 // If injecting a simulated timestamp, use the last received time
                 if (InjectSimulatedTimestamp)
                     dataFrame.Timestamp = simulatedTimestamp;
-
-                m_lastFramePublishTime = DateTime.UtcNow.Ticks;
             }
 
             ReceivedDataFrame?.SafeInvoke(this, e);
@@ -3715,17 +3765,25 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         ReceivedHeaderFrame?.SafeInvoke(this, e);
     }
 
-    private void m_frameParser_ReceivedUndeterminedFrame(object? sender, EventArgs<IChannelFrame> e) => 
+    private void m_frameParser_ReceivedUndeterminedFrame(object? sender, EventArgs<IChannelFrame> e)
+    {
         ReceivedUndeterminedFrame?.SafeInvoke(this, e);
+    }
 
-    private void m_frameParser_ReceivedFrameImage(object? sender, EventArgs<FundamentalFrameType, int> e) => 
+    private void m_frameParser_ReceivedFrameImage(object? sender, EventArgs<FundamentalFrameType, int> e)
+    {
         ReceivedFrameImage?.SafeInvoke(this, e);
+    }
 
-    private void m_frameParser_ReceivedFrameBufferImage(object? sender, EventArgs<FundamentalFrameType, byte[], int, int> e) => 
+    private void m_frameParser_ReceivedFrameBufferImage(object? sender, EventArgs<FundamentalFrameType, byte[], int, int> e)
+    {
         ReceivedFrameBufferImage?.SafeInvoke(this, e);
+    }
 
-    private void m_frameParser_ConfigurationChanged(object? sender, EventArgs e) => 
+    private void m_frameParser_ConfigurationChanged(object? sender, EventArgs e)
+    {
         ConfigurationChanged?.SafeInvoke(this, e);
+    }
 
     private void m_frameParser_ParsingException(object? sender, EventArgs<Exception> e)
     {
@@ -3737,15 +3795,17 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         OnParsingException(ex);
     }
 
-    private void m_frameParser_BufferParsed(object? sender, EventArgs e) => 
+    private void m_frameParser_BufferParsed(object? sender, EventArgs e)
+    {
         BufferParsed?.SafeInvoke(this, EventArgs.Empty);
+    }
 
     private void ReadNextFileBuffer()
     {
         if (m_dataChannel is not FileClient { CurrentState: ClientState.Connected } fileClient)
             return;
 
-        while (QueuedBuffers > 0 || DateTime.UtcNow.Ticks - m_lastFramePublishTime < m_targetFramePeriod)
+        while (QueuedBuffers > 0 || QueuedOutputs > 0)
         {
             Thread.Sleep(1);
 
@@ -3753,7 +3813,6 @@ public sealed class MultiProtocolFrameParser : IFrameParser
                 return;
         }
 
-        // Read more file data when no data has been received for target frame period
         fileClient.ReadNextBuffer();
     }
 
