@@ -5603,6 +5603,11 @@
             SEL CWS protocol.
             </summary>
     </member>
+    <member name="M:Gemstone.PhasorProtocols.Common.GetFormattedProtocolName(Gemstone.PhasorProtocols.PhasorProtocol)">
+      <summary>
+            Returns display friendly protocol name.
+            </summary>
+    </member>
     <member name="T:Gemstone.PhasorProtocols.PhasorValueBase">
       <summary>
             Represents the common implementation of the protocol independent representation of a phasor value.
@@ -5818,10 +5823,17 @@
             Replay timer class used to pace frame publication for file-based playback.
             </summary>
       <remarks>
-            This class uses a combination of coarse sleeping, yielding, and spinning for
-            accurate wait times with minimal CPU usage. Supports common frame rates, e.g.,
-            30 or 60, and very high frame rates, e.g., 3000.
-            </remarks>
+        <para>
+            Uses absolute deadline advancement to maintain consistent inter-frame intervals.
+            For longer intervals, e.g., 30 FPS / ~33ms, a single bulk <see cref="M:System.Threading.Thread.Sleep(System.Int32)" />
+            is used for most of the wait, followed by yield/spin for the final approach — minimizing
+            OS scheduler jitter compared to many individual <c>Thread.Sleep(1)</c> calls.
+            </para>
+        <para>
+            Also supports very high frame rates, e.g., 3000 FPS, where the yield/spin path
+            naturally dominates due to sub-millisecond intervals.
+            </para>
+      </remarks>
     </member>
     <member name="M:Gemstone.PhasorProtocols.ReplayTimer.#ctor(System.Int32)">
       <summary>
@@ -5838,6 +5850,12 @@
       <summary>
             Blocks until the next scheduled frame rate interval.
             </summary>
+      <remarks>
+            The deadline advances by exactly one period from the current deadline (absolute
+            cadence) to keep inter-frame intervals consistent. If the deadline has already
+            fallen behind by more than one full period, it resets to "now + period" to
+            prevent a burst of catch-up frames.
+            </remarks>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SourceChannel">
       <summary>
@@ -14520,6 +14538,11 @@
             Defines the latest known IEEE C37.118 version number.
             </summary>
     </member>
+    <member name="M:Gemstone.PhasorProtocols.IEEEC37_118.Common.ToVersionString(Gemstone.PhasorProtocols.IEEEC37_118.DraftRevision)">
+      <summary>
+            Gets the version number for a given <see cref="T:Gemstone.PhasorProtocols.IEEEC37_118.DraftRevision" />.
+            </summary>
+    </member>
     <member name="T:Gemstone.PhasorProtocols.IEEEC37_118.FormatFlags">
       <summary>
             Data format flags enumeration.
@@ -18708,6 +18731,11 @@
       <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
       <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.BodyLength">
+      <summary>
+            Gets the length of the <see cref="P:Gemstone.PhasorProtocols.DataCellBase.BodyImage" />.
+            </summary>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.ConfigurationCell">
       <summary>
             Gets or sets the <see cref="P:Gemstone.PhasorProtocols.SelCWS.DataCell.ConfigurationCell" /> associated with this <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" />.
@@ -18743,6 +18771,7 @@
             </summary>
       <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
       <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
+      <exception cref="T:System.Security.SecurityException">The caller does not have the required permission.</exception>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.DataCell.Parent">
       <summary>
@@ -18826,26 +18855,46 @@
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.Attributes">
       <summary>
-        <see cref="T:System.Collections.Generic.Dictionary`2" /> of string based property names and values for the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> object.
+        <see cref="T:System.Collections.Generic.Dictionary`2" /> of string based property names and values for the <see cref="T:Gemstone.PhasorProtocols.ChannelFrameBase`1" /> object.
             </summary>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.BinaryLength">
       <summary>
-            Gets the length of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" />.
+            Gets the length of the <see cref="P:Gemstone.PhasorProtocols.ChannelFrameBase`1.BinaryImage" />.
             </summary>
       <remarks>
             This property is overridden so the length can be adjusted for lack of a checksum.
             </remarks>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.BodyLength">
+      <summary>
+            Gets the length of the <see cref="P:Gemstone.PhasorProtocols.ChannelFrameBase`1.BodyImage" />.
+            </summary>
+      <remarks>
+            The length of the <see cref="T:Gemstone.PhasorProtocols.ChannelFrameBase`1" /> body image is the combined length of all the <see cref="P:Gemstone.PhasorProtocols.ChannelFrameBase`1.Cells" />.
+            </remarks>
+    </member>
     <member name="M:Gemstone.PhasorProtocols.SelCWS.DataFrame.CalculateChecksum(System.Byte[],System.Int32,System.Int32)">
       <summary>
-            Method is not implemented.
+            Calculates checksum of given <paramref name="buffer" />.
             </summary>
-      <param name="buffer">Array of <see cref="T:System.Byte" />s.</param>
-      <param name="length">An <see cref="T:System.Int32" /> value for the bytes to read.</param>
-      <param name="offset">An <see cref="T:System.Int32" /> value for offset to read from.</param>
-      <returns>An <see cref="T:System.UInt16" /> as the checksum.</returns>
-      <exception cref="T:System.NotImplementedException">SEL CWS doesn't use checksums.</exception>
+      <param name="buffer">Buffer image over which to calculate checksum.</param>
+      <param name="offset">Start index into <paramref name="buffer" /> to calculate checksum.</param>
+      <param name="length">Length of data within <paramref name="buffer" /> to calculate checksum.</param>
+      <returns>Checksum over specified portion of <paramref name="buffer" />.</returns>
+      <remarks>
+            Override with needed checksum calculation for particular protocol.
+            <example>
+            This example provides a CRC-CCITT checksum:
+            <code>
+            using GSF.IO.Checksums;
+            
+            protected override ushort CalculateChecksum(byte[] buffer, int offset, int length)
+            {
+                // Return calculated CRC-CCITT over given buffer...
+                return buffer.CrcCCITTChecksum(offset, length);
+            }
+            </code></example></remarks>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.Cells">
       <summary>
@@ -18879,6 +18928,7 @@
             </summary>
       <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
       <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
+      <exception cref="T:System.Security.SecurityException">The caller does not have the required permission.</exception>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.NanosecondTimestamp">
       <summary>
@@ -18901,10 +18951,13 @@
       <summary>
             Parses the binary header image.
             </summary>
-      <param name="buffer">Binary image to parse.</param>
-      <param name="startIndex">Start index into <paramref name="buffer" /> to begin parsing.</param>
-      <param name="length">Length of valid data within <paramref name="buffer" />.</param>
-      <returns>The length of the data that was parsed.</returns>
+      <param name="buffer">Buffer containing binary image to parse.</param>
+      <param name="startIndex">0-based starting index in the <paramref name="buffer" /> to start parsing.</param>
+      <param name="length">Valid number of bytes within <paramref name="buffer" /> from <paramref name="startIndex" />.</param>
+      <returns>The number of bytes used for initialization in the <paramref name="buffer" /> (i.e., the number of bytes parsed).</returns>
+      <remarks>
+            This method is typically overridden by a specific protocol implementation.
+            </remarks>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.DataFrame.TypeID">
       <summary>
@@ -19376,6 +19429,297 @@
     <member name="P:Gemstone.PhasorProtocols.SelCWS.PhasorValue.Parent">
       <summary>
             Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator">
+      <summary>
+            Represents a rolling six-phase estimator using a sliding DFT algorithm with optional smoothing.
+            </summary>
+      <remarks>
+        <para>
+            This class implements a real-time phasor measurement algorithm suitable for power system
+            applications. It uses a Sliding Discrete Fourier Transform (SDFT) approach to efficiently
+            compute phasors at each sample with O(1) complexity.
+            </para>
+        <para>
+            Frequency estimation is performed by tracking the rate of change of phase angle from the
+            reference channel (VA by default). The SDFT twiddle factor rotation removes the nominal
+            bin frequency component, so residual phase changes between samples directly represent
+            frequency deviation from nominal. The frequency and ROCOF outputs are smoothed using
+            exponential moving average filters.
+            </para>
+        <para>
+            The algorithm is designed for nominal 50Hz or 60Hz systems sampled at 3000Hz, but can be
+            configured for other sample rates.
+            </para>
+        <para>
+          <b>Magnitude Output:</b>
+          <br />
+            The magnitude output represents the RMS value of the fundamental frequency component.
+            If input data is already normalized (per-unit values with peak ≈ 1.0), the output RMS
+            magnitudes will be approximately 1/√2 ≈ 0.707 per unit. To obtain actual engineering
+            units, multiply output magnitudes by the appropriate scaling factor (e.g., VT/CT ratios
+            or nominal voltage/current values).
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.#ctor(System.Double,System.Double,Gemstone.Numeric.EE.LineFrequency,Gemstone.PhasorProtocols.SelCWS.PhaseChannel,System.Int32,System.Boolean,System.Boolean,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int32)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator" /> class with independent
+            input sample rate and output publish rate, plus smoothing expressed as time constants (τ).
+            </summary>
+      <param name="sampleRateHz">
+            Input sample rate in Hz (PoW samples per second). Must be &gt; 0.
+            This is the rate at which <see cref="M:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)" /> is called with new samples.
+            </param>
+      <param name="outputRateHz">
+            Output publish rate in Hz (estimates per second). Must be &gt; 0 and &lt;= <paramref name="sampleRateHz" />.
+            Common synchrophasor-friendly values: 30, 60 or 120Hz. Defaults chosen for "calm" 60Hz publish rates;
+            τ-to-α mapping adapts automatically to other publish rates.
+            <br />
+            Behavioral note:
+            <see cref="M:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)" /> may return <c>false</c> even after the estimator is ready, if the current sample does not
+            land on a publish boundary (i.e., it is not yet time to produce the next output).
+            </param>
+      <param name="nominalFrequency">
+            Nominal line frequency (typically 50Hz or 60Hz). This determines the nominal-cycle length used
+            for the DFT window and the expected reference-phase progression.
+            </param>
+      <param name="referenceChannel">
+            Reference channel for frequency tracking.
+            Default: <see cref="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.VA" />.
+            </param>
+      <param name="targetCycles">
+            Number of nominal cycles contained in the sliding DFT analysis window (default: 2).
+            Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.
+            </param>
+      <param name="enableIntervalAveraging">
+            Enables interval averaging (boxcar averaging) across each publish interval when down-sampling
+            (<paramref name="outputRateHz" /> &lt; <paramref name="sampleRateHz" />).
+            <br />
+            Why this exists:
+            Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency
+            content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces
+            jitter and improves published stability.
+            <br />
+            Consequences:<br />
+            - Improves calmness and reduces aliasing artifacts.<br />
+            - Adds a small amount of additional latency (effectively ~½ publish interval group delay).<br />
+            Recommended: <c>true</c> (default).
+            </param>
+      <param name="enablePublishEMA">
+            Enables an additional exponential moving average (EMA) applied to the published stream (after interval averaging).
+            <br />
+            Why this exists:<br />
+            Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a "calm"
+            display or control signal. This is usually the most intuitive "knob" for operators/consumers because it acts on
+            the actual output cadence.
+            <br />
+            Consequences:<br />
+            - Larger time constants (τ) produce smoother outputs but slower response to real changes.<br />
+            - Smaller τ tracks faster but appears noisier.<br />
+            Default: <c>true</c>.
+            </param>
+      <param name="publishAnglesTauSeconds">
+            EMA time constant τ (seconds) for published phase angles. Default: 0.35s.
+            <br />
+            Important:<br />
+            Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors
+            (cos/sin) rather than naïvely averaging radians. This avoids discontinuities at ±π.
+            </param>
+      <param name="publishMagnitudesTauSeconds">
+            EMA time constant τ (seconds) for published RMS magnitudes. Default: 0.50s.
+            </param>
+      <param name="publishFrequencyTauSeconds">
+            EMA time constant τ (seconds) for published frequency. Default: 0.75s.
+            </param>
+      <param name="publishRocofTauSeconds">
+            EMA time constant τ (seconds) for published ROCOF (dF/dt). Default: 1.50s.
+            <br />
+            Note:<br />
+            ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from
+            heavier smoothing (larger τ) than frequency.
+            </param>
+      <param name="sampleFrequencyTauSeconds">
+            EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator
+            before any down-sampling/publish filtering. Default: 0.15s.
+            <br />
+            Guidance:<br />
+            When interval averaging + publish EMA are enabled, this can be relatively light. If you disable publish smoothing,
+            you may want to increase this τ.
+            </param>
+      <param name="sampleRocofTauSeconds">
+            EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed
+            frequency). Default: 0.30s.
+            </param>
+      <param name="recalculationCycles">
+            Number of nominal cycles between full DFT recalculations for numerical stability (default: 10).
+            Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation
+            re-anchors the phasor sums.
+            </param>
+      <remarks>
+        <para>
+          <b>Time constant (τ) vs "alpha" (α):</b>
+          <br />
+            Internally, EMAs use α constrained from 0 to 1. This API exposes τ because it is easier to reason about.
+            For update period Δt (seconds), α is derived as:
+            <code>
+            α = 1 - exp(-Δt / τ)
+            </code>
+            Interpretation: after a step change, an EMA will move about 63% toward the new value after ~τ seconds.
+            </para>
+        <para>
+          <b>Two-stage smoothing (when outputRate &lt; inputRate):</b>
+          <list type="number">
+            <item>
+              <description>
+                <b>Interval averaging (boxcar)</b> across the publish interval (anti-alias / jitter reduction).</description>
+            </item>
+            <item>
+              <description>
+                <b>Publish EMA</b> applied to the down-sampled stream (additional "calmness").</description>
+            </item>
+          </list>
+            This combination yields stable outputs at 60Hz without producing thousands of nearly-identical jittery estimates per second.
+            </para>
+        <para>
+          <b>Knob-tweaking guidance:</b>
+          <list type="bullet">
+            <item>
+              <description>Increase <paramref name="targetCycles" /> to reduce noise/jitter, at the cost of more latency.</description>
+            </item>
+            <item>
+              <description>Increase publish τ values to make outputs calmer, at the cost of slower response.</description>
+            </item>
+            <item>
+              <description>If you disable interval averaging, consider increasing publish τ values to compensate.</description>
+            </item>
+            <item>
+              <description>Keep ROCOF τ larger than frequency τ; ROCOF is inherently noisier.</description>
+            </item>
+          </list>
+        </para>
+      </remarks>
+      <exception cref="T:System.ArgumentOutOfRangeException">
+            Thrown if any rate is non-positive, output rate exceeds input rate, targetCycles &lt; 1, or any τ is negative.
+            </exception>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultEnableIntervalAveraging">
+      <summary>
+            Default value for determining if interval averaging is enabled.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultEnablePublishEMA">
+      <summary>
+            Default value for determining if EMA publishing is enabled.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultPublishAnglesTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published angles.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultPublishFrequencyTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published frequency.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultPublishMagnitudesTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published RMS magnitudes.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultPublishRocofTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published ROCOF.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultRecalculationCycles">
+      <summary>
+            Default value for number of recalculation cycles.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultReferenceChannel">
+      <summary>
+            Default value for reference channel.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultSampleFrequencyTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published for the internal per-sample frequency smoothing.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultSampleRocofTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published for the internal per-sample ROCOF smoothing.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultTargetCycles">
+      <summary>
+            Default value for number of target cycles.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.IsReady">
+      <summary>
+            Gets whether the estimator has filled its window and is producing valid estimates.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.NominalFrequencyHz">
+      <summary>
+            Gets the nominal frequency in Hz.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.OutputRateHz">
+      <summary>
+            Gets the configured output publish rate in Hz.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.ReferenceChannel">
+      <summary>
+            Gets the reference channel index used for frequency tracking (typically VA).
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.Reset">
+      <summary>
+            Resets the estimator to its initial state.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.SampleRateHz">
+      <summary>
+            Gets the configured sample rate in Hz.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)">
+      <summary>
+            Push one interleaved sample-group (IA, IB, IC, VA, VB, VC) with its epoch nanoseconds.
+            </summary>
+      <param name="ia">Current sample for phase A current.</param>
+      <param name="ib">Current sample for phase B current.</param>
+      <param name="ic">Current sample for phase C current.</param>
+      <param name="va">Current sample for phase A voltage.</param>
+      <param name="vb">Current sample for phase B voltage.</param>
+      <param name="vc">Current sample for phase C voltage.</param>
+      <param name="epochNanoseconds">Timestamp in nanoseconds since epoch.</param>
+      <param name="phaseEstimateHandler">Handler for phase estimate result.</param>
+      <returns>
+        <c>true</c> when an estimate is available (window has filled) and it is time to 
+            publish at target <see cref="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.OutputRateHz" />; otherwise, <c>false</c>.
+            </returns>
+      <remarks>
+            The data referenced in the span-based properties of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate" />
+            parameter provided to the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler" /> delegate is owned by the
+            <see cref="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator" /> instance, it is only valid during the scope of the
+            delegate call. If you need to retain the data, make a copy.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.TotalSamplesProcessed">
+      <summary>
+            Gets the total number of samples processed.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.WindowSamples">
+      <summary>
+            Gets the number of samples in the analysis window.
             </summary>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SelFastMessage.CommandFrame">
