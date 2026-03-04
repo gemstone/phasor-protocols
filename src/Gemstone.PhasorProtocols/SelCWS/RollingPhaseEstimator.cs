@@ -177,6 +177,17 @@ public sealed class RollingPhaseEstimator
     /// </summary>
     public const int DefaultRecalculationCycles = 10;
 
+    /// <summary>
+    /// Minimum number of samples per nominal cycle required for the sliding DFT algorithm.
+    /// </summary>
+    /// <remarks>
+    /// The DFT requires at least 3 samples per nominal cycle to produce a non-degenerate
+    /// frequency bin. At exactly 2 samples per cycle the target bin falls on the Nyquist
+    /// frequency, which is degenerate and produces unreliable results. This implies the
+    /// sample rate must be greater than twice the nominal frequency (Nyquist criterion).
+    /// </remarks>
+    public const int MinSamplesPerNominalCycle = 3;
+
     // Fields
     private readonly double m_samplePeriodSeconds;
     private readonly int m_recalculationInterval;
@@ -358,7 +369,9 @@ public sealed class RollingPhaseEstimator
     /// re-anchors the phasor sums.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown if any rate is non-positive, output rate exceeds input rate, targetCycles &lt; 1, or any τ is negative.
+    /// Thrown if any rate is non-positive, output rate exceeds input rate, targetCycles &lt; 1, any τ is negative,
+    /// or sample rate is too low for the nominal frequency (must yield at least <see cref="MinSamplesPerNominalCycle"/>
+    /// samples per nominal cycle to satisfy the Nyquist criterion for the sliding DFT algorithm).
     /// </exception>
     /// <remarks>
     /// <para>
@@ -458,6 +471,17 @@ public sealed class RollingPhaseEstimator
         m_rocofAlpha = AlphaFromTau(sampleDt, sampleRocofTauSeconds);
 
         int samplesPerNominalCycle = (int)Math.Round(sampleRateHz / NominalFrequencyHz);
+
+        if (samplesPerNominalCycle < MinSamplesPerNominalCycle)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(sampleRateHz),
+                sampleRateHz,
+                $"Sample rate {sampleRateHz:N0} Hz is too low for nominal frequency {NominalFrequencyHz:N0} Hz. " +
+                $"The sliding DFT requires at least {MinSamplesPerNominalCycle} samples per nominal cycle " +
+                $"(minimum sample rate: {MinSamplesPerNominalCycle * NominalFrequencyHz:N0} Hz) to satisfy the Nyquist criterion.");
+        }
+
         WindowSamples = samplesPerNominalCycle * targetCycles;
         m_recalculationInterval = samplesPerNominalCycle * recalculationCycles;
 
