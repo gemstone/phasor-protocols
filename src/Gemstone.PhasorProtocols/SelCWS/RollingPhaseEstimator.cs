@@ -118,9 +118,7 @@ public sealed class RollingPhaseEstimator
 
     // Constants
 
-    /// <summary>
-    /// Number of input channels (IA, IB, IC, VA, VB, VC).
-    /// </summary>
+    // Number of input channels (IA, IB, IC, VA, VB, VC).
     private const int NumInputChannels = 6;
     private const double TwoPI = 2.0 * Math.PI;
 
@@ -254,6 +252,7 @@ public sealed class RollingPhaseEstimator
 
         // Initialize circular sample buffers (one per input channel)
         m_sampleBuffers = new double[NumInputChannels][];
+
         for (int ch = 0; ch < NumInputChannels; ch++)
             m_sampleBuffers[ch] = new double[m_filterLength];
     }
@@ -404,17 +403,17 @@ public sealed class RollingPhaseEstimator
         m_bufferWriteIndex = 0;
         TotalSamplesProcessed = 0L;
         m_decimationCounter = 0;
-        m_currentTimeSeconds = 0.0;
+        m_currentTimeSeconds = 0.0D;
 
         // Reset phasor outputs
         Array.Clear(m_phasorReal, 0, NumInputChannels);
         Array.Clear(m_phasorImag, 0, NumInputChannels);
-        m_vpReal = m_vpImag = 0.0;
+        m_vpReal = m_vpImag = 0.0D;
 
         // Reset frequency/ROCOF state
         Array.Clear(m_phaseHistory, 0, 3);
         m_phaseHistoryCount = 0;
-        m_lastUnwrappedPhase = 0.0;
+        m_lastUnwrappedPhase = 0.0D;
 
         // Reset output buffers
         Array.Clear(m_publishAngles);
@@ -442,8 +441,8 @@ public sealed class RollingPhaseEstimator
             // Filter coefficients were pre-reversed during construction.
             for (int k = 0; k < m_filterLength; k++)
             {
-                int bufIdx = (m_bufferWriteIndex + k) % m_filterLength;
-                double sample = buffer[bufIdx];
+                int index = (m_bufferWriteIndex + k) % m_filterLength;
+                double sample = buffer[index];
 
                 // Complex multiply: (filterReal + j*filterImag) * sample
                 sumReal += m_filterReal[k] * sample;
@@ -490,12 +489,12 @@ public sealed class RollingPhaseEstimator
     private void ComputeVoltagePositiveSequence()
     {
         // α = -0.5 + j·√3/2
-        const double alphaReal = -0.5;
-        double alphaImag = Math.Sqrt(3.0) / 2.0;
+        const double alphaReal = -0.5D;
+        double alphaImag = Math.Sqrt(3.0D) / 2.0D;
 
         // α² = -0.5 - j·√3/2
-        const double alpha2Real = -0.5;
-        double alpha2Imag = -Math.Sqrt(3.0) / 2.0;
+        const double alpha2Real = -0.5D;
+        double alpha2Imag = -Math.Sqrt(3.0D) / 2.0D;
 
         // Voltage positive sequence: Vp = (1/3)(Va + α·Vb + α²·Vc)
         const int VA = (int)PhaseChannel.VA;
@@ -547,12 +546,12 @@ public sealed class RollingPhaseEstimator
             // F = lfilter([1, 0, -1], 1, unwrap(angle(Xp))) / (4*pi*1/fs) + f0
             // Equivalent to: F[n] = (phase[n] - phase[n-2]) / (4*pi * dt) + f0
             case >= 3:
-                frequency = (m_phaseHistory[2] - m_phaseHistory[0]) / (4.0 * Math.PI * dt) + NominalFrequencyHz;
+                frequency = (m_phaseHistory[2] - m_phaseHistory[0]) / (4.0D * Math.PI * dt) + NominalFrequencyHz;
 
                 // IEEE Annex D.4, Equation D.4:
                 // DF = lfilter([1, -2, 1], 1, unwrap(angle(Xp))) / (2*pi / fs^2)
                 // Equivalent to: DF[n] = (phase[n] - 2*phase[n-1] + phase[n-2]) / (2*pi * dt^2)
-                rocof = (m_phaseHistory[2] - 2.0 * m_phaseHistory[1] + m_phaseHistory[0]) / (TwoPI * dt * dt);
+                rocof = (m_phaseHistory[2] - 2.0D * m_phaseHistory[1] + m_phaseHistory[0]) / (TwoPI * dt * dt);
                 break;
             case 2:
                 // Partial: can compute a first-order frequency estimate
@@ -574,11 +573,11 @@ public sealed class RollingPhaseEstimator
     {
         // XM_corrected = XM / sin(π * (f0 + 1.625*(f0-F)) / (2*f0))
         double f0 = NominalFrequencyHz;
-        double correctionArg = Math.PI * (f0 + 1.625 * (f0 - frequency)) / (2.0 * f0);
+        double correctionArg = Math.PI * (f0 + 1.625D * (f0 - frequency)) / (2.0D * f0);
         double sinVal = Math.Sin(correctionArg);
 
         // Avoid division by zero or near-zero
-        if (Math.Abs(sinVal) < 1e-10)
+        if (Math.Abs(sinVal) < 1e-10D)
             return;
 
         double correctionFactor = 1.0 / sinVal;
@@ -627,8 +626,8 @@ public sealed class RollingPhaseEstimator
 
             for (int i = 0; i <= N; i++)
             {
-                double k = i - N / 2.0;
-                w[i] = 1.0 - 2.0 / (N + 2) * Math.Abs(k);
+                double k = i - N / 2.0D;
+                w[i] = 1.0D - 2.0D / (N + 2) * Math.Abs(k);
             }
         }
         else // M-class
@@ -642,13 +641,13 @@ public sealed class RollingPhaseEstimator
 
             for (int i = 0; i <= N; i++)
             {
-                double k = i - N / 2.0;
-                double sincArg = TwoPI * (2.0 * Ffr) / fs * k;
+                double k = i - N / 2.0D;
+                double sincArg = TwoPI * (2.0D * Ffr) / fs * k;
 
                 double sincVal;
 
-                if (Math.Abs(sincArg) < 1e-15)
-                    sincVal = 1.0;
+                if (Math.Abs(sincArg) < 1e-15D)
+                    sincVal = 1.0D;
                 else
                     sincVal = Math.Sin(sincArg) / sincArg;
 
@@ -659,7 +658,7 @@ public sealed class RollingPhaseEstimator
         filterOrder = N;
 
         // Compute filter normalization gain: G = sum(w)
-        double G = 0.0;
+        double G = 0.0D;
 
         for (int i = 0; i <= N; i++)
             G += w[i];
@@ -675,7 +674,7 @@ public sealed class RollingPhaseEstimator
         // So: filter[i] = sqrt(2)/G * exp(j*N/2/fs*w0) * w[i] * exp(j*(i-N/2)/fs*w0)
         //               = sqrt(2)/G * w[i] * exp(j*i/fs*w0)
 
-        double scale = Math.Sqrt(2.0) / G;
+        double scale = Math.Sqrt(2.0D) / G;
         filterReal = new double[N + 1];
         filterImag = new double[N + 1];
 
@@ -705,21 +704,21 @@ public sealed class RollingPhaseEstimator
         {
             (int)LineFrequency.Hz50 => rrInt switch
             {
-                10 => (1.779, 806),
-                25 => (4.355, 338),
-                50 => (7.75, 142),
-                100 => (14.1, 66),
+                10 => (1.779D, 806),
+                25 => (4.355D, 338),
+                50 => (7.75D, 142),
+                100 => (14.1D, 66),
                 _ => throw new ArgumentException($"M-class filter at 50Hz nominal only supports report rates: 10, 25, 50, 100. Got: {rr}", nameof(rr))
             },
             (int)LineFrequency.Hz60 => rrInt switch
             {
-                10 => (1.78, 968),
-                12 => (2.125, 816),
-                15 => (2.64, 662),
-                20 => (3.5, 502),
-                30 => (5.02, 306),
-                60 => (8.19, 164),
-                120 => (16.25, 70),
+                10 => (1.78D, 968),
+                12 => (2.125D, 816),
+                15 => (2.64D, 662),
+                20 => (3.5D, 502),
+                30 => (5.02D, 306),
+                60 => (8.19D, 164),
+                120 => (16.25D, 70),
                 _ => throw new ArgumentException($"M-class filter at 60Hz nominal only supports report rates: 10, 12, 15, 20, 30, 60, 120. Got: {rr}", nameof(rr))
             },
             _ => throw new ArgumentException($"M-class filter only supports nominal frequencies of 50 or 60 Hz. Got: {f0}", nameof(f0))
@@ -736,7 +735,7 @@ public sealed class RollingPhaseEstimator
         double[] window = new double[length];
 
         for (int i = 0; i < length; i++)
-            window[i] = 0.54 - 0.46 * Math.Cos(TwoPI * i / (length - 1));
+            window[i] = 0.54D - 0.46D * Math.Cos(TwoPI * i / (length - 1));
 
         return window;
     }
