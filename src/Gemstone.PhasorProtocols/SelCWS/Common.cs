@@ -49,7 +49,7 @@ public enum FrameType : byte
 /// Phase channels for SEL CWS PoW analogs.
 /// </summary>
 public enum PhaseChannel
-{ 
+{
     /// <summary>
     /// Phase A current (IA).
     /// </summary>
@@ -74,6 +74,21 @@ public enum PhaseChannel
     /// Phase C voltage (VC).
     /// </summary>
     VC = 5
+}
+
+/// <summary>
+/// IEEE C37.118-2018 Annex D filter class for phasor estimation.
+/// </summary>
+public enum FilterClass
+{
+    /// <summary>
+    /// P-class (Protection): fast response, triangular window filter.
+    /// </summary>
+    P,
+    /// <summary>
+    /// M-class (Measurement): better out-of-band rejection, Hamming-windowed sinc filter.
+    /// </summary>
+    M
 }
 
 #endregion

@@ -2617,32 +2617,8 @@ public sealed class MultiProtocolFrameParser : IFrameParser
                     if (settings.TryGetValue("repeatLastCalculatedValueWhenDownSampling", out setting))
                         selCWSParameters.RepeatLastCalculatedValueWhenDownSampling = setting.ParseBoolean();
 
-                    if (settings.TryGetValue("referenceChannel", out setting) && Enum.TryParse(setting, true, out PhaseChannel referenceChannel))
-                        selCWSParameters.ReferenceChannel = referenceChannel;
-
-                    if (settings.TryGetValue("targetCycles", out setting) && int.TryParse(setting, out int targetCycles))
-                        selCWSParameters.TargetCycles = targetCycles;
-
-                    if (settings.TryGetValue("publishAnglesTauSeconds", out setting) && double.TryParse(setting, out double publishAnglesTauSeconds))
-                        selCWSParameters.PublishAnglesTauSeconds = publishAnglesTauSeconds;
-
-                    if (settings.TryGetValue("publishMagnitudesTauSeconds", out setting) && double.TryParse(setting, out double publishMagnitudesTauSeconds))
-                        selCWSParameters.PublishMagnitudesTauSeconds = publishMagnitudesTauSeconds;
-
-                    if (settings.TryGetValue("publishFrequencyTauSeconds", out setting) && double.TryParse(setting, out double publishFrequencyTauSeconds))
-                        selCWSParameters.PublishFrequencyTauSeconds = publishFrequencyTauSeconds;
-
-                    if (settings.TryGetValue("publishRocofTauSeconds", out setting) && double.TryParse(setting, out double publishRocofTauSeconds))
-                        selCWSParameters.PublishRocofTauSeconds = publishRocofTauSeconds;
-
-                    if (settings.TryGetValue("sampleFrequencyTauSeconds", out setting) && double.TryParse(setting, out double sampleFrequencyTauSeconds))
-                        selCWSParameters.SampleFrequencyTauSeconds = sampleFrequencyTauSeconds;
-
-                    if (settings.TryGetValue("sampleRocofTauSeconds", out setting) && double.TryParse(setting, out double sampleRocofTauSeconds))
-                        selCWSParameters.SampleRocofTauSeconds = sampleRocofTauSeconds;
-
-                    if (settings.TryGetValue("recalculationCycles", out setting) && int.TryParse(setting, out int recalculationCycles))
-                        selCWSParameters.RecalculationCycles = recalculationCycles;
+                    if (settings.TryGetValue("filterClass", out setting) && Enum.TryParse(setting, true, out FilterClass filterClass))
+                        selCWSParameters.FilterClass = filterClass;
                 }
                 break;
             default:

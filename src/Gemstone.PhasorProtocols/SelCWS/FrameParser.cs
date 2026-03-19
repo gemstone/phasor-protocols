@@ -89,17 +89,7 @@ public class FrameParser : FrameParserBase<FrameType>
         NominalFrequency = DefaultNominalFrequency;
         CalculationFrameRate = DefaultFramePerSecond;
         RepeatLastCalculatedValueWhenDownSampling = DefaultRepeatLastCalculatedValueWhenDownSampling;
-        ReferenceChannel = DefaultReferenceChannel;
-        TargetCycles = DefaultTargetCycles;
-        EnableIntervalAveraging = DefaultEnableIntervalAveraging;
-        EnablePublishEMA = DefaultEnablePublishEMA;
-        PublishAnglesTauSeconds = DefaultPublishAnglesTauSeconds;
-        PublishMagnitudesTauSeconds = DefaultPublishMagnitudesTauSeconds;
-        PublishFrequencyTauSeconds = DefaultPublishFrequencyTauSeconds;
-        PublishRocofTauSeconds = DefaultPublishRocofTauSeconds;
-        SampleFrequencyTauSeconds = DefaultSampleFrequencyTauSeconds;
-        SampleRocofTauSeconds = DefaultSampleRocofTauSeconds;
-        RecalculationCycles = DefaultRecalculationCycles;
+        FilterClass = DefaultFilterClass;
     }
 
     #endregion
@@ -158,88 +148,9 @@ public class FrameParser : FrameParserBase<FrameType>
     public bool RepeatLastCalculatedValueWhenDownSampling { get; set; }
 
     /// <summary>
-    /// Gets or sets the reference channel for frequency tracking.
+    /// Gets or sets the IEEE C37.118 filter class: P (Protection, fast response) or M (Measurement, better out-of-band rejection).
     /// </summary>
-    public PhaseChannel ReferenceChannel { get; set; }
-
-    /// <summary>
-    /// Gets or sets the number of nominal cycles contained in the sliding DFT analysis window.
-    /// </summary>
-    /// <remarks>
-    /// Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.
-    /// </remarks>
-    public int TargetCycles { get; set; }
-
-    /// <summary>
-    /// Gets or sets a flag that determines if interval averaging (boxcar averaging) is enabled across each publish interval when down-sampling.
-    /// </summary>
-    /// <remarks>
-    /// Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency
-    /// content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces
-    /// jitter and improves published stability.
-    /// </remarks>
-    public bool EnableIntervalAveraging { get; set; }
-
-    /// <summary>
-    /// Gets or sets a flag that determines if an additional exponential moving average (EMA) is applied to the published stream (after interval averaging).
-    /// </summary>
-    /// <remarks>
-    /// Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a "calm"
-    /// display or control signal. This is usually the most intuitive "knob" for operators/consumers because it acts on
-    /// the actual output cadence.
-    /// </remarks>
-    public bool EnablePublishEMA { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for published phase angles.
-    /// </summary>
-    /// <remarks>
-    /// Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors
-    /// (cos/sin) rather than naïvely averaging radians. This avoids discontinuities at ±π.
-    /// </remarks>
-    public double PublishAnglesTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for published RMS magnitudes.
-    /// </summary>
-    public double PublishMagnitudesTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for published frequency.
-    /// </summary>
-    public double PublishFrequencyTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for published ROCOF (dF/dt).
-    /// </summary>
-    /// <remarks>
-    /// ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from
-    /// heavier smoothing (larger τ) than frequency.
-    /// </remarks>
-    public double PublishRocofTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator before any down-sampling/publish filtering.
-    /// </summary>
-    /// <remarks>
-    /// When interval averaging + publish EMA are enabled, this can be relatively light. If you disable publish smoothing,
-    /// you may want to increase this τ.
-    /// </remarks>
-    public double SampleFrequencyTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed frequency).
-    /// </summary>
-    public double SampleRocofTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the number of nominal cycles between full DFT recalculations for numerical stability.
-    /// </summary>
-    /// <remarks>
-    /// Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation
-    /// re-anchors the phasor sums.
-    /// </remarks>
-    public int RecalculationCycles { get; set; }
+    public FilterClass FilterClass { get; set; }
 
     #endregion
 
@@ -363,7 +274,7 @@ public class FrameParser : FrameParserBase<FrameType>
 
         if (buffer[offset] != (byte)FrameType.DataFrame || m_initialDataFrame is null)
             return parsedLength;
-        
+
         // Make sure enough frame buffer image is available for data frame to be parsed
         if (length < parsedLength)
             return 0;
@@ -394,7 +305,7 @@ public class FrameParser : FrameParserBase<FrameType>
             OnReceivedDataFrame(dataFrame);
 
             // If event for native data frame is subscribed, raise it also
-            ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));   
+            ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
         }
 
         return parsedLength;
@@ -428,17 +339,7 @@ public class FrameParser : FrameParserBase<FrameType>
             DefaultFramePerSecond,
             CalculationFrameRate,
             NominalFrequency,
-            ReferenceChannel,
-            TargetCycles,
-            EnableIntervalAveraging,
-            EnablePublishEMA,
-            PublishAnglesTauSeconds,
-            PublishMagnitudesTauSeconds,
-            PublishFrequencyTauSeconds,
-            PublishRocofTauSeconds,
-            SampleFrequencyTauSeconds,
-            SampleRocofTauSeconds,
-            RecalculationCycles);
+            FilterClass);
 
         // Calculate next phase estimation
         bool calculated = m_phaseEstimator.Step(ia, ib, ic, va, vb, vc, timestamp, processPhaseEstimate);
@@ -531,15 +432,15 @@ public class FrameParser : FrameParserBase<FrameType>
         switch (frame)
         {
             case DataFrame dataFrame:
-            {
-                ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
-                break;
-            }
+                {
+                    ReceivedDataFrame?.SafeInvoke(this, new EventArgs<DataFrame>(dataFrame));
+                    break;
+                }
             case ConfigurationFrame configFrame:
-            {
-                ReceivedConfigurationFrame?.SafeInvoke(this, new EventArgs<ConfigurationFrame>(configFrame));
-                break;
-            }
+                {
+                    ReceivedConfigurationFrame?.SafeInvoke(this, new EventArgs<ConfigurationFrame>(configFrame));
+                    break;
+                }
         }
     }
 
@@ -561,17 +462,7 @@ public class FrameParser : FrameParserBase<FrameType>
             NominalFrequency = parameters.NominalFrequency;
             CalculationFrameRate = parameters.CalculationFrameRate;
             RepeatLastCalculatedValueWhenDownSampling = parameters.RepeatLastCalculatedValueWhenDownSampling;
-            ReferenceChannel = parameters.ReferenceChannel;
-            TargetCycles = parameters.TargetCycles;
-            EnableIntervalAveraging = parameters.EnableIntervalAveraging;
-            EnablePublishEMA = parameters.EnablePublishEMA;
-            PublishAnglesTauSeconds = parameters.PublishAnglesTauSeconds;
-            PublishMagnitudesTauSeconds = parameters.PublishMagnitudesTauSeconds;
-            PublishFrequencyTauSeconds = parameters.PublishFrequencyTauSeconds;
-            PublishRocofTauSeconds = parameters.PublishRocofTauSeconds;
-            SampleFrequencyTauSeconds = parameters.SampleFrequencyTauSeconds;
-            SampleRocofTauSeconds = parameters.SampleRocofTauSeconds;
-            RecalculationCycles = parameters.RecalculationCycles;
+            FilterClass = parameters.FilterClass;
         }
     }
 
