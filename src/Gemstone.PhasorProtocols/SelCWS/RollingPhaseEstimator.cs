@@ -483,8 +483,16 @@ public sealed class RollingPhaseEstimator
     /// Computes the voltage positive-sequence phasor for frequency/ROCOF estimation.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// Per IEEE C37.118-2018: Xp = (1/3)(Xa + α·Xb + α²·Xc)
     /// where α = e^(j·2π/3) = -0.5 + j·√3/2
+    /// </para>
+    /// <para>
+    /// Uses the derotated phasors (with nominal frequency rotation removed), matching the Python
+    /// reference implementation where <c>__estimate</c> removes the <c>t*w0</c> rotation before
+    /// positive-sequence computation. Using the raw FIR output (which still rotates at w0) would
+    /// cause the frequency formula <c>F = dφ/dt/(4π·dt) + f0</c> to double-count f0.
+    /// </para>
     /// </remarks>
     private void ComputeVoltagePositiveSequence()
     {
@@ -501,16 +509,31 @@ public sealed class RollingPhaseEstimator
         const int VB = (int)PhaseChannel.VB;
         const int VC = (int)PhaseChannel.VC;
 
+        // Reconstruct derotated complex phasors from published magnitudes and angles
+        // (which have the nominal frequency rotation already removed in ExtractMagnitudesAndAngles).
+        // This matches the Python __estimate output: XM*cos(XA) + j*XM*sin(XA)
+        double vaAngle = (double)m_publishAngles[VA];
+        double vaReal = m_publishMagnitudes[VA] * Math.Cos(vaAngle);
+        double vaImag = m_publishMagnitudes[VA] * Math.Sin(vaAngle);
+
+        double vbAngle = (double)m_publishAngles[VB];
+        double vbReal = m_publishMagnitudes[VB] * Math.Cos(vbAngle);
+        double vbImag = m_publishMagnitudes[VB] * Math.Sin(vbAngle);
+
+        double vcAngle = (double)m_publishAngles[VC];
+        double vcReal = m_publishMagnitudes[VC] * Math.Cos(vcAngle);
+        double vcImag = m_publishMagnitudes[VC] * Math.Sin(vcAngle);
+
         // α·Vb (complex multiply)
-        double aVbReal = alphaReal * m_phasorReal[VB] - alphaImag * m_phasorImag[VB];
-        double aVbImag = alphaReal * m_phasorImag[VB] + alphaImag * m_phasorReal[VB];
+        double aVbReal = alphaReal * vbReal - alphaImag * vbImag;
+        double aVbImag = alphaReal * vbImag + alphaImag * vbReal;
 
         // α²·Vc (complex multiply)
-        double a2VcReal = alpha2Real * m_phasorReal[VC] - alpha2Imag * m_phasorImag[VC];
-        double a2VcImag = alpha2Real * m_phasorImag[VC] + alpha2Imag * m_phasorReal[VC];
+        double a2VcReal = alpha2Real * vcReal - alpha2Imag * vcImag;
+        double a2VcImag = alpha2Real * vcImag + alpha2Imag * vcReal;
 
-        m_vpReal = (m_phasorReal[VA] + aVbReal + a2VcReal) / 3.0;
-        m_vpImag = (m_phasorImag[VA] + aVbImag + a2VcImag) / 3.0;
+        m_vpReal = (vaReal + aVbReal + a2VcReal) / 3.0;
+        m_vpImag = (vaImag + aVbImag + a2VcImag) / 3.0;
     }
 
     /// <summary>
