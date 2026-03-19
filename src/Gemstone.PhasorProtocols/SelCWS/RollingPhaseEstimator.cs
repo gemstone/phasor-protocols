@@ -127,7 +127,7 @@ public sealed class RollingPhaseEstimator
     /// <summary>
     /// Default filter class.
     /// </summary>
-    public const FilterClass DefaultFilterClass = FilterClass.M;
+    public const FilterClass DefaultFilterClass = FilterClass.P;
 
     // Fields
 
