@@ -71,17 +71,7 @@ public class ConnectionParameters : ConnectionParametersBase
         NominalFrequency = Common.DefaultNominalFrequency;
         CalculationFrameRate = Common.DefaultFramePerSecond;
         RepeatLastCalculatedValueWhenDownSampling = DefaultRepeatLastCalculatedValueWhenDownSampling;
-        ReferenceChannel = DefaultReferenceChannel;
-        TargetCycles = DefaultTargetCycles;
-        EnableIntervalAveraging = DefaultEnableIntervalAveraging;
-        EnablePublishEMA = DefaultEnablePublishEMA;
-        PublishAnglesTauSeconds = DefaultPublishAnglesTauSeconds;
-        PublishMagnitudesTauSeconds = DefaultPublishMagnitudesTauSeconds;
-        PublishFrequencyTauSeconds = DefaultPublishFrequencyTauSeconds;
-        PublishRocofTauSeconds = DefaultPublishRocofTauSeconds;
-        SampleFrequencyTauSeconds = DefaultSampleFrequencyTauSeconds;
-        SampleRocofTauSeconds = DefaultSampleRocofTauSeconds;
-        RecalculationCycles = DefaultRecalculationCycles;
+        FilterClass = DefaultFilterClass;
     }
 
     /// <summary>
@@ -96,17 +86,7 @@ public class ConnectionParameters : ConnectionParametersBase
         NominalFrequency = info.GetOrDefault("nominalFrequency", Common.DefaultNominalFrequency);
         CalculationFrameRate = info.GetOrDefault("calculationFrameRate", Common.DefaultFramePerSecond);
         RepeatLastCalculatedValueWhenDownSampling = info.GetOrDefault("repeatLastCalculatedValueWhenDownSampling", DefaultRepeatLastCalculatedValueWhenDownSampling);
-        ReferenceChannel = info.GetOrDefault("referenceChannel", DefaultReferenceChannel);
-        TargetCycles = info.GetOrDefault("targetCycles", DefaultTargetCycles);
-        EnableIntervalAveraging = info.GetOrDefault("enableIntervalAveraging", DefaultEnableIntervalAveraging);
-        EnablePublishEMA = info.GetOrDefault("enablePublishEMA", DefaultEnablePublishEMA);
-        PublishAnglesTauSeconds = info.GetOrDefault("publishAnglesTauSeconds", DefaultPublishAnglesTauSeconds);
-        PublishMagnitudesTauSeconds = info.GetOrDefault("publishMagnitudesTauSeconds", DefaultPublishMagnitudesTauSeconds);
-        PublishFrequencyTauSeconds = info.GetOrDefault("publishFrequencyTauSeconds", DefaultPublishFrequencyTauSeconds);
-        PublishRocofTauSeconds = info.GetOrDefault("publishRocofTauSeconds", DefaultPublishRocofTauSeconds);
-        SampleFrequencyTauSeconds = info.GetOrDefault("sampleFrequencyTauSeconds", DefaultSampleFrequencyTauSeconds);
-        SampleRocofTauSeconds = info.GetOrDefault("sampleRocofTauSeconds", DefaultSampleRocofTauSeconds);
-        RecalculationCycles = info.GetOrDefault("recalculationCycles", DefaultRecalculationCycles);
+        FilterClass = info.GetOrDefault("filterClass", DefaultFilterClass);
     }
 
     #endregion
@@ -153,121 +133,12 @@ public class ConnectionParameters : ConnectionParametersBase
     public bool RepeatLastCalculatedValueWhenDownSampling { get; set; }
 
     /// <summary>
-    /// Gets or sets the reference channel for frequency tracking.
+    /// Gets or sets the IEEE C37.118 filter class: P (Protection, fast response) or M (Measurement, better out-of-band rejection).
     /// </summary>
     [Category("Phase Estimation Parameters")]
-    [Description("Reference channel for frequency tracking.")]
-    [DefaultValue(typeof(PhaseChannel), "VA")]
-    public PhaseChannel ReferenceChannel { get; set; }
-
-    /// <summary>
-    /// Gets or sets the number of nominal cycles contained in the sliding DFT analysis window.
-    /// </summary>
-    /// <remarks>
-    /// Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.
-    /// </remarks>
-    [Category("Phase Estimation Parameters")]
-    [Description("Number of nominal cycles contained in the sliding DFT analysis window. Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.")]
-    [DefaultValue(DefaultTargetCycles)]
-    public int TargetCycles { get; set; }
-
-    /// <summary>
-    /// Gets or sets a flag that determines if interval averaging (boxcar averaging) is enabled across each publish interval when down-sampling.
-    /// </summary>
-    /// <remarks>
-    /// Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency
-    /// content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces
-    /// jitter and improves published stability.
-    /// </remarks>
-    [Category("Phase Estimation Parameters")]
-    [Description("Enables interval averaging (boxcar averaging) across each publish interval when down-sampling. Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces jitter and improves published stability.")]
-    [DefaultValue(DefaultEnableIntervalAveraging)]
-    public bool EnableIntervalAveraging { get; set; }
-
-    /// <summary>
-    /// Gets or sets a flag that determines if an additional exponential moving average (EMA) is applied to the published stream (after interval averaging).
-    /// </summary>
-    /// <remarks>
-    /// Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a "calm"
-    /// display or control signal. This is usually the most intuitive "knob" for operators/consumers because it acts on
-    /// the actual output cadence.
-    /// </remarks>
-    [Category("Phase Estimation Parameters")]
-    [Description("Enables an additional exponential moving average (EMA) applied to the published stream (after interval averaging). Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a calm display or control signal.")]
-    [DefaultValue(DefaultEnablePublishEMA)]
-    public bool EnablePublishEMA { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for published phase angles.
-    /// </summary>
-    /// <remarks>
-    /// Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors
-    /// (cos/sin) rather than naïvely averaging radians. This avoids discontinuities at ±π.
-    /// </remarks>
-    [Category("Phase Estimation Parameters")]
-    [Description("EMA time constant τ (seconds) for published phase angles. Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors (cos/sin) rather than naïvely averaging radians.")]
-    [DefaultValue(DefaultPublishAnglesTauSeconds)]
-    public double PublishAnglesTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for published RMS magnitudes.
-    /// </summary>
-    [Category("Phase Estimation Parameters")]
-    [Description("EMA time constant τ (seconds) for published RMS magnitudes.")]
-    [DefaultValue(DefaultPublishMagnitudesTauSeconds)]
-    public double PublishMagnitudesTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for published frequency.
-    /// </summary>
-    [Category("Phase Estimation Parameters")]
-    [Description("EMA time constant τ (seconds) for published frequency.")]
-    [DefaultValue(DefaultPublishFrequencyTauSeconds)]
-    public double PublishFrequencyTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for published ROCOF (dF/dt).
-    /// </summary>
-    /// <remarks>
-    /// ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from
-    /// heavier smoothing (larger τ) than frequency.
-    /// </remarks>
-    [Category("Phase Estimation Parameters")]
-    [Description("EMA time constant τ (seconds) for published ROCOF (dF/dt). ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from heavier smoothing (larger τ) than frequency.")]
-    [DefaultValue(DefaultPublishRocofTauSeconds)]
-    public double PublishRocofTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator before any down-sampling/publish filtering.
-    /// </summary>
-    /// <remarks>
-    /// When interval averaging + publish EMA are enabled, this can be relatively light. If you disable publish smoothing,
-    /// you may want to increase this τ.
-    /// </remarks>
-    [Category("Phase Estimation Parameters")]
-    [Description("EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator before any down-sampling/publish filtering. When interval averaging + publish EMA are enabled, this can be relatively light.")]
-    [DefaultValue(DefaultSampleFrequencyTauSeconds)]
-    public double SampleFrequencyTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed frequency).
-    /// </summary>
-    [Category("Phase Estimation Parameters")]
-    [Description("EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed frequency).")]
-    [DefaultValue(DefaultSampleRocofTauSeconds)]
-    public double SampleRocofTauSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the number of nominal cycles between full DFT recalculations for numerical stability.
-    /// </summary>
-    /// <remarks>
-    /// Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation
-    /// re-anchors the phasor sums.
-    /// </remarks>
-    [Category("Phase Estimation Parameters")]
-    [Description("Number of nominal cycles between full DFT recalculations for numerical stability. Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation re-anchors the phasor sums.")]
-    [DefaultValue(DefaultRecalculationCycles)]
-    public int RecalculationCycles { get; set; }
+    [Description("IEEE C37.118 filter class: P (Protection, fast response) or M (Measurement, better out-of-band rejection).")]
+    [DefaultValue(DefaultFilterClass)]
+    public FilterClass FilterClass { get; set; }
 
     #endregion
 
@@ -285,17 +156,7 @@ public class ConnectionParameters : ConnectionParametersBase
         info.AddValue("nominalFrequency", NominalFrequency, typeof(LineFrequency));
         info.AddValue("calculationFrameRate", CalculationFrameRate);
         info.AddValue("repeatLastCalculatedValueWhenDownSampling", RepeatLastCalculatedValueWhenDownSampling);
-        info.AddValue("referenceChannel", ReferenceChannel, typeof(PhaseChannel));
-        info.AddValue("targetCycles", TargetCycles);
-        info.AddValue("enableIntervalAveraging", EnableIntervalAveraging);
-        info.AddValue("enablePublishEMA", EnablePublishEMA);
-        info.AddValue("publishAnglesTauSeconds", PublishAnglesTauSeconds);
-        info.AddValue("publishMagnitudesTauSeconds", PublishMagnitudesTauSeconds);
-        info.AddValue("publishFrequencyTauSeconds", PublishFrequencyTauSeconds);
-        info.AddValue("publishRocofTauSeconds", PublishRocofTauSeconds);
-        info.AddValue("sampleFrequencyTauSeconds", SampleFrequencyTauSeconds);
-        info.AddValue("sampleRocofTauSeconds", SampleRocofTauSeconds);
-        info.AddValue("recalculationCycles", RecalculationCycles);
+        info.AddValue("filterClass", FilterClass, typeof(FilterClass));
     }
 
     #endregion
