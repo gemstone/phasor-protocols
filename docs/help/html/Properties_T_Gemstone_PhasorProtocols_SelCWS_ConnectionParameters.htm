@@ -3,34 +3,14 @@
             calculated for PoW data.
             </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_CalculationFrameRate.htm">CalculationFrameRate</a></td><td>
             Gets or sets the configured frame rate for phase estimate calculations.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_EnableIntervalAveraging.htm">EnableIntervalAveraging</a></td><td>
-            Gets or sets a flag that determines if interval averaging (boxcar averaging) is enabled across each publish interval when down-sampling.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_EnablePublishEMA.htm">EnablePublishEMA</a></td><td>
-            Gets or sets a flag that determines if an additional exponential moving average (EMA) is applied to the published stream (after interval averaging).
+            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_FilterClass.htm">FilterClass</a></td><td>
+            Gets or sets the IEEE C37.118 filter class: P (Protection, fast response) or M (Measurement, better out-of-band rejection).
             </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_NominalFrequency.htm">NominalFrequency</a></td><td>
             Gets or sets the nominal <a href="https://gemstone.github.io/numeric/help/html/T_Gemstone_Numeric_EE_LineFrequency.htm" target="_self" rel="noreferrer">LineFrequency</a> of this SEL CWS device.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_PublishAnglesTauSeconds.htm">PublishAnglesTauSeconds</a></td><td>
-            Gets or sets the EMA time constant τ (seconds) for published phase angles.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_PublishFrequencyTauSeconds.htm">PublishFrequencyTauSeconds</a></td><td>
-            Gets or sets the EMA time constant τ (seconds) for published frequency.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_PublishMagnitudesTauSeconds.htm">PublishMagnitudesTauSeconds</a></td><td>
-            Gets or sets the EMA time constant τ (seconds) for published RMS magnitudes.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_PublishRocofTauSeconds.htm">PublishRocofTauSeconds</a></td><td>
-            Gets or sets the EMA time constant τ (seconds) for published ROCOF (dF/dt).
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_RecalculationCycles.htm">RecalculationCycles</a></td><td>
-            Gets or sets the number of nominal cycles between full DFT recalculations for numerical stability.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_ReferenceChannel.htm">ReferenceChannel</a></td><td>
-            Gets or sets the reference channel for frequency tracking.
             </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_RepeatLastCalculatedValueWhenDownSampling.htm">RepeatLastCalculatedValueWhenDownSampling</a></td><td>
             Gets or sets flag that determines if last value should be repeated when down-sampling, i.e.,
             when <a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_CalculationFrameRate.htm">CalculationFrameRate</a> is less than SEL CWS frame rate (commonly 3000Hz);
             otherwise <a href="https://learn.microsoft.com/dotnet/api/system.double.nan" target="_blank" rel="noopener noreferrer">NaN</a> will be used.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_SampleFrequencyTauSeconds.htm">SampleFrequencyTauSeconds</a></td><td>
-            Gets or sets the EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator before any down-sampling/publish filtering.
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_SampleRocofTauSeconds.htm">SampleRocofTauSeconds</a></td><td>
-            Gets or sets the EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed frequency).
-            </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters_TargetCycles.htm">TargetCycles</a></td><td>
-            Gets or sets the number of nominal cycles contained in the sliding DFT analysis window.
             </td></tr><tr><td><a href="P_Gemstone_PhasorProtocols_ConnectionParametersBase_ValuesAreValid.htm">ValuesAreValid</a></td><td>
             Determines if custom connection parameters are valid.
             <br />(Inherited from <a href="T_Gemstone_PhasorProtocols_ConnectionParametersBase.htm">ConnectionParametersBase</a>)</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>See Also</h2><div id="seeAlsoSection"><h4>Reference</h4><div><a href="T_Gemstone_PhasorProtocols_SelCWS_ConnectionParameters.htm">ConnectionParameters Class</a></div><div><a href="N_Gemstone_PhasorProtocols_SelCWS.htm">Gemstone.PhasorProtocols.SelCWS Namespace</a></div></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Properties</a></li><li><a class="quickLink">See Also</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3"><div class="columns"><div id="FooterContent" class="column"><span class="site-footer-credits">
