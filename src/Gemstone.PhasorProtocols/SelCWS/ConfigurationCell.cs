@@ -59,9 +59,11 @@ public class ConfigurationCell : ConfigurationCellBase
             });
         }
 
+        var phasorDefinitions = PhasorDefinitions;
+
         for (int i = 0; i < Common.MaximumPhasorValues; i++)
         {
-            PhasorDefinitions.Add(new PhasorDefinition(this, analogNames[i], i < 3 ? PhasorType.Voltage : PhasorType.Current));
+            phasorDefinitions.Add(new PhasorDefinition(this, analogNames[i], i < 3 ? PhasorType.Voltage : PhasorType.Current));
         }
     }
 
