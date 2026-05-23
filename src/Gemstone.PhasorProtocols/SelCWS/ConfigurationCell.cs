@@ -59,7 +59,7 @@ public class ConfigurationCell : ConfigurationCellBase
             });
         }
 
-        var phasorDefinitions = PhasorDefinitions;
+        PhasorDefinitionCollection phasorDefinitions = PhasorDefinitions;
 
         for (int i = 0; i < Common.MaximumPhasorValues; i++)
         {
