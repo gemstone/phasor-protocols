@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  RollingPhaseEstimator.cs - Gbtc
+//  IEEEC37_118PhaseEstimator.cs - Gbtc
 //
 //  Copyright © 2025, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,13 +16,13 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  11/04/2025 - Ritchie Carroll
-//       Generated original version of source code in collaboration with ChatGPT.
-//
 //  03/19/2026 - Ritchie Carroll
-//       Replaced sliding DFT algorithm with IEEE C37.118-2018 Annex D filter-based phasor estimation.
-//       Added P-class and M-class filter support, positive-sequence computation, and IEEE-standard
-//       frequency/ROCOF estimation.
+//       Generated original version of source code in collaboration with ChatGPT implementing the
+//       IEEE C37.118-2018 Annex D filter-based phasor estimation algorithm.
+//  05/23/2026 - Ritchie Carroll
+//       Standardized on the VA, VB, VC, IA, IB, IC channel order used by the sliding DFT estimator
+//       (which also corrects the voltage positive-sequence channel indexing for frequency/ROCOF
+//       estimation) as part of the selectable SEL CWS phase-estimation algorithm work.
 //
 //******************************************************************************************************
 // ReSharper disable IdentifierTypo
@@ -37,52 +37,6 @@ using Gemstone.Numeric.UnitExtensions;
 using Gemstone.Units;
 
 namespace Gemstone.PhasorProtocols.SelCWS;
-
-/// <summary>
-/// Represents the output of the phase estimation algorithm.
-/// </summary>
-public readonly ref struct PhaseEstimate
-{
-    /// <summary>
-    /// Gets frequency estimate in hertz.
-    /// </summary>
-    public required double Frequency { get; init; }
-
-    /// <summary>
-    /// Gets rate of change of frequency (ROCOF) in Hz/s.
-    /// </summary>
-    public required double dFdt { get; init; }
-
-    /// <summary>
-    /// Gets angles in radians, length 6: IA, IB, IC, VA, VB, VC.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The data this span references is owned by the <see cref="RollingPhaseEstimator"/> instance,
-    /// it is only valid during the scope of the <see cref="PhaseEstimateHandler"/> delegate call.
-    /// If you need to retain the data, make a copy.
-    /// </para>
-    /// </remarks>
-    public required ReadOnlySpan<Angle> Angles { get; init; }
-
-    /// <summary>
-    /// Gets RMS magnitudes, length 6: IA, IB, IC, VA, VB, VC.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The data this span references is owned by the <see cref="RollingPhaseEstimator"/> instance,
-    /// it is only valid during the scope of the <see cref="PhaseEstimateHandler"/> delegate call.
-    /// If you need to retain the data, make a copy.
-    /// </para>
-    /// </remarks>
-    public required ReadOnlySpan<double> Magnitudes { get; init; }
-}
-
-/// <summary>
-/// Delegate for handling a <see cref="PhaseEstimate"/>.
-/// </summary>
-/// <param name="estimate">Phase estimate.</param>
-public delegate void PhaseEstimateHandler(in PhaseEstimate estimate);
 
 /// <summary>
 /// Represents a rolling six-phase estimator using the IEEE C37.118-2018 Annex D filter-based
@@ -108,17 +62,17 @@ public delegate void PhaseEstimateHandler(in PhaseEstimate estimate);
 /// to compensate for spectral leakage when the signal frequency deviates from nominal.
 /// </para>
 /// <para>
-/// <b>Outputs:</b> 6 phasors (IA, IB, IC, VA, VB, VC) plus frequency and ROCOF estimates.
+/// <b>Outputs:</b> 6 phasors (VA, VB, VC, IA, IB, IC) plus frequency and ROCOF estimates.
 /// Internally computes voltage positive-sequence for IEEE Annex D.4 frequency/ROCOF estimation.
 /// </para>
 /// </remarks>
-public sealed class RollingPhaseEstimator
+public sealed class IEEEC37_118PhaseEstimator : IPhaseEstimator
 {
     #region [ Members ]
 
     // Constants
 
-    // Number of input channels (IA, IB, IC, VA, VB, VC).
+    // Number of input channels (VA, VB, VC, IA, IB, IC).
     private const int NumInputChannels = 6;
     private const double TwoPI = 2.0 * Math.PI;
 
@@ -172,7 +126,7 @@ public sealed class RollingPhaseEstimator
     #region [ Constructors ]
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RollingPhaseEstimator"/> class implementing
+    /// Initializes a new instance of the <see cref="IEEEC37_118PhaseEstimator"/> class implementing
     /// the IEEE C37.118-2018 Annex D phasor estimation algorithm.
     /// </summary>
     /// <param name="sampleRateHz">
@@ -198,16 +152,21 @@ public sealed class RollingPhaseEstimator
     /// Thrown if the <paramref name="nominalFrequency"/> and <paramref name="outputRateHz"/> combination
     /// is not supported for M-class filters per IEEE C37.118-2018 Table D.1.
     /// </exception>
-    public RollingPhaseEstimator(
+    public IEEEC37_118PhaseEstimator(
         double sampleRateHz,
         double outputRateHz,
         LineFrequency nominalFrequency,
         FilterClass filterClass = DefaultFilterClass)
     {
         // Validate rates
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRateHz);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(outputRateHz);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(outputRateHz, sampleRateHz);
+        if (sampleRateHz <= 0)
+            throw new ArgumentOutOfRangeException(nameof(sampleRateHz), "Input sample rate must be positive.");
+
+        if (outputRateHz <= 0)
+            throw new ArgumentOutOfRangeException(nameof(outputRateHz), "Output rate must be positive.");
+
+        if (outputRateHz > sampleRateHz)
+            throw new ArgumentOutOfRangeException(nameof(outputRateHz), "Output rate must be <= input sample rate.");
 
         double f0 = (double)nominalFrequency;
         double fs = sampleRateHz;
@@ -306,14 +265,14 @@ public sealed class RollingPhaseEstimator
     #region [ Methods ]
 
     /// <summary>
-    /// Push one interleaved sample-group (IA, IB, IC, VA, VB, VC) with its epoch nanoseconds.
+    /// Push one interleaved sample-group (VA, VB, VC, IA, IB, IC) with its epoch nanoseconds.
     /// </summary>
-    /// <param name="ia">Current sample for phase A current.</param>
-    /// <param name="ib">Current sample for phase B current.</param>
-    /// <param name="ic">Current sample for phase C current.</param>
     /// <param name="va">Current sample for phase A voltage.</param>
     /// <param name="vb">Current sample for phase B voltage.</param>
     /// <param name="vc">Current sample for phase C voltage.</param>
+    /// <param name="ia">Current sample for phase A current.</param>
+    /// <param name="ib">Current sample for phase B current.</param>
+    /// <param name="ic">Current sample for phase C current.</param>
     /// <param name="epochNanoseconds">Timestamp in nanoseconds since epoch.</param>
     /// <param name="phaseEstimateHandler">Handler for phase estimate result.</param>
     /// <returns>
@@ -323,22 +282,22 @@ public sealed class RollingPhaseEstimator
     /// <remarks>
     /// The data referenced in the span-based properties of the <see cref="PhaseEstimate"/>
     /// parameter provided to the <see cref="PhaseEstimateHandler"/> delegate is owned by the
-    /// <see cref="RollingPhaseEstimator"/> instance, it is only valid during the scope of the
+    /// <see cref="IEEEC37_118PhaseEstimator"/> instance, it is only valid during the scope of the
     /// delegate call. If you need to retain the data, make a copy.
     /// </remarks>
     public bool Step(
-        double ia,
-        double ib,
-        double ic,
         double va,
         double vb,
         double vc,
+        double ia,
+        double ib,
+        double ic,
         long epochNanoseconds,
         PhaseEstimateHandler phaseEstimateHandler)
     {
         ArgumentNullException.ThrowIfNull(phaseEstimateHandler);
 
-        Span<double> samples = [ia, ib, ic, va, vb, vc]; // Implicit stackalloc
+        Span<double> samples = [ va, vb, vc, ia, ib, ic ];
 
         // Push new samples into circular buffers
         for (int ch = 0; ch < NumInputChannels; ch++)
@@ -416,8 +375,8 @@ public sealed class RollingPhaseEstimator
         m_lastUnwrappedPhase = 0.0D;
 
         // Reset output buffers
-        Array.Clear(m_publishAngles);
-        Array.Clear(m_publishMagnitudes);
+        Array.Clear(m_publishAngles, 0, NumInputChannels);
+        Array.Clear(m_publishMagnitudes, 0, NumInputChannels);
     }
 
     /// <summary>
@@ -512,15 +471,15 @@ public sealed class RollingPhaseEstimator
         // Reconstruct derotated complex phasors from published magnitudes and angles
         // (which have the nominal frequency rotation already removed in ExtractMagnitudesAndAngles).
         // This matches the Python __estimate output: XM*cos(XA) + j*XM*sin(XA)
-        double vaAngle = (double)m_publishAngles[VA];
+        double vaAngle = m_publishAngles[VA];
         double vaReal = m_publishMagnitudes[VA] * Math.Cos(vaAngle);
         double vaImag = m_publishMagnitudes[VA] * Math.Sin(vaAngle);
 
-        double vbAngle = (double)m_publishAngles[VB];
+        double vbAngle = m_publishAngles[VB];
         double vbReal = m_publishMagnitudes[VB] * Math.Cos(vbAngle);
         double vbImag = m_publishMagnitudes[VB] * Math.Sin(vbAngle);
 
-        double vcAngle = (double)m_publishAngles[VC];
+        double vcAngle = m_publishAngles[VC];
         double vcReal = m_publishMagnitudes[VC] * Math.Cos(vcAngle);
         double vcImag = m_publishMagnitudes[VC] * Math.Sin(vcAngle);
 

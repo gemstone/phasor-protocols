@@ -23,6 +23,7 @@
 // ReSharper disable InconsistentNaming
 
 using System;
+using System.ComponentModel;
 using Gemstone.Numeric.EE;
 
 namespace Gemstone.PhasorProtocols.SelCWS;
@@ -74,6 +75,24 @@ public enum PhaseChannel
     /// Phase C current (IC).
     /// </summary>
     IC = 5,
+}
+
+/// <summary>
+/// Phase estimation algorithm used to derive synchrophasor, frequency and ROCOF components from
+/// SEL CWS point-on-wave data.
+/// </summary>
+public enum PhaseEstimationAlgorithm
+{
+    /// <summary>
+    /// Rolling sliding DFT estimator with optional EMA smoothing (see <see cref="SlidingDftPhaseEstimator"/>).
+    /// </summary>
+    [Description("Rolling sliding DFT estimator with optional EMA smoothing")]
+    SlidingDft,
+    /// <summary>
+    /// IEEE C37.118-2018 Annex D filter-based estimator (see <see cref="IEEEC37_118PhaseEstimator"/>).
+    /// </summary>
+    [Description("IEEE C37.118-2018 Annex D filter-based estimator")]
+    IEEEC37_118
 }
 
 /// <summary>
