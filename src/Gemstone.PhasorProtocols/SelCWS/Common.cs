@@ -68,11 +68,11 @@ public enum PhaseChannel
     /// </summary>
     IA = 3,
     /// <summary>
-    /// Phase B current (IB).
+    /// Phase B voltage (VB).
     /// </summary>
     IB = 4,
     /// <summary>
-    /// Phase C current (IC).
+    /// Phase C voltage (VC).
     /// </summary>
     IC = 5,
 }
