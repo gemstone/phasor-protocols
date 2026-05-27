@@ -20,4 +20,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Gemstone.PhasorProtocols\Gemstone.PhasorProtocols.csproj" />
+  </ItemGroup>
+
 </Project>
