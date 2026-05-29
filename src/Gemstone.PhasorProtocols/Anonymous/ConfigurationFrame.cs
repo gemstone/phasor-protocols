@@ -31,11 +31,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters;
-using System.Runtime.Serialization.Formatters.Soap;
+using Gemstone.Configuration;
 using Gemstone.IO;
 using Gemstone.IO.Checksums.ChecksumExtensions;
 using Gemstone.StringExtensions;
+using Gemstone.Threading.Collections;
+using Gemstone.Threading.SynchronizedOperations;
 
 namespace Gemstone.PhasorProtocols.Anonymous
 {
@@ -75,12 +76,12 @@ namespace Gemstone.PhasorProtocols.Anonymous
         /// <summary>
         /// Gets reference to the <see cref="ConfigurationCellCollection"/> for this <see cref="ConfigurationFrame"/>.
         /// </summary>
-        public new ConfigurationCellCollection Cells => base.Cells as ConfigurationCellCollection;
+        public new ConfigurationCellCollection Cells => (base.Cells as ConfigurationCellCollection)!;
 
         /// <summary>
         /// Gets or sets name of this configuration frame as assigned or useful in an end-use context.
         /// </summary>
-        public virtual string Name { get; set; }
+        public virtual string Name { get; set; } = string.Empty;
 
         #endregion
 
@@ -104,18 +105,17 @@ namespace Gemstone.PhasorProtocols.Anonymous
         #region [ Static ]
 
         // Static Fields
-        //private static readonly ProcessQueue<Tuple<IConfigurationFrame, Action<Exception>, string>> s_configurationCacheQueue;
-        private static string s_configurationCachePath;
+        private static readonly ProcessQueue<Tuple<IConfigurationFrame, Action<Exception>, string>> s_configurationCacheQueue;
+        private static string? s_configurationCachePath;
         private static int s_configurationBackups;
 
         // Static Constructor
         static ConfigurationFrame()
         {
-            // TODO: Move configuration caching to host application - not the best location to have this here
             s_configurationBackups = -1;
-            //s_configurationCacheQueue = ProcessQueue<Tuple<IConfigurationFrame, Action<Exception>, string>>.CreateRealTimeQueue(CacheConfigurationFile);
-            //s_configurationCacheQueue.SynchronizedOperationType = SynchronizedOperationType.LongBackground;
-            //s_configurationCacheQueue.Start();
+            s_configurationCacheQueue = ProcessQueue<Tuple<IConfigurationFrame, Action<Exception>, string>>.CreateRealTimeQueue(CacheConfigurationFile);
+            s_configurationCacheQueue.SynchronizedOperationType = SynchronizedOperationType.LongBackground;
+            s_configurationCacheQueue.Start();
         }
 
         // Static Properties
@@ -134,12 +134,12 @@ namespace Gemstone.PhasorProtocols.Anonymous
                     s_configurationCachePath = string.Format("{0}{1}ConfigurationCache{1}", FilePath.GetAbsolutePath(""), Path.DirectorySeparatorChar);
 
                     // Make sure configuration cache path setting exists within system settings section of config file
-                    //ConfigurationFile configFile = ConfigurationFile.Current;
-                    //CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
-                    //systemSettings.Add("ConfigurationCachePath", s_configurationCachePath, "Defines the path used to cache serialized phasor protocol configurations");
+                    dynamic settings = Settings.Default.System;
+
+                    settings.ConfigurationCachePath = (s_configurationCachePath, "Defines the path used to cache serialized configurations");
 
                     // Retrieve configuration cache directory as defined in the config file
-                    //s_configurationCachePath = FilePath.AddPathSuffix(systemSettings["ConfigurationCachePath"].Value);
+                    s_configurationCachePath = FilePath.AddPathSuffix(settings.ConfigurationCachePath);
 
                     // Make sure configuration cache directory exists
                     if (!Directory.Exists(s_configurationCachePath))
@@ -162,12 +162,12 @@ namespace Gemstone.PhasorProtocols.Anonymous
                     const int DefaultConfigurationBackups = 5;
 
                     // Make sure configuration backups setting exists within system settings section of config file
-                    //ConfigurationFile configFile = ConfigurationFile.Current;
-                    //CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
-                    //systemSettings.Add("ConfigurationBackups", DefaultConfigurationBackups, "Defines the total number of older backup configurations to maintain.");
+                    dynamic settings = Settings.Default.System;
+
+                    settings.ConfigurationBackups = (DefaultConfigurationBackups, "Defines the total number of older backup configurations to maintain");
 
                     // Retrieve configuration backups value as defined in the config file
-                    //s_configurationBackups = systemSettings["ConfigurationBackups"].ValueAs(DefaultConfigurationBackups);
+                    s_configurationBackups = settings.ConfigurationBackups;
                 }
 
                 return s_configurationBackups;
@@ -185,16 +185,16 @@ namespace Gemstone.PhasorProtocols.Anonymous
         public static void Cache(IConfigurationFrame configurationFrame, Action<Exception> exceptionHandler, string configurationName)
         {
             Tuple<IConfigurationFrame, Action<Exception>, string> cacheState = new(configurationFrame, exceptionHandler, configurationName);
-            //s_configurationCacheQueue.Add(cacheState);
+            s_configurationCacheQueue.Add(cacheState);
         }
 
         // Cache configuration file
-        private static void CacheConfigurationFile(Tuple<IConfigurationFrame, Action<Exception>, string> args)
+        private static void CacheConfigurationFile(Tuple<IConfigurationFrame, Action<Exception>, string>? args)
         {
             if (args is null)
                 return;
 
-            FileStream configFile = null;
+            FileStream? configFile = null;
             IConfigurationFrame configurationFrame = args.Item1;
             Action<Exception> exceptionHandler = args.Item2;
             string configurationName = args.Item3;
@@ -246,15 +246,8 @@ namespace Gemstone.PhasorProtocols.Anonymous
 
             try
             {
-                // Serialize configuration frame to a file
-                SoapFormatter xmlSerializer = new()
-                {
-                    AssemblyFormat = FormatterAssemblyStyle.Simple,
-                    TypeFormat = FormatterTypeStyle.TypesWhenNeeded
-                };
-
                 configFile = File.Create(configurationCacheFileName);
-                xmlSerializer.Serialize(configFile, configurationFrame);
+                LegacySoapSerializer.Serialize(configFile, configurationFrame);
             }
             catch (Exception ex)
             {
@@ -267,16 +260,24 @@ namespace Gemstone.PhasorProtocols.Anonymous
         }
 
         /// <summary>
-        /// Gets the file name with path of the specified <paramref name="configurationName"/>.
+        /// Generates the full file name, including the path, for a configuration cache file.
         /// </summary>
-        /// <param name="configurationName">Name of the configuration to get file name for.</param>
-        /// <returns>File name with path of the specified <paramref name="configurationName"/>.</returns>
-        public static string GetConfigurationCacheFileName(string configurationName, string extension = "configuration.xml", string basePath = null)
+        /// <param name="configurationName">The name of the configuration for which to generate the file name.</param>
+        /// <param name="extension">The file extension to use for the configuration cache file. Defaults to <c>"configuration.xml"</c>.</param>
+        /// <param name="basePath">The base path where the configuration cache file will be located. If not specified, a default path is used.</param>
+        /// <returns>
+        /// A string representing the full file name, including the path, for the specified configuration cache file.
+        /// </returns>
+        /// <remarks>
+        /// Invalid characters in the <paramref name="configurationName"/> or <paramref name="extension"/> are replaced
+        /// to ensure the resulting file name is valid.
+        /// </remarks>
+        public static string GetConfigurationCacheFileName(string configurationName, string extension = "configuration.xml", string? basePath = null)
         {
             // Path traversal attacks are prevented by replacing invalid file name characters
-            return $"{basePath ?? ConfigurationCachePath}{RemoveInvalidCharacters(configurationName)}.{RemoveInvalidCharacters(extension)}";
+            return $"{basePath ?? ConfigurationCachePath}{removeInvalidCharacters(configurationName)}.{removeInvalidCharacters(extension)}";
             
-            static string RemoveInvalidCharacters(string name) => 
+            static string removeInvalidCharacters(string name) => 
                 name.ReplaceCharacters('_', c => Path.GetInvalidFileNameChars().Contains(c));
         }
 

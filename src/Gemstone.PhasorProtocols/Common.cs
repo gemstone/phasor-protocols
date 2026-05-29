@@ -31,8 +31,6 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters;
-using System.Runtime.Serialization.Formatters.Soap;
 using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
 
@@ -111,19 +109,13 @@ namespace Gemstone.PhasorProtocols
         /// </summary>
         /// <param name="configStream"><see cref="Stream"/> that contains an XML serialized configuration frame.</param>
         /// <returns>Deserialized <see cref="IConfigurationFrame"/>.</returns>
+        /// <remarks>
+        /// Reads legacy <c>SoapFormatter</c>-produced XML via <see cref="LegacySoapDeserializer"/>, which targets
+        /// the same wire format but works on .NET Core / .NET 5+ where <c>SoapFormatter</c> is unavailable.
+        /// </remarks>
         public static IConfigurationFrame? DeserializeConfigurationFrame(Stream configStream)
         {
-            SoapFormatter xmlSerializer = new()
-            {
-                AssemblyFormat = FormatterAssemblyStyle.Simple,
-                TypeFormat = FormatterTypeStyle.TypesWhenNeeded,
-                Binder = Serialization.LegacyBinder
-            };
-
-            //configFrame = xmlSerializer.Deserialize(new MemoryStream(Encoding.Default.GetBytes(xmlFile))) as IConfigurationFrame;
-            IConfigurationFrame? configFrame = xmlSerializer.Deserialize(configStream) as IConfigurationFrame;
-
-            return configFrame;
+            return LegacySoapDeserializer.Deserialize(configStream) as IConfigurationFrame;
         }
 
         /// <summary>
