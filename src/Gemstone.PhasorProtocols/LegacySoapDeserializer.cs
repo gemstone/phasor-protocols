@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Gemstone.PhasorProtocols;
@@ -53,6 +54,16 @@ namespace Gemstone.PhasorProtocols;
 /// <c>(<see cref="SerializationInfo"/>, <see cref="StreamingContext"/>)</c> constructor is invoked on the
 /// already-allocated instance via a compiled <see cref="DynamicMethod"/>.
 /// </para>
+/// <para>
+/// <b>Security:</b> like any <see cref="ISerializable"/>-based reader, materializing an attacker-named type and
+/// running its deserialization constructor is the mechanism behind the deserialization-gadget attacks that led
+/// to <c>BinaryFormatter</c>/<c>SoapFormatter</c> being deprecated. To contain this, the reader defaults to
+/// <see cref="SafeBinder"/>, which only resolves types from the phasor-protocol assemblies and fails closed for
+/// everything else <em>before</em> any object is allocated or any constructor runs. The XML is also parsed with
+/// DTD processing prohibited and external entity resolution disabled (no XXE/DTD bombs). Callers that genuinely
+/// need broader type resolution can pass <see cref="Serialization.LegacyBinder"/> explicitly, but should only do
+/// so for fully trusted input.
+/// </para>
 /// </remarks>
 public static class LegacySoapDeserializer
 {
@@ -63,19 +74,40 @@ public static class LegacySoapDeserializer
     private static readonly ConcurrentDictionary<Type, Action<object, SerializationInfo, StreamingContext>> s_ctorInvokerCache = new();
 
     /// <summary>
+    /// Default <see cref="SerializationBinder"/> used by <see cref="Deserialize"/>. Applies the same legacy
+    /// <c>GSF.* → Gemstone.*</c> name translation as <see cref="Serialization.LegacyBinder"/>, then enforces an
+    /// allowlist so that only phasor-protocol configuration types can be materialized. Any type that resolves
+    /// outside the allowed assemblies is rejected (returns <c>null</c>), which causes deserialization to fail
+    /// closed before the type is allocated or its deserialization constructor runs. This neutralizes
+    /// deserialization-gadget attacks while preserving full read compatibility for legitimate configuration files.
+    /// </summary>
+    public static SerializationBinder SafeBinder { get; } = new AllowlistBinder();
+
+    /// <summary>
     /// Deserializes a SOAP-formatted XML graph from <paramref name="stream"/>.
     /// </summary>
     /// <param name="stream">Source stream containing legacy SOAP XML.</param>
     /// <param name="binder">
-    /// Optional <see cref="SerializationBinder"/> used to translate serialized type names to
-    /// current runtime types. Defaults to <see cref="Serialization.LegacyBinder"/>.
+    /// Optional <see cref="SerializationBinder"/> used to translate serialized type names to current runtime
+    /// types. Defaults to <see cref="SafeBinder"/>, which fails closed for any type outside the phasor-protocol
+    /// assemblies. Pass <see cref="Serialization.LegacyBinder"/> for unrestricted resolution (trusted input only).
     /// </param>
     /// <returns>The root object of the deserialized graph (the first element under <c>SOAP-ENV:Body</c>).</returns>
     public static object? Deserialize(Stream stream, SerializationBinder? binder = null)
     {
-        binder ??= Serialization.LegacyBinder;
+        binder ??= SafeBinder;
 
-        XDocument doc = XDocument.Load(stream);
+        // Harden the XML reader: prohibit DTDs and disable external entity resolution so that crafted input
+        // cannot trigger XXE or entity-expansion ("billion laughs") attacks. These files never contain a DTD.
+        XmlReaderSettings readerSettings = new()
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            CloseInput = false
+        };
+
+        using XmlReader reader = XmlReader.Create(stream, readerSettings);
+        XDocument doc = XDocument.Load(reader);
         XElement body = doc.Root?.Element(s_soapEnvNs + "Body")
             ?? throw new SerializationException("SOAP envelope missing Body element.");
 
@@ -273,5 +305,48 @@ public static class LegacySoapDeserializer
         public Type Type { get; } = type;
         public XElement Element { get; } = element;
         public object? Instance { get; set; }
+    }
+
+    /// <summary>
+    /// Translates legacy type names via <see cref="Serialization.LegacyBinder"/>, then fails closed for any type
+    /// that resolves outside the known phasor-protocol assemblies. See <see cref="SafeBinder"/>.
+    /// </summary>
+    private sealed class AllowlistBinder : SerializationBinder
+    {
+        // Published deserialization gadgets live in System.* / third-party assemblies. The GPA protocol and
+        // numeric libraries contain only configuration value-types with no dangerous ISerializable constructors
+        // or finalizers, so an assembly-level allowlist is sufficient to block every known gadget chain.
+        private static readonly HashSet<string> s_allowedAssemblies = new(StringComparer.Ordinal)
+        {
+            "Gemstone.PhasorProtocols",
+            "Gemstone.Numeric"
+        };
+
+        public override Type? BindToType(string assemblyName, string typeName)
+        {
+            // Reuse the legacy binder for GSF.* -> Gemstone.* name translation and resolution. Resolving a Type
+            // object has no side effects; only later allocation / constructor invocation would, and that is
+            // exactly what the allowlist below prevents for anything outside the protocol assemblies.
+            Type? type = Serialization.LegacyBinder.BindToType(assemblyName, typeName);
+
+            if (type is null)
+                return null;
+
+            // Strings appear as id-tagged value nodes; always permitted.
+            if (type == typeof(string))
+                return type;
+
+            string? resolvedAssembly = type.Assembly.GetName().Name;
+
+            return resolvedAssembly is not null && s_allowedAssemblies.Contains(resolvedAssembly)
+                ? type
+                : null;
+        }
+
+        // Delegate write-side name mapping so this binder remains symmetric with Serialization.LegacyBinder.
+        public override void BindToName(Type serializedType, out string? assemblyName, out string? typeName)
+        {
+            Serialization.LegacyBinder.BindToName(serializedType, out assemblyName, out typeName);
+        }
     }
 }
