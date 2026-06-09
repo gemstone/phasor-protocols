@@ -23,6 +23,7 @@
 // ReSharper disable InconsistentNaming
 
 using System;
+using System.ComponentModel;
 using Gemstone.Numeric.EE;
 
 namespace Gemstone.PhasorProtocols.SelCWS;
@@ -51,29 +52,47 @@ public enum FrameType : byte
 public enum PhaseChannel
 {
     /// <summary>
-    /// Phase A current (IA).
-    /// </summary>
-    IA = 0,
-    /// <summary>
-    /// Phase B current (IB).
-    /// </summary>
-    IB = 1,
-    /// <summary>
-    /// Phase C current (IC).
-    /// </summary>
-    IC = 2,
-    /// <summary>
     /// Phase A voltage (VA).
     /// </summary>
-    VA = 3,
+    VA = 0,
     /// <summary>
     /// Phase B voltage (VB).
     /// </summary>
-    VB = 4,
+    VB = 1,
     /// <summary>
     /// Phase C voltage (VC).
     /// </summary>
-    VC = 5
+    VC = 2,
+    /// <summary>
+    /// Phase A current (IA).
+    /// </summary>
+    IA = 3,
+    /// <summary>
+    /// Phase B voltage (VB).
+    /// </summary>
+    IB = 4,
+    /// <summary>
+    /// Phase C voltage (VC).
+    /// </summary>
+    IC = 5,
+}
+
+/// <summary>
+/// Phase estimation algorithm used to derive synchrophasor, frequency and ROCOF components from
+/// SEL CWS point-on-wave data.
+/// </summary>
+public enum PhaseEstimationAlgorithm
+{
+    /// <summary>
+    /// Rolling sliding DFT estimator with optional EMA smoothing (see <see cref="SlidingDftPhaseEstimator"/>).
+    /// </summary>
+    [Description("Rolling sliding DFT estimator with optional EMA smoothing")]
+    SlidingDft,
+    /// <summary>
+    /// IEEE C37.118-2018 Annex D filter-based estimator (see <see cref="IEEEC37_118PhaseEstimator"/>).
+    /// </summary>
+    [Description("IEEE C37.118-2018 Annex D filter-based estimator")]
+    IEEEC37_118
 }
 
 /// <summary>
