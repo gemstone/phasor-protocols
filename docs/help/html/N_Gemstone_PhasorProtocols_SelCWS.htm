@@ -28,16 +28,21 @@
             Represents the SEL CWS implementation of a <a href="T_Gemstone_PhasorProtocols_IFrequencyDefinition.htm">IFrequencyDefinition</a>.
             </td></tr><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_FrequencyValue.htm">FrequencyValue</a></td><td>
             Represents the SEL CWS implementation of a <a href="T_Gemstone_PhasorProtocols_IFrequencyValue.htm">IFrequencyValue</a>.
+            </td></tr><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_IEEEC37_118PhaseEstimator.htm">IEEEC37_118PhaseEstimator</a></td><td>
+            Represents a rolling six-phase estimator using the IEEE C37.118-2018 Annex D filter-based
+            phasor estimation algorithm with P-class and M-class support.
             </td></tr><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_PhasorDefinition.htm">PhasorDefinition</a></td><td>
             Represents the SEL CWS implementation of a <a href="T_Gemstone_PhasorProtocols_IPhasorDefinition.htm">IPhasorDefinition</a>.
             </td></tr><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_PhasorValue.htm">PhasorValue</a></td><td>
             Represents the SEL CWS implementation of a <a href="T_Gemstone_PhasorProtocols_IPhasorValue.htm">IPhasorValue</a>.
-            </td></tr><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_RollingPhaseEstimator.htm">RollingPhaseEstimator</a></td><td>
-            Represents a rolling six-phase estimator using the IEEE C37.118-2018 Annex D filter-based
-            phasor estimation algorithm with P-class and M-class support.
-            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Structures</h2><div id="IDTCASection"><table id="structureList" class="table is-hoverable"><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_PhaseEstimate.htm">PhaseEstimate</a></td><td>
-            Represents the output of the phase estimation algorithm.
-            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Delegates</h2><div id="IDUCASection"><table id="delegateList" class="table is-hoverable"><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_PhaseEstimateHandler.htm">PhaseEstimateHandler</a></td><td>
+            </td></tr><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_SlidingDftPhaseEstimator.htm">SlidingDftPhaseEstimator</a></td><td>
+            Represents a rolling six-phase estimator using a sliding DFT algorithm with optional smoothing.
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Structures</h2><div id="IDUCASection"><table id="structureList" class="table is-hoverable"><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_PhaseEstimate.htm">PhaseEstimate</a></td><td>
+            Represents the output of a SEL CWS phase estimation algorithm.
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Interfaces</h2><div id="IDTCASection"><table id="interfaceList" class="table is-hoverable"><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_IPhaseEstimator.htm">IPhaseEstimator</a></td><td>
+            Defines a SEL CWS six-phase estimator that consumes point-on-wave sample groups and produces
+            <a href="T_Gemstone_PhasorProtocols_SelCWS_PhaseEstimate.htm">PhaseEstimate</a> results.
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Delegates</h2><div id="IDVCASection"><table id="delegateList" class="table is-hoverable"><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_PhaseEstimateHandler.htm">PhaseEstimateHandler</a></td><td>
             Delegate for handling a <a href="T_Gemstone_PhasorProtocols_SelCWS_PhaseEstimate.htm">PhaseEstimate</a>.
             </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Enumerations</h2><div id="IDCCASection"><table id="enumerationList" class="table is-hoverable"><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_FilterClass.htm">FilterClass</a></td><td>
             IEEE C37.118-2018 Annex D filter class for phasor estimation.
@@ -45,7 +50,10 @@
             SEL CWS frame types enumeration.
             </td></tr><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_PhaseChannel.htm">PhaseChannel</a></td><td>
             Phase channels for SEL CWS PoW analogs.
-            </td></tr></table></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Classes</a></li><li><a class="quickLink">Structures</a></li><li><a class="quickLink">Delegates</a></li><li><a class="quickLink">Enumerations</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3"><div class="columns"><div id="FooterContent" class="column"><span class="site-footer-credits">
+            </td></tr><tr><td><a href="T_Gemstone_PhasorProtocols_SelCWS_PhaseEstimationAlgorithm.htm">PhaseEstimationAlgorithm</a></td><td>
+            Phase estimation algorithm used to derive synchrophasor, frequency and ROCOF components from
+            SEL CWS point-on-wave data.
+            </td></tr></table></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Classes</a></li><li><a class="quickLink">Structures</a></li><li><a class="quickLink">Interfaces</a></li><li><a class="quickLink">Delegates</a></li><li><a class="quickLink">Enumerations</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3"><div class="columns"><div id="FooterContent" class="column"><span class="site-footer-credits">
 <a href="https://gemstone.github.io/phasor-protocols/" target="_self">Documentation Home</a>  •  <a href="https://www.nuget.org/packages/Gemstone.PhasorProtocols/" target="_blank">Gemstone PhasorProtocols Library on NuGet</a><br /><br />
 Generated by <a href="https://github.com/EWSoftware/SHFB" target="_blank">Sandcastle Help File Builder</a>
 </span><p><a href="https://github.com/gemstone/phasor-protocols/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">Copyright © 2023 Grid Protection Alliance</a></p><div class="feedbackLink">Send comments on this topic to

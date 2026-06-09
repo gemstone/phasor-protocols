@@ -18588,6 +18588,17 @@
       <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with populated with data.</param>
       <param name="context">The source <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this deserialization.</param>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.Algorithm">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm" /> used to derive synchrophasor, frequency
+            and ROCOF components from SEL CWS point-on-wave data.
+            </summary>
+      <remarks>
+        <see cref="F:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm.SlidingDft" /> uses a rolling sliding DFT estimator with optional
+            EMA smoothing; <see cref="F:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm.IEEEC37_118" /> uses the IEEE C37.118-2018 Annex D
+            filter-based estimator. Algorithm-specific options appear in the matching property category.
+            </remarks>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.CalculatePhaseEstimates">
       <summary>
             Gets or sets flag that determines if current and voltage phase estimates, frequency and dF/dt should be
@@ -18597,6 +18608,11 @@
     <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.CalculationFrameRate">
       <summary>
             Gets or sets the configured frame rate for phase estimate calculations.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.DefaultAlgorithm">
+      <summary>
+            Default value for <see cref="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.Algorithm" />.
             </summary>
     </member>
     <member name="F:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.DefaultCalculatePhaseEstimates">
@@ -18609,10 +18625,33 @@
             Default value for <see cref="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.RepeatLastCalculatedValueWhenDownSampling" />.
             </summary>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.EnableIntervalAveraging">
+      <summary>
+            Gets or sets a flag that determines if interval averaging (boxcar averaging) is enabled across each publish interval when down-sampling.
+            </summary>
+      <remarks>
+            Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency
+            content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces
+            jitter and improves published stability.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.EnablePublishEMA">
+      <summary>
+            Gets or sets a flag that determines if an additional exponential moving average (EMA) is applied to the published stream (after interval averaging).
+            </summary>
+      <remarks>
+            Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a "calm"
+            display or control signal. This is usually the most intuitive "knob" for operators/consumers because it acts on
+            the actual output cadence.
+            </remarks>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.FilterClass">
       <summary>
             Gets or sets the IEEE C37.118 filter class: P (Protection, fast response) or M (Measurement, better out-of-band rejection).
             </summary>
+      <remarks>
+            Only applies when <see cref="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.Algorithm" /> is <see cref="F:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm.IEEEC37_118" />.
+            </remarks>
     </member>
     <member name="M:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
       <summary>
@@ -18621,9 +18660,61 @@
       <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
       <param name="context">The destination <see cref="T:System.Runtime.Serialization.StreamingContext" /> for this serialization.</param>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.MaxGapFillSamples">
+      <summary>
+            Gets or sets the maximum gap (in input samples) filled by phase-continued synthesis before resynchronizing.
+            </summary>
+      <remarks>
+            When dropped samples are inferred from the input timestamp cadence, gaps up to this size are coasted
+            (the last phasors are continued at the tracked frequency); larger gaps drop and refill the analysis window.
+            A negative value means "auto" (one full analysis window); <c>0</c> resynchronizes on any gap.
+            </remarks>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.NominalFrequency">
       <summary>
             Gets or sets the nominal <see cref="T:Gemstone.Numeric.EE.LineFrequency" /> of this SEL CWS device.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.PublishAnglesTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published phase angles.
+            </summary>
+      <remarks>
+            Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors
+            (cos/sin) rather than naïvely averaging radians. This avoids discontinuities at ±π.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.PublishFrequencyTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published frequency.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.PublishMagnitudesTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published RMS magnitudes.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.PublishRocofTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published ROCOF (dF/dt).
+            </summary>
+      <remarks>
+            ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from
+            heavier smoothing (larger τ) than frequency.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.RecalculationCycles">
+      <summary>
+            Gets or sets the number of nominal cycles between full DFT recalculations for numerical stability.
+            </summary>
+      <remarks>
+            Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation
+            re-anchors the phasor sums.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.ReferenceChannel">
+      <summary>
+            Gets or sets the reference channel for frequency tracking.
             </summary>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.RepeatLastCalculatedValueWhenDownSampling">
@@ -18632,6 +18723,28 @@
             when <see cref="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.CalculationFrameRate" /> is less than SEL CWS frame rate (commonly 3000Hz);
             otherwise <see cref="F:System.Double.NaN" /> will be used.
             </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.SampleFrequencyTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator before any down-sampling/publish filtering.
+            </summary>
+      <remarks>
+            When interval averaging + publish EMA are enabled, this can be relatively light. If you disable publish smoothing,
+            you may want to increase this τ.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.SampleRocofTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed frequency).
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.ConnectionParameters.TargetCycles">
+      <summary>
+            Gets or sets the number of nominal cycles contained in the sliding DFT analysis window.
+            </summary>
+      <remarks>
+            Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.
+            </remarks>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SelCWS.DataCell">
       <summary>
@@ -18915,6 +19028,12 @@
       <param name="checkSumValidationFrameTypes">Frame types that should perform check-sum validation; default to <see cref="F:Gemstone.PhasorProtocols.CheckSumValidationFrameTypes.AllFrames" /></param>
       <param name="trustHeaderLength">Determines if header lengths should be trusted over parsed byte count.</param>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.Algorithm">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm" /> used to derive synchrophasor, frequency
+            and ROCOF components from SEL CWS point-on-wave data.
+            </summary>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.CalculatePhaseEstimates">
       <summary>
             Gets or sets flag that determines if current and voltage phase estimates, frequency and dF/dt should be
@@ -18940,10 +19059,43 @@
             Gets or sets any connection specific <see cref="T:Gemstone.PhasorProtocols.IConnectionParameters" /> that may be needed for parsing.
             </summary>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.EnableIntervalAveraging">
+      <summary>
+            Gets or sets a flag that determines if interval averaging (boxcar averaging) is enabled across each publish interval when down-sampling.
+            </summary>
+      <remarks>
+            Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency
+            content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces
+            jitter and improves published stability.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.EnablePublishEMA">
+      <summary>
+            Gets or sets a flag that determines if an additional exponential moving average (EMA) is applied to the published stream (after interval averaging).
+            </summary>
+      <remarks>
+            Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a "calm"
+            display or control signal. This is usually the most intuitive "knob" for operators/consumers because it acts on
+            the actual output cadence.
+            </remarks>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.FilterClass">
       <summary>
             Gets or sets the IEEE C37.118 filter class: P (Protection, fast response) or M (Measurement, better out-of-band rejection).
             </summary>
+      <remarks>
+            Only applies when <see cref="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.Algorithm" /> is <see cref="F:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm.IEEEC37_118" />.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.MaxGapFillSamples">
+      <summary>
+            Gets or sets the maximum gap (in input samples) filled by phase-continued synthesis before resynchronizing.
+            </summary>
+      <remarks>
+            Dropped samples (e.g., lost UDP packets) are inferred from the input timestamp cadence. Gaps up to this size
+            are coasted by continuing the last phasors at the tracked frequency; larger gaps drop and refill the analysis
+            window. A negative value means "auto" (one full analysis window); <c>0</c> resynchronizes on any gap.
+            </remarks>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.NominalFrequency">
       <summary>
@@ -19023,6 +19175,43 @@
             manually in the <see cref="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.Parse(Gemstone.PhasorProtocols.SourceChannel,System.Byte[],System.Int32,System.Int32)" /> method.
             </remarks>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.PublishAnglesTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published phase angles.
+            </summary>
+      <remarks>
+            Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors
+            (cos/sin) rather than naïvely averaging radians. This avoids discontinuities at ±π.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.PublishFrequencyTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published frequency.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.PublishMagnitudesTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published RMS magnitudes.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.PublishRocofTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for published ROCOF (dF/dt).
+            </summary>
+      <remarks>
+            ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from
+            heavier smoothing (larger τ) than frequency.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.RecalculationCycles">
+      <summary>
+            Gets or sets the number of nominal cycles between full DFT recalculations for numerical stability.
+            </summary>
+      <remarks>
+            Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation
+            re-anchors the phasor sums.
+            </remarks>
+    </member>
     <member name="E:Gemstone.PhasorProtocols.SelCWS.FrameParser.ReceivedConfigurationFrame">
       <summary>
             Occurs when a SEL CWS <see cref="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ConfigurationFrame" /> has been received.
@@ -19039,6 +19228,14 @@
         <see cref="F:Gemstone.EventArgs`1.Argument" /> is the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataFrame" /> that was received.
             </remarks>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.ReferenceChannel">
+      <summary>
+            Gets or sets the reference channel for frequency tracking.
+            </summary>
+      <remarks>
+            Only applies when <see cref="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.Algorithm" /> is <see cref="F:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm.SlidingDft" />.
+            </remarks>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.RepeatLastCalculatedValueWhenDownSampling">
       <summary>
             Gets or sets flag that determines if last value should be repeated when down-sampling, i.e.,
@@ -19046,10 +19243,32 @@
             otherwise <see cref="F:System.Double.NaN" /> will be used.
             </summary>
     </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.SampleFrequencyTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator before any down-sampling/publish filtering.
+            </summary>
+      <remarks>
+            When interval averaging + publish EMA are enabled, this can be relatively light. If you disable publish smoothing,
+            you may want to increase this τ.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.SampleRocofTauSeconds">
+      <summary>
+            Gets or sets the EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed frequency).
+            </summary>
+    </member>
     <member name="M:Gemstone.PhasorProtocols.SelCWS.FrameParser.Start">
       <summary>
             Start the data parser.
             </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.FrameParser.TargetCycles">
+      <summary>
+            Gets or sets the number of nominal cycles contained in the sliding DFT analysis window.
+            </summary>
+      <remarks>
+            Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.
+            </remarks>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SelCWS.FrameType">
       <summary>
@@ -19134,24 +19353,173 @@
             Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.FrequencyValue" />.
             </summary>
     </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator">
+      <summary>
+            Represents a rolling six-phase estimator using the IEEE C37.118-2018 Annex D filter-based
+            phasor estimation algorithm with P-class and M-class support.
+            </summary>
+      <remarks>
+        <para>
+            This class implements the IEEE C37.118-2018 Annex D standard PMU phasor estimation algorithm.
+            It uses precomputed FIR filter coefficients (P-class triangular window or M-class Hamming-windowed
+            sinc) to estimate fundamental-frequency phasors from streaming samples via causal convolution.
+            </para>
+        <para>
+            Frequency estimation is performed per IEEE Annex D.4, Equations D.3 and D.4, using
+            phase-differencing on the voltage positive-sequence phasor. ROCOF is computed as the
+            second difference of the unwrapped positive-sequence phase angle.
+            </para>
+        <para>
+            The estimator operates at the full input sample rate and decimates to the configured report rate
+            by selecting every <c>fs/RR</c>-th sample (dyadic decimation), matching the standard's approach.
+            </para>
+        <para>
+            For P-class filters, an additional magnitude correction per Annex D.6, Equation D.6 is applied
+            to compensate for spectral leakage when the signal frequency deviates from nominal.
+            </para>
+        <para>
+          <b>Outputs:</b> 6 phasors (VA, VB, VC, IA, IB, IC) plus frequency and ROCOF estimates.
+            Internally computes voltage positive-sequence for IEEE Annex D.4 frequency/ROCOF estimation.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.#ctor(System.Double,System.Double,Gemstone.Numeric.EE.LineFrequency,Gemstone.PhasorProtocols.SelCWS.FilterClass)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator" /> class implementing
+            the IEEE C37.118-2018 Annex D phasor estimation algorithm.
+            </summary>
+      <param name="sampleRateHz">
+            Input sample rate in Hz (samples per second). Must be &gt; 0 and an integer multiple of
+            both <paramref name="nominalFrequency" /> and <paramref name="outputRateHz" />.
+            </param>
+      <param name="outputRateHz">
+            Output report rate in Hz (estimates per second). Must be &gt; 0 and &lt;= <paramref name="sampleRateHz" />.
+            The sample rate must be an integer multiple of this value.
+            </param>
+      <param name="nominalFrequency">
+            Nominal line frequency (50Hz or 60Hz). Determines the filter parameters.
+            </param>
+      <param name="filterClass">
+            IEEE C37.118 filter class: <see cref="F:Gemstone.PhasorProtocols.SelCWS.FilterClass.P" /> for Protection (fast response)
+            or <see cref="F:Gemstone.PhasorProtocols.SelCWS.FilterClass.M" /> for Measurement (better out-of-band rejection).
+            </param>
+      <exception cref="T:System.ArgumentOutOfRangeException">
+            Thrown if rates are non-positive, output rate exceeds input rate, or sample rate is not
+            an integer multiple of the nominal frequency or report rate.
+            </exception>
+      <exception cref="T:System.ArgumentException">
+            Thrown if the <paramref name="nominalFrequency" /> and <paramref name="outputRateHz" /> combination
+            is not supported for M-class filters per IEEE C37.118-2018 Table D.1.
+            </exception>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.Class">
+      <summary>
+            Gets the IEEE C37.118 filter class (P or M).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.DefaultFilterClass">
+      <summary>
+            Default filter class.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.FilterOrder">
+      <summary>
+            Gets the filter order (N), the number of FIR filter taps minus one.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.IsReady">
+      <summary>
+            Gets whether the estimator has filled its filter window and is producing valid estimates.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.NominalFrequencyHz">
+      <summary>
+            Gets the nominal frequency in Hz.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.OutputRateHz">
+      <summary>
+            Gets the configured output report rate in Hz.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.Reset">
+      <summary>
+            Resets the estimator to its initial state.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.SampleRateHz">
+      <summary>
+            Gets the configured sample rate in Hz.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)">
+      <summary>
+            Push one interleaved sample-group (VA, VB, VC, IA, IB, IC) with its epoch nanoseconds.
+            </summary>
+      <param name="va">Current sample for phase A voltage.</param>
+      <param name="vb">Current sample for phase B voltage.</param>
+      <param name="vc">Current sample for phase C voltage.</param>
+      <param name="ia">Current sample for phase A current.</param>
+      <param name="ib">Current sample for phase B current.</param>
+      <param name="ic">Current sample for phase C current.</param>
+      <param name="epochNanoseconds">Timestamp in nanoseconds since epoch.</param>
+      <param name="phaseEstimateHandler">Handler for phase estimate result.</param>
+      <returns>
+        <c>true</c> when an estimate is available (filter has filled) and it is time to
+            publish at target <see cref="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.OutputRateHz" />; otherwise, <c>false</c>.
+            </returns>
+      <remarks>
+            The data referenced in the span-based properties of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate" />
+            parameter provided to the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler" /> delegate is owned by the
+            <see cref="T:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator" /> instance, it is only valid during the scope of the
+            delegate call. If you need to retain the data, make a copy.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.TotalSamplesProcessed">
+      <summary>
+            Gets the total number of samples processed.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator.WindowSamples">
+      <summary>
+            Gets the number of samples required before valid output is produced (filter startup transient).
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.IPhaseEstimator">
+      <summary>
+            Defines a SEL CWS six-phase estimator that consumes point-on-wave sample groups and produces
+            <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate" /> results.
+            </summary>
+      <remarks>
+            Implementations represent interchangeable phasor estimation algorithms (see
+            <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm" />) selected via the SEL CWS connection parameters.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.IPhaseEstimator.Reset">
+      <summary>
+            Resets the estimator to its initial state.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.IPhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)">
+      <summary>
+            Pushes one interleaved sample-group (VA, VB, VC, IA, IB, IC) with its epoch nanoseconds.
+            </summary>
+      <param name="va">Current sample for phase A voltage.</param>
+      <param name="vb">Current sample for phase B voltage.</param>
+      <param name="vc">Current sample for phase C voltage.</param>
+      <param name="ia">Current sample for phase A current.</param>
+      <param name="ib">Current sample for phase B current.</param>
+      <param name="ic">Current sample for phase C current.</param>
+      <param name="epochNanoseconds">Timestamp in nanoseconds since epoch.</param>
+      <param name="phaseEstimateHandler">Handler for phase estimate result.</param>
+      <returns>
+        <c>true</c> when an estimate is available, and it is time to publish at the target output rate;
+            otherwise, <c>false</c>.
+            </returns>
+    </member>
     <member name="T:Gemstone.PhasorProtocols.SelCWS.PhaseChannel">
       <summary>
             Phase channels for SEL CWS PoW analogs.
-            </summary>
-    </member>
-    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IA">
-      <summary>
-            Phase A current (IA).
-            </summary>
-    </member>
-    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IB">
-      <summary>
-            Phase B current (IB).
-            </summary>
-    </member>
-    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IC">
-      <summary>
-            Phase C current (IC).
             </summary>
     </member>
     <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.VA">
@@ -19169,22 +19537,39 @@
             Phase C voltage (VC).
             </summary>
     </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IA">
+      <summary>
+            Phase A current (IA).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IB">
+      <summary>
+            Phase B voltage (VB).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.IC">
+      <summary>
+            Phase C voltage (VC).
+            </summary>
+    </member>
     <member name="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate">
       <summary>
-            Represents the output of the phase estimation algorithm.
+            Represents the output of a SEL CWS phase estimation algorithm.
             </summary>
+      <remarks>
+            This is the common result type produced by every <see cref="T:Gemstone.PhasorProtocols.SelCWS.IPhaseEstimator" /> implementation,
+            regardless of the underlying estimation algorithm.
+            </remarks>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate.Angles">
       <summary>
-            Gets angles in radians, length 6: IA, IB, IC, VA, VB, VC.
+            Gets angles in radians, length 6: VA, VB, VC, IA, IB, IC.
             </summary>
       <remarks>
-        <para>
-            The data this span references is owned by the <see cref="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator" /> instance,
+            The data this span references is owned by the phase estimator instance,
             it is only valid during the scope of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler" /> delegate call.
             If you need to retain the data, make a copy.
-            </para>
-      </remarks>
+            </remarks>
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate.dFdt">
       <summary>
@@ -19198,21 +19583,35 @@
     </member>
     <member name="P:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate.Magnitudes">
       <summary>
-            Gets RMS magnitudes, length 6: IA, IB, IC, VA, VB, VC.
+            Gets RMS magnitudes, length 6: VA, VB, VC, IA, IB, IC.
             </summary>
       <remarks>
-        <para>
-            The data this span references is owned by the <see cref="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator" /> instance,
+            The data this span references is owned by the phase estimator instance,
             it is only valid during the scope of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler" /> delegate call.
             If you need to retain the data, make a copy.
-            </para>
-      </remarks>
+            </remarks>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler">
       <summary>
             Delegate for handling a <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate" />.
             </summary>
       <param name="estimate">Phase estimate.</param>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm">
+      <summary>
+            Phase estimation algorithm used to derive synchrophasor, frequency and ROCOF components from
+            SEL CWS point-on-wave data.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm.SlidingDft">
+      <summary>
+            Rolling sliding DFT estimator with optional EMA smoothing (see <see cref="T:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator" />).
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.PhaseEstimationAlgorithm.IEEEC37_118">
+      <summary>
+            IEEE C37.118-2018 Annex D filter-based estimator (see <see cref="T:Gemstone.PhasorProtocols.SelCWS.IEEEC37_118PhaseEstimator" />).
+            </summary>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SelCWS.PhasorDefinition">
       <summary>
@@ -19292,136 +19691,297 @@
             Gets or sets the <see cref="T:Gemstone.PhasorProtocols.SelCWS.DataCell" /> parent of this <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhasorValue" />.
             </summary>
     </member>
-    <member name="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator">
+    <member name="T:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator">
       <summary>
-            Represents a rolling six-phase estimator using the IEEE C37.118-2018 Annex D filter-based
-            phasor estimation algorithm with P-class and M-class support.
+            Represents a rolling six-phase estimator using a sliding DFT algorithm with optional smoothing.
             </summary>
       <remarks>
         <para>
-            This class implements the IEEE C37.118-2018 Annex D standard PMU phasor estimation algorithm.
-            It uses precomputed FIR filter coefficients (P-class triangular window or M-class Hamming-windowed
-            sinc) to estimate fundamental-frequency phasors from streaming samples via causal convolution.
+            This class implements a real-time phasor measurement algorithm suitable for power system
+            applications. It uses a Sliding Discrete Fourier Transform (SDFT) approach to efficiently
+            compute phasors at each sample with O(1) complexity.
             </para>
         <para>
-            Frequency estimation is performed per IEEE Annex D.4, Equations D.3 and D.4, using
-            phase-differencing on the voltage positive-sequence phasor. ROCOF is computed as the
-            second difference of the unwrapped positive-sequence phase angle.
+            Frequency estimation is performed by tracking the rate of change of phase angle from the
+            reference channel (VA by default). The frequency and ROCOF outputs are smoothed using
+            exponential moving average filters.
             </para>
         <para>
-            The estimator operates at the full input sample rate and decimates to the configured report rate
-            by selecting every <c>fs/RR</c>-th sample (dyadic decimation), matching the standard's approach.
-            </para>
-        <para>
-            For P-class filters, an additional magnitude correction per Annex D.6, Equation D.6 is applied
-            to compensate for spectral leakage when the signal frequency deviates from nominal.
-            </para>
-        <para>
-          <b>Outputs:</b> 6 phasors (IA, IB, IC, VA, VB, VC) plus frequency and ROCOF estimates.
-            Internally computes voltage positive-sequence for IEEE Annex D.4 frequency/ROCOF estimation.
+            The algorithm is designed for nominal 50Hz or 60Hz systems sampled at 3000Hz, but can be
+            configured for other sample rates.
             </para>
       </remarks>
     </member>
-    <member name="M:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.#ctor(System.Double,System.Double,Gemstone.Numeric.EE.LineFrequency,Gemstone.PhasorProtocols.SelCWS.FilterClass)">
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.#ctor(System.Double,System.Double,Gemstone.Numeric.EE.LineFrequency,Gemstone.PhasorProtocols.SelCWS.PhaseChannel,System.Int32,System.Boolean,System.Boolean,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int32,System.Int32)">
       <summary>
-            Initializes a new instance of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator" /> class implementing
-            the IEEE C37.118-2018 Annex D phasor estimation algorithm.
+            Initializes a new instance of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator" /> class with independent
+            input sample rate and output publish rate, plus smoothing expressed as time constants (τ).
             </summary>
       <param name="sampleRateHz">
-            Input sample rate in Hz (samples per second). Must be &gt; 0 and an integer multiple of
-            both <paramref name="nominalFrequency" /> and <paramref name="outputRateHz" />.
+            Input sample rate in Hz (PoW samples per second). Must be &gt; 0.
+            This is the rate at which <see cref="M:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)" /> is called with new samples.
             </param>
       <param name="outputRateHz">
-            Output report rate in Hz (estimates per second). Must be &gt; 0 and &lt;= <paramref name="sampleRateHz" />.
-            The sample rate must be an integer multiple of this value.
+            Output publish rate in Hz (estimates per second). Must be &gt; 0 and &lt;= <paramref name="sampleRateHz" />.
+            Common synchrophasor-friendly values: 30, 60 or 120Hz. Defaults chosen for "calm" 60Hz publish rates;
+            τ-to-α mapping adapts automatically to other publish rates.
+            <br />
+            Behavioral note:
+            <see cref="M:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)" /> may return <c>false</c> even after the estimator is ready, if the current sample does not
+            land on a publish boundary (i.e., it is not yet time to produce the next output).
             </param>
       <param name="nominalFrequency">
-            Nominal line frequency (50Hz or 60Hz). Determines the filter parameters.
+            Nominal line frequency (typically 50Hz or 60Hz). This determines the nominal-cycle length used
+            for the DFT window and the expected reference-phase progression.
             </param>
-      <param name="filterClass">
-            IEEE C37.118 filter class: <see cref="F:Gemstone.PhasorProtocols.SelCWS.FilterClass.P" /> for Protection (fast response)
-            or <see cref="F:Gemstone.PhasorProtocols.SelCWS.FilterClass.M" /> for Measurement (better out-of-band rejection).
+      <param name="referenceChannel">
+            Reference channel for frequency tracking.
+            Default: <see cref="F:Gemstone.PhasorProtocols.SelCWS.PhaseChannel.VA" />.
             </param>
+      <param name="targetCycles">
+            Number of nominal cycles contained in the sliding DFT analysis window (default: 2).
+            Larger values generally reduce noise/jitter (more averaging) but increase latency and reduce step response.
+            </param>
+      <param name="enableIntervalAveraging">
+            Enables interval averaging (boxcar averaging) across each publish interval when down-sampling
+            (<paramref name="outputRateHz" /> &lt; <paramref name="sampleRateHz" />).
+            <br />
+            Why this exists:
+            Down-sampling without an anti-alias / low-pass step will preserve high-rate jitter and can alias higher-frequency
+            content into the published stream. Interval averaging acts as a simple, cheap low-pass filter that reduces
+            jitter and improves published stability.
+            <br />
+            Consequences:<br />
+            - Improves calmness and reduces aliasing artifacts.<br />
+            - Adds a small amount of additional latency (effectively ~½ publish interval group delay).<br />
+            Recommended: <c>true</c> (default).
+            </param>
+      <param name="enablePublishEMA">
+            Enables an additional exponential moving average (EMA) applied to the published stream (after interval averaging).
+            <br />
+            Why this exists:<br />
+            Interval averaging removes high-rate noise; publish-EMA further reduces remaining jitter and produces a "calm"
+            display or control signal. This is usually the most intuitive "knob" for operators/consumers because it acts on
+            the actual output cadence.
+            <br />
+            Consequences:<br />
+            - Larger time constants (τ) produce smoother outputs but slower response to real changes.<br />
+            - Smaller τ tracks faster but appears noisier.<br />
+            Default: <c>true</c>.
+            </param>
+      <param name="publishAnglesTauSeconds">
+            EMA time constant τ (seconds) for published phase angles. Default: 0.35s.
+            <br />
+            Important:<br />
+            Angles are circular quantities; this implementation performs wrap-safe smoothing by operating on unit vectors
+            (cos/sin) rather than naïvely averaging radians. This avoids discontinuities at ±π.
+            </param>
+      <param name="publishMagnitudesTauSeconds">
+            EMA time constant τ (seconds) for published RMS magnitudes. Default: 0.50s.
+            </param>
+      <param name="publishFrequencyTauSeconds">
+            EMA time constant τ (seconds) for published frequency. Default: 0.75s.
+            </param>
+      <param name="publishRocofTauSeconds">
+            EMA time constant τ (seconds) for published ROCOF (dF/dt). Default: 1.50s.
+            <br />
+            Note:<br />
+            ROCOF is effectively a derivative signal and is typically much noisier than frequency; it generally benefits from
+            heavier smoothing (larger τ) than frequency.
+            </param>
+      <param name="sampleFrequencyTauSeconds">
+            EMA time constant τ (seconds) for the internal per-sample frequency smoothing that occurs inside the estimator
+            before any down-sampling/publish filtering. Default: 0.15s.
+            <br />
+            Guidance:<br />
+            When interval averaging + publish EMA are enabled, this can be relatively light. If you disable publish smoothing,
+            you may want to increase this τ.
+            </param>
+      <param name="sampleRocofTauSeconds">
+            EMA time constant τ (seconds) for the internal per-sample ROCOF smoothing (computed from the internally smoothed
+            frequency). Default: 0.30s.
+            </param>
+      <param name="recalculationCycles">
+            Number of nominal cycles between full DFT recalculations for numerical stability (default: 10).
+            Sliding DFT updates are O(1) per sample but can accumulate numerical drift; periodic full recomputation
+            re-anchors the phasor sums.
+            </param>
+      <param name="maxGapFillSamples">
+            Maximum gap (in input samples) that will be filled by phase-continued synthesis (coasting the last
+            phasors at the tracked frequency) when the input timestamp cadence indicates dropped samples. Gaps
+            larger than this trigger a resynchronization (the analysis window is dropped and refilled).
+            A negative value (default) means "auto" = one full analysis window; <c>0</c> disables coasting
+            (any gap resynchronizes). Must not exceed twice <see cref="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.WindowSamples" />.
+            </param>
+      <remarks>
+        <para>
+          <b>Time constant (τ) vs "alpha" (α):</b>
+          <br />
+            Internally, EMAs use α constrained from 0 to 1. This API exposes τ because it is easier to reason about.
+            For update period Δt (seconds), α is derived as:
+            <code>
+            α = 1 - exp(-Δt / τ)
+            </code>
+            Interpretation: after a step change, an EMA will move about 63% toward the new value after ~τ seconds.
+            </para>
+        <para>
+          <b>Two-stage smoothing (when outputRate &lt; inputRate):</b>
+          <list type="number">
+            <item>
+              <description>
+                <b>Interval averaging (boxcar)</b> across the publish interval (anti-alias / jitter reduction).</description>
+            </item>
+            <item>
+              <description>
+                <b>Publish EMA</b> applied to the down-sampled stream (additional "calmness").</description>
+            </item>
+          </list>
+            This combination yields stable outputs at 60Hz without producing thousands of nearly-identical jittery estimates per second.
+            </para>
+        <para>
+          <b>Knob-tweaking guidance:</b>
+          <list type="bullet">
+            <item>
+              <description>Increase <paramref name="targetCycles" /> to reduce noise/jitter, at the cost of more latency.</description>
+            </item>
+            <item>
+              <description>Increase publish τ values to make outputs calmer, at the cost of slower response.</description>
+            </item>
+            <item>
+              <description>If you disable interval averaging, consider increasing publish τ values to compensate.</description>
+            </item>
+            <item>
+              <description>Keep ROCOF τ larger than frequency τ; ROCOF is inherently noisier.</description>
+            </item>
+          </list>
+        </para>
+      </remarks>
       <exception cref="T:System.ArgumentOutOfRangeException">
-            Thrown if rates are non-positive, output rate exceeds input rate, or sample rate is not
-            an integer multiple of the nominal frequency or report rate.
-            </exception>
-      <exception cref="T:System.ArgumentException">
-            Thrown if the <paramref name="nominalFrequency" /> and <paramref name="outputRateHz" /> combination
-            is not supported for M-class filters per IEEE C37.118-2018 Table D.1.
+            Thrown if any rate is non-positive, output rate exceeds input rate, targetCycles &lt; 1, or any τ is negative.
             </exception>
     </member>
-    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.Class">
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultEnableIntervalAveraging">
       <summary>
-            Gets the IEEE C37.118 filter class (P or M).
+            Default value for determining if interval averaging is enabled.
             </summary>
     </member>
-    <member name="F:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.DefaultFilterClass">
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultEnablePublishEMA">
       <summary>
-            Default filter class.
+            Default value for determining if EMA publishing is enabled.
             </summary>
     </member>
-    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.FilterOrder">
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultMaxGapFillSamples">
       <summary>
-            Gets the filter order (N), the number of FIR filter taps minus one.
+            Default maximum gap (in samples) filled by phase-continued synthesis before resynchronizing.
+            A negative value means "auto" (one full analysis window).
             </summary>
     </member>
-    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.IsReady">
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultPublishAnglesTauSeconds">
       <summary>
-            Gets whether the estimator has filled its filter window and is producing valid estimates.
+            Default value for EMA time constant τ (seconds) published angles.
             </summary>
     </member>
-    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.NominalFrequencyHz">
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultPublishFrequencyTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published frequency.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultPublishMagnitudesTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published RMS magnitudes.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultPublishRocofTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published ROCOF.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultRecalculationCycles">
+      <summary>
+            Default value for number of recalculation cycles.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultReferenceChannel">
+      <summary>
+            Default value for reference channel.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultSampleFrequencyTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published for the internal per-sample frequency smoothing.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultSampleRocofTauSeconds">
+      <summary>
+            Default value for EMA time constant τ (seconds) published for the internal per-sample ROCOF smoothing.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.DefaultTargetCycles">
+      <summary>
+            Default value for number of target cycles.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.IsReady">
+      <summary>
+            Gets whether the estimator has filled its window and is producing valid estimates.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.NominalFrequencyHz">
       <summary>
             Gets the nominal frequency in Hz.
             </summary>
     </member>
-    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.OutputRateHz">
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.OutputRateHz">
       <summary>
-            Gets the configured output report rate in Hz.
+            Gets the configured output publish rate in Hz.
             </summary>
     </member>
-    <member name="M:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.Reset">
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.ReferenceChannel">
+      <summary>
+            Gets the reference channel index used for frequency tracking (typically VA).
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.Reset">
       <summary>
             Resets the estimator to its initial state.
             </summary>
     </member>
-    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.SampleRateHz">
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.SampleRateHz">
       <summary>
             Gets the configured sample rate in Hz.
             </summary>
     </member>
-    <member name="M:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)">
+    <member name="M:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.Step(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int64,Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler)">
       <summary>
-            Push one interleaved sample-group (IA, IB, IC, VA, VB, VC) with its epoch nanoseconds.
+            Push one interleaved sample-group (VA, VB, VC, IA, IB, IC) with its epoch nanoseconds.
             </summary>
-      <param name="ia">Current sample for phase A current.</param>
-      <param name="ib">Current sample for phase B current.</param>
-      <param name="ic">Current sample for phase C current.</param>
       <param name="va">Current sample for phase A voltage.</param>
       <param name="vb">Current sample for phase B voltage.</param>
       <param name="vc">Current sample for phase C voltage.</param>
+      <param name="ia">Current sample for phase A current.</param>
+      <param name="ib">Current sample for phase B current.</param>
+      <param name="ic">Current sample for phase C current.</param>
       <param name="epochNanoseconds">Timestamp in nanoseconds since epoch.</param>
       <param name="phaseEstimateHandler">Handler for phase estimate result.</param>
       <returns>
-        <c>true</c> when an estimate is available (filter has filled) and it is time to
-            publish at target <see cref="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.OutputRateHz" />; otherwise, <c>false</c>.
+        <c>true</c> when an estimate is available (window has filled) and it is time to
+            publish at target <see cref="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.OutputRateHz" />; otherwise, <c>false</c>.
             </returns>
       <remarks>
             The data referenced in the span-based properties of the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimate" />
             parameter provided to the <see cref="T:Gemstone.PhasorProtocols.SelCWS.PhaseEstimateHandler" /> delegate is owned by the
-            <see cref="T:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator" /> instance, it is only valid during the scope of the
+            <see cref="T:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator" /> instance, it is only valid during the scope of the
             delegate call. If you need to retain the data, make a copy.
             </remarks>
     </member>
-    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.TotalSamplesProcessed">
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.TotalSamplesProcessed">
       <summary>
             Gets the total number of samples processed.
             </summary>
     </member>
-    <member name="P:Gemstone.PhasorProtocols.SelCWS.RollingPhaseEstimator.WindowSamples">
+    <member name="P:Gemstone.PhasorProtocols.SelCWS.SlidingDftPhaseEstimator.WindowSamples">
       <summary>
-            Gets the number of samples required before valid output is produced (filter startup transient).
+            Gets the number of samples in the analysis window.
             </summary>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SelFastMessage.CommandFrame">
