@@ -278,7 +278,7 @@ public class ConfigurationFrame : ConfigurationFrameBase, ISupportSourceIdentifi
     /// <param name="offset">An <see cref="Int32"/> for the length.</param>
     protected override ushort CalculateChecksum(byte[] buffer, int offset, int length)
     {
-        throw new NotImplementedException();
+        return 0;
     }
 
     /// <summary>
