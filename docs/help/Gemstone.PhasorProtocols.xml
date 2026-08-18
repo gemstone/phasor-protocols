@@ -1628,6 +1628,10 @@
       <param name="configStream">
         <see cref="T:System.IO.Stream" /> that contains an XML serialized configuration frame.</param>
       <returns>Deserialized <see cref="T:Gemstone.PhasorProtocols.IConfigurationFrame" />.</returns>
+      <remarks>
+            Reads legacy <c>SoapFormatter</c>-produced XML via <see cref="T:Gemstone.PhasorProtocols.LegacySoapDeserializer" />, which targets
+            the same wire format but works on .NET Core / .NET 5+ where <c>SoapFormatter</c> is unavailable.
+            </remarks>
     </member>
     <member name="M:Gemstone.PhasorProtocols.Common.DeserializeConfigurationFrame(System.String)">
       <summary>
@@ -4809,6 +4813,92 @@
             Gets or sets the unscaled integer representation of the real value of this <see cref="T:Gemstone.PhasorProtocols.IPhasorValue" />.
             </summary>
     </member>
+    <member name="T:Gemstone.PhasorProtocols.LegacySoapDeserializer">
+      <summary>
+            Deserializes legacy SOAP-formatted XML graphs previously produced by the .NET Framework
+            <c>System.Runtime.Serialization.Formatters.Soap.SoapFormatter</c>.
+            </summary>
+      <remarks>
+        <para>
+            .NET Core / .NET 5+ does not ship <c>SoapFormatter</c>, and existing third-party ports have
+            limitations with interface-typed object references and circular graphs. This deserializer
+            targets the specific dialect of SOAP emitted by .NET Framework's <c>SoapFormatter</c> against
+            <see cref="T:System.Runtime.Serialization.ISerializable" /> types — flat <c>SOAP-ENV:Body</c>, <c>id</c>/<c>href</c> reference
+            resolution, and CLR <c>nsassem</c> namespace URIs.
+            </para>
+        <para>
+            The deserializer pre-allocates every object node via <see cref="M:System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(System.Type)" />
+            before invoking any deserialization constructor, so circular references (parent/child) resolve to
+            stable instance identities even though some constructors may not yet have run. Each
+            <c>(<see cref="T:System.Runtime.Serialization.SerializationInfo" />, <see cref="T:System.Runtime.Serialization.StreamingContext" />)</c> constructor is invoked on the
+            already-allocated instance via a compiled <see cref="T:System.Reflection.Emit.DynamicMethod" />.
+            </para>
+        <para>
+          <b>Security:</b> like any <see cref="T:System.Runtime.Serialization.ISerializable" />-based reader, materializing an attacker-named type and
+            running its deserialization constructor is the mechanism behind the deserialization-gadget attacks that led
+            to <c>BinaryFormatter</c>/<c>SoapFormatter</c> being deprecated. To contain this, the reader defaults to
+            <see cref="P:Gemstone.PhasorProtocols.LegacySoapDeserializer.SafeBinder" />, which only resolves types from the phasor-protocol assemblies and fails closed for
+            everything else <em>before</em> any object is allocated or any constructor runs. The XML is also parsed with
+            DTD processing prohibited and external entity resolution disabled (no XXE/DTD bombs). Callers that genuinely
+            need broader type resolution can pass <see cref="F:Gemstone.Serialization.LegacyBinder" /> explicitly, but should only do
+            so for fully trusted input.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.LegacySoapDeserializer.Deserialize(System.IO.Stream,System.Runtime.Serialization.SerializationBinder)">
+      <summary>
+            Deserializes a SOAP-formatted XML graph from <paramref name="stream" />.
+            </summary>
+      <param name="stream">Source stream containing legacy SOAP XML.</param>
+      <param name="binder">
+            Optional <see cref="T:System.Runtime.Serialization.SerializationBinder" /> used to translate serialized type names to current runtime
+            types. Defaults to <see cref="P:Gemstone.PhasorProtocols.LegacySoapDeserializer.SafeBinder" />, which fails closed for any type outside the phasor-protocol
+            assemblies. Pass <see cref="F:Gemstone.Serialization.LegacyBinder" /> for unrestricted resolution (trusted input only).
+            </param>
+      <returns>The root object of the deserialized graph (the first element under <c>SOAP-ENV:Body</c>).</returns>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.LegacySoapDeserializer.SafeBinder">
+      <summary>
+            Default <see cref="T:System.Runtime.Serialization.SerializationBinder" /> used by <see cref="M:Gemstone.PhasorProtocols.LegacySoapDeserializer.Deserialize(System.IO.Stream,System.Runtime.Serialization.SerializationBinder)" />. Applies the same legacy
+            <c>GSF.* → Gemstone.*</c> name translation as <see cref="F:Gemstone.Serialization.LegacyBinder" />, then enforces an
+            allowlist so that only phasor-protocol configuration types can be materialized. Any type that resolves
+            outside the allowed assemblies is rejected (returns <c>null</c>), which causes deserialization to fail
+            closed before the type is allocated or its deserialization constructor runs. This neutralizes
+            deserialization-gadget attacks while preserving full read compatibility for legitimate configuration files.
+            </summary>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.LegacySoapSerializer">
+      <summary>
+            Serializes <see cref="T:System.Runtime.Serialization.ISerializable" /> object graphs as legacy SOAP-formatted XML, matching the
+            wire format produced by the .NET Framework <c>System.Runtime.Serialization.Formatters.Soap.SoapFormatter</c>.
+            </summary>
+      <remarks>
+        <para>
+            Pairs with <see cref="T:Gemstone.PhasorProtocols.LegacySoapDeserializer" /> to round-trip phasor protocol configuration frames
+            in .NET Core / .NET 5+ without dependence on the third-party SoapFormatter NuGet port.
+            </para>
+        <para>
+            Discovers the object graph breadth-first by invoking each instance's
+            <see cref="M:System.Runtime.Serialization.ISerializable.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)" />, assigns sequential <c>ref-N</c> identifiers, and emits a
+            flat <c>SOAP-ENV:Body</c> with one element per object. Object-typed field values become <c>href</c>
+            references, enums get inline <c>xsi:type</c> annotations with their CLR namespace declared inline,
+            nulls become <c>xsi:null="1"</c>, and primitives are written as text content.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.LegacySoapSerializer.Serialize(System.IO.Stream,System.Object,System.Runtime.Serialization.SerializationBinder)">
+      <summary>
+            Serializes <paramref name="root" /> and its reachable graph as legacy SOAP XML.
+            </summary>
+      <param name="stream">Destination stream for the XML payload. Not closed by this method.</param>
+      <param name="root">Root object — must be marked <see cref="T:System.SerializableAttribute" /> and (almost always) implement <see cref="T:System.Runtime.Serialization.ISerializable" />.</param>
+      <param name="binder">
+            Optional <see cref="T:System.Runtime.Serialization.SerializationBinder" /> used to translate runtime types to legacy emitted names.
+            Defaults to <see cref="F:Gemstone.Serialization.LegacyBinder" />, which emits <c>GSF.*</c> names so output remains
+            readable by .NET Framework consumers (PMU Connection Tester, older openPDC builds). Pass a custom
+            binder (or one whose <c>BindToName</c> returns the runtime type unchanged) to emit native names.
+            </param>
+    </member>
     <member name="T:Gemstone.PhasorProtocols.MultiProtocolFrameParser">
       <summary>
             Protocol independent frame parser.
@@ -6158,28 +6248,18 @@
     </member>
     <member name="M:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.GetConfigurationCacheFileName(System.String,System.String,System.String)">
       <summary>
-            Gets the file name with path of the specified <paramref name="configurationName" />.
+            Generates the full file name, including the path, for a configuration cache file.
             </summary>
-      <param name="configurationName">Name of the configuration to get file name for.</param>
-      <param name="extension">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>extension</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.GetConfigurationCacheFileName(System.String,System.String,System.String)</parameter>
-          </include>
-        </markup>
-      </param>
-      <param name="basePath">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>basePath</parameter>
-            <parameter>M:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.GetConfigurationCacheFileName(System.String,System.String,System.String)</parameter>
-          </include>
-        </markup>
-      </param>
-      <returns>File name with path of the specified <paramref name="configurationName" />.</returns>
+      <param name="configurationName">The name of the configuration for which to generate the file name.</param>
+      <param name="extension">The file extension to use for the configuration cache file. Defaults to <c>"configuration.xml"</c>.</param>
+      <param name="basePath">The base path where the configuration cache file will be located. If not specified, a default path is used.</param>
+      <returns>
+            A string representing the full file name, including the path, for the specified configuration cache file.
+            </returns>
+      <remarks>
+            Invalid characters in the <paramref name="configurationName" /> or <paramref name="extension" /> are replaced
+            to ensure the resulting file name is valid.
+            </remarks>
     </member>
     <member name="P:Gemstone.PhasorProtocols.Anonymous.ConfigurationFrame.Name">
       <summary>
