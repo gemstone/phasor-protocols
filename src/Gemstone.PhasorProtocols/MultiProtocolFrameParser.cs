@@ -1308,6 +1308,16 @@ public sealed class MultiProtocolFrameParser : IFrameParser
     public const int DefaultDefinedFrameRate = 30;
 
     /// <summary>
+    /// Specifies how far file replay pacing can fall behind and still catch up when the
+    /// <see cref="DefinedFrameRate"/> exceeds 1,000 frames per second.
+    /// </summary>
+    /// <remarks>
+    /// At sub-millisecond frame periods ordinary scheduler jitter regularly makes a frame late. Catching up
+    /// keeps replay throughput at the defined frame rate so counter-based simulated timestamps stay near real time.
+    /// </remarks>
+    public static readonly TimeSpan HighFrameRateReplayCatchUpWindow = TimeSpan.FromMilliseconds(100.0D);
+
+    /// <summary>
     /// Specifies the default value for the <see cref="MaximumConnectionAttempts"/> property.
     /// </summary>
     public const int DefaultMaximumConnectionAttempts = -1;
@@ -1507,6 +1517,7 @@ public sealed class MultiProtocolFrameParser : IFrameParser
     private IPAddress? m_receiveFromAddress;
     private IPAddress? m_multicastServerAddress;
     private ReplayTimer? m_replayTimer;
+    private SimulatedTimestampGenerator? m_timestampGenerator;
     private PrecisionInputTimer? m_inputTimer;
     private LongSynchronizedOperation? m_readNextBuffer;
     private SharedTimer? m_rateCalcTimer;
@@ -2274,6 +2285,9 @@ public sealed class MultiProtocolFrameParser : IFrameParser
                 if (m_inputTimer is not null)
                     status.AppendLine($"  Timer resynchronizations: {m_inputTimer.Resynchronizations:N0}");
 
+                if (m_timestampGenerator is not null)
+                    status.AppendLine($"  Timestamp resyncs (sim.): {m_timestampGenerator.Resynchronizations:N0}");
+
                 if (ReplayStartTime > DateTime.MinValue || ReplayStopTime < DateTime.MaxValue)
                 {
                     status.AppendLine($"         Replay start time: {ReplayStartTime:yyyy-MM-dd HH:mm:ss.fff}");
@@ -2399,6 +2413,9 @@ public sealed class MultiProtocolFrameParser : IFrameParser
         ByteRate = 0.0D;
         m_lastParsingExceptionTime = 0L;
         m_parsingExceptionCount = 0;
+
+        // Simulated timestamps re-anchor to the wall clock on restart
+        m_timestampGenerator?.Reset();
 
         try
         {
@@ -3635,22 +3652,39 @@ public sealed class MultiProtocolFrameParser : IFrameParser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private long MaintainCapturedFrameReplayTiming()
     {
+        // Above 1,000 frames per second, millisecond aligned wall-clock timestamps cannot represent every frame
+        // slot, so simulated timestamps come from a frame counter on the full-resolution sub-second distribution
+        bool highFrameRate = m_definedFrameRate > SimulatedTimestampGenerator.MaximumMillisecondFrameRate;
+
         if (m_inputTimer is null)
         {
             if (m_replayTimer?.DefinedFrameRate != m_definedFrameRate)
-                m_replayTimer = new ReplayTimer(m_definedFrameRate);
+                m_replayTimer = new ReplayTimer(m_definedFrameRate, highFrameRate ? HighFrameRateReplayCatchUpWindow : TimeSpan.Zero);
 
             m_replayTimer.WaitNext();
-                
-            return Ticks.AlignToMillisecondDistribution(DateTime.UtcNow.Ticks, m_definedFrameRate).Value;
+
+            return highFrameRate ?
+                NextSimulatedTimestamp() :
+                Ticks.AlignToMillisecondDistribution(DateTime.UtcNow.Ticks, m_definedFrameRate).Value;
         }
 
         // When high resolution input timing is requested, we only need to wait for the next signal...
         m_inputTimer.FrameWaitHandle?.Wait();
 
+        if (highFrameRate)
+            return NextSimulatedTimestamp();
+
         // Input timer can be disabled while thread is waiting, so we make sure it is not null
         // ReSharper disable once ConstantNullCoalescingCondition
         return m_inputTimer?.LastFrameTime ?? Ticks.AlignToMillisecondDistribution(DateTime.UtcNow.Ticks, m_definedFrameRate).Value;
+    }
+
+    private long NextSimulatedTimestamp()
+    {
+        if (m_timestampGenerator?.FrameRate != m_definedFrameRate)
+            m_timestampGenerator = new SimulatedTimestampGenerator(m_definedFrameRate);
+
+        return m_timestampGenerator.Next();
     }
 
     private void m_frameParser_ReceivedChannelFrame(object? sender, EventArgs<IChannelFrame, bool> e)
@@ -3661,7 +3695,7 @@ public sealed class MultiProtocolFrameParser : IFrameParser
             IChannelFrame frame = e.Argument1;
 
             if (InjectSimulatedTimestamp && (frame is not IDataFrame || m_transportProtocol != TransportProtocol.File))
-                frame.Timestamp = Ticks.AlignToMillisecondDistribution(DateTime.UtcNow.Ticks, m_definedFrameRate);
+                frame.Timestamp = SimulatedTimestampGenerator.AlignToFrameRate(DateTime.UtcNow.Ticks, m_definedFrameRate);
 
             if (ReceivedChannelFrame is not null && e.Argument2)
                 ReceivedChannelFrame.SafeInvoke(this, e);

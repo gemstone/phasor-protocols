@@ -50,21 +50,30 @@ public sealed class ReplayTimer
 
     private readonly long m_periodTicks;    // Query Performance Counter (QPC) ticks per frame
     private readonly long m_guardBandTicks; // QPC ticks for the guard-band
+    private readonly long m_catchUpTicks;   // QPC ticks the deadline can lag before cadence is reset
     private long m_nextTick;                // Next scheduled QPC tick (not equal to DateTime ticks)
 
     /// <summary>
     /// Creates a new <see cref="ReplayTimer"/> instance.
     /// </summary>
     /// <param name="definedFrameRate">The defined frame rate in frames per second.</param>
-    public ReplayTimer(int definedFrameRate)
+    /// <param name="catchUpWindow">
+    /// Maximum time the timer can fall behind its absolute cadence and still catch up by releasing
+    /// late frames without waiting. Defaults to <see cref="TimeSpan.Zero"/>, i.e., any lateness resets
+    /// the cadence and no catch-up frames are released.
+    /// </param>
+    public ReplayTimer(int definedFrameRate, TimeSpan catchUpWindow = default)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(definedFrameRate);
+        ArgumentOutOfRangeException.ThrowIfLessThan(catchUpWindow, TimeSpan.Zero);
 
         m_periodTicks = (long)Math.Round(Stopwatch.Frequency / (double)definedFrameRate);
         m_guardBandTicks = (long)Math.Round(Stopwatch.Frequency * SleepGuardBand / 1000.0D);
+        m_catchUpTicks = (long)Math.Round(Stopwatch.Frequency * catchUpWindow.TotalSeconds);
         m_nextTick = Stopwatch.GetTimestamp();
 
         DefinedFrameRate = definedFrameRate;
+        CatchUpWindow = catchUpWindow;
     }
 
     /// <summary>
@@ -73,13 +82,19 @@ public sealed class ReplayTimer
     public int DefinedFrameRate { get; }
 
     /// <summary>
+    /// Gets the maximum time the timer can fall behind its cadence and still catch up.
+    /// </summary>
+    public TimeSpan CatchUpWindow { get; }
+
+    /// <summary>
     /// Blocks until the next scheduled frame rate interval.
     /// </summary>
     /// <remarks>
     /// The deadline advances by exactly one period from the current deadline (absolute
     /// cadence) to keep inter-frame intervals consistent. If the deadline has already
-    /// fallen behind by more than one full period, it resets to "now + period" to
-    /// prevent a burst of catch-up frames.
+    /// fallen behind by more than <see cref="CatchUpWindow"/>, it resets to "now + period"
+    /// to prevent a burst of catch-up frames. Within the catch-up window, late frames are
+    /// released immediately so the long-run frame rate matches the defined frame rate.
     /// </remarks>
     public void WaitNext()
     {
@@ -87,10 +102,10 @@ public sealed class ReplayTimer
         // a steady cadence regardless of per-frame processing jitter
         long nextTick = m_nextTick + m_periodTicks;
 
-        // If the advanced deadline is already in the past, we've fallen
-        // behind by more than a full period — reset to relative mode to
-        // avoid a burst of catch-up frames
-        if (Stopwatch.GetTimestamp() >= nextTick)
+        // If the advanced deadline is already in the past by more than the
+        // catch-up window, we've fallen too far behind — reset to relative
+        // mode to avoid a burst of catch-up frames
+        if (Stopwatch.GetTimestamp() >= nextTick + m_catchUpTicks)
             nextTick = Stopwatch.GetTimestamp() + m_periodTicks;
 
         m_nextTick = nextTick;
