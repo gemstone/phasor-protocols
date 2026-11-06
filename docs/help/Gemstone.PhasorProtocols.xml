@@ -5198,6 +5198,16 @@
             Releases the unmanaged resources before the <see cref="T:Gemstone.PhasorProtocols.MultiProtocolFrameParser" /> object is reclaimed by <see cref="T:System.GC" />.
             </summary>
     </member>
+    <member name="F:Gemstone.PhasorProtocols.MultiProtocolFrameParser.HighFrameRateReplayCatchUpWindow">
+      <summary>
+            Specifies how far file replay pacing can fall behind and still catch up when the
+            <see cref="P:Gemstone.PhasorProtocols.MultiProtocolFrameParser.DefinedFrameRate" /> exceeds 1,000 frames per second.
+            </summary>
+      <remarks>
+            At sub-millisecond frame periods ordinary scheduler jitter regularly makes a frame late. Catching up
+            keeps replay throughput at the defined frame rate so counter-based simulated timestamps stay near real time.
+            </remarks>
+    </member>
     <member name="P:Gemstone.PhasorProtocols.MultiProtocolFrameParser.InjectSimulatedTimestamp">
       <summary>
             Gets or sets flag indicating whether to inject local system time into parsed data frames.
@@ -5925,11 +5935,21 @@
             </para>
       </remarks>
     </member>
-    <member name="M:Gemstone.PhasorProtocols.ReplayTimer.#ctor(System.Int32)">
+    <member name="M:Gemstone.PhasorProtocols.ReplayTimer.#ctor(System.Int32,System.TimeSpan)">
       <summary>
             Creates a new <see cref="T:Gemstone.PhasorProtocols.ReplayTimer" /> instance.
             </summary>
       <param name="definedFrameRate">The defined frame rate in frames per second.</param>
+      <param name="catchUpWindow">
+            Maximum time the timer can fall behind its absolute cadence and still catch up by releasing
+            late frames without waiting. Defaults to <see cref="F:System.TimeSpan.Zero" />, i.e., any lateness resets
+            the cadence and no catch-up frames are released.
+            </param>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.ReplayTimer.CatchUpWindow">
+      <summary>
+            Gets the maximum time the timer can fall behind its cadence and still catch up.
+            </summary>
     </member>
     <member name="P:Gemstone.PhasorProtocols.ReplayTimer.DefinedFrameRate">
       <summary>
@@ -5943,9 +5963,101 @@
       <remarks>
             The deadline advances by exactly one period from the current deadline (absolute
             cadence) to keep inter-frame intervals consistent. If the deadline has already
-            fallen behind by more than one full period, it resets to "now + period" to
-            prevent a burst of catch-up frames.
+            fallen behind by more than <see cref="P:Gemstone.PhasorProtocols.ReplayTimer.CatchUpWindow" />, it resets to "now + period"
+            to prevent a burst of catch-up frames. Within the catch-up window, late frames are
+            released immediately so the long-run frame rate matches the defined frame rate.
             </remarks>
+    </member>
+    <member name="T:Gemstone.PhasorProtocols.SimulatedTimestampGenerator">
+      <summary>
+            Generates simulated frame timestamps for paced (e.g., file replay) input by advancing a frame
+            counter across the sub-second distribution of a defined frame rate, instead of reading the
+            wall clock for every frame.
+            </summary>
+      <remarks>
+        <para>
+            Millisecond aligned wall-clock timestamps, i.e., <see cref="M:Gemstone.Ticks.AlignToMillisecondDistribution(Gemstone.Ticks,System.Int32)" />,
+            cannot represent every frame slot when the frame rate exceeds 1,000 frames per second. For example, at
+            3,000 frames per second only about 2,000 distinct timestamps per second are produced, some slots twice,
+            so consumers aligning to a 3,000-slot grid lose about a third of the frames. Reading the wall clock
+            per frame also misplaces frames when replay pacing stalls and then bursts.
+            </para>
+        <para>
+            This generator anchors to the wall clock on the first frame, then issues each following frame the
+            next slot of the <see cref="P:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.FrameRate" /> distribution at full tick resolution. Every timestamp lands
+            exactly on the grid used by <see cref="M:Gemstone.Ticks.RoundToSubsecondDistribution(Gemstone.Ticks,System.Int32)" /> and
+            <see cref="M:Gemstone.Ticks.AlignToSubsecondDistribution(Gemstone.Ticks,System.Int32,System.Int64)" />, each slot is used once, and consecutive frames are
+            exactly one frame period apart. If the counter drifts from the wall clock by more than
+            <see cref="P:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.MaximumDrift" />, for example after a long stall in replay, the generator re-anchors to the
+            wall clock so timestamps stay near real time.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.#ctor(System.Int32,System.Nullable{Gemstone.Ticks})">
+      <summary>
+            Creates a new <see cref="T:Gemstone.PhasorProtocols.SimulatedTimestampGenerator" />.
+            </summary>
+      <param name="frameRate">Defined frame rate, in frames per second.</param>
+      <param name="maximumDrift">
+            Maximum allowed difference between generated timestamps and the wall clock before the generator
+            re-anchors to the wall clock; defaults to <see cref="F:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.DefaultMaximumDrift" />.
+            </param>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.AlignToFrameRate(Gemstone.Ticks,System.Int32)">
+      <summary>
+            Floor-aligns <paramref name="timestamp" /> to the sub-second distribution of <paramref name="frameRate" />.
+            </summary>
+      <param name="timestamp">Timestamp to align.</param>
+      <param name="frameRate">Frame rate, in frames per second.</param>
+      <returns>Aligned timestamp.</returns>
+      <remarks>
+            Frame rates up to <see cref="F:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.MaximumMillisecondFrameRate" /> use millisecond alignment, unchanged from
+            prior behavior, see <see cref="M:Gemstone.Ticks.AlignToMillisecondDistribution(Gemstone.Ticks,System.Int32)" />. Higher frame rates align at
+            full tick resolution so that every frame slot remains distinct.
+            </remarks>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.DefaultMaximumDrift">
+      <summary>
+            Defines the default maximum drift between the frame counter and the wall clock before re-anchoring.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.FrameRate">
+      <summary>
+            Gets the defined frame rate, in frames per second.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.MaximumDrift">
+      <summary>
+            Gets the maximum allowed difference between generated timestamps and the wall clock before re-anchoring.
+            </summary>
+    </member>
+    <member name="F:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.MaximumMillisecondFrameRate">
+      <summary>
+            Defines the highest frame rate for which millisecond aligned timestamps can represent every frame slot.
+            </summary>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.Next">
+      <summary>
+            Gets the timestamp for the next frame, using the current UTC time as the wall-clock reference.
+            </summary>
+      <returns>Timestamp, in ticks, for the next frame.</returns>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.Next(System.Int64)">
+      <summary>
+            Gets the timestamp for the next frame, using <paramref name="currentTicks" /> as the wall-clock reference.
+            </summary>
+      <param name="currentTicks">Current wall-clock time, in ticks.</param>
+      <returns>Timestamp, in ticks, for the next frame.</returns>
+    </member>
+    <member name="M:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.Reset">
+      <summary>
+            Resets the generator so the next frame re-anchors to the wall clock.
+            </summary>
+    </member>
+    <member name="P:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.Resynchronizations">
+      <summary>
+            Gets the number of times the generator re-anchored to the wall clock because drift exceeded <see cref="P:Gemstone.PhasorProtocols.SimulatedTimestampGenerator.MaximumDrift" />.
+            </summary>
     </member>
     <member name="T:Gemstone.PhasorProtocols.SourceChannel">
       <summary>
